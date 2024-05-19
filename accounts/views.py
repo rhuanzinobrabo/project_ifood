@@ -151,3 +151,53 @@ def custDashboard(request):
 @user_passes_test(check_role_vendor)
 def vendorDashboard(request):
     return render(request, 'accounts/vendorDashboard.html')
+
+
+def forgot_password(request):
+    if request.method == 'POST':
+        email = request.POST['email']
+        if User.objects.filter(email=email).exists():
+            user = User.objects.get(email__exact=email)
+            #enviar o email para resetar a senha
+            send_password_reset_email(request, user)
+
+            messages.success(request, 'O link com alteração de senha, foi enviado para o seu email.')
+            return redirect('login')
+        else:
+            messages.error(request, 'Favor verificar a conta informada, não foi encontrada.')
+            return redirect('forgot_password')
+    return render(request, 'accounts/forgot_password.html')
+
+def reset_password_validate(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User._default_manager.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None 
+
+    if user is not None and default_token_generator.check_token(user, token):
+        request.session['uid'] = uid
+        messages.info(request, 'Por favor, insira a sua nova senha.')
+        return redirect('reset_password')
+    else:
+        messages.error(request, 'Este link expirou.')
+        return redirect('myAccount')
+
+def reset_password(request):
+    if request.method == 'POST':
+        password = request.POST['password']
+        confirm_password = request.POST['password']
+        
+        if password == confirm_password:
+            pk = request.session.get('uid')
+            user = User.objects.get(pk=pk)
+            user.set_password(password)
+            user.is_active = True
+            user.save()
+            messages.success(request, 'A sua senha foi alterada com sucesso.')
+            return redirect('login')
+        else:
+            messages.error(request, 'As senhas não conferem.')
+            return redirect('reset_password')
+    return render(request, 'accounts/reset_password.html')
+
