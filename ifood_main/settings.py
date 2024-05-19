@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'accounts',
+    'vendor',
 ]
 
 MIDDLEWARE = [
@@ -140,3 +141,11 @@ from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
+
+# configurar o email
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = '587'
+EMAIL_HOST_USER = 'projetoggr@gmail.com' 
+EMAIL_HOST_PASSWORD = 'lcwikwrfzjouwwsg'
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'Projeto GGR - Ifood <projetoggr@gmail.com>'

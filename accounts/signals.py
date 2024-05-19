@@ -7,7 +7,6 @@ def post_save_create_profile_receiver(sender, instance, created, **kwargs):
     print(created)
     if created:
         UserProfile.objects.create(user=instance)
-        print('o perfil do usuario foi criado.')
 
     else:
         try:
@@ -16,10 +15,7 @@ def post_save_create_profile_receiver(sender, instance, created, **kwargs):
         except:
             #criar o perfil do usuario, caso nao exista
             UserProfile.objects.create(user=instance)
-            print('perfil nao existe porem foi criado um.')
-        print('o usuario foi atualizado')
     
-
 @receiver(pre_save, sender=User)
 def pre_save_profile_receiver(sender, instance, **kwargs):
     print(instance.username, 'este usuario está sendo salvo')

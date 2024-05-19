@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<h3>Seja bem vindo, {{user.username}}</h3>
+<p>{{user.get_role}}</p>
+
+{% include 'includes/alerts.html' %}
+{% endblock %}

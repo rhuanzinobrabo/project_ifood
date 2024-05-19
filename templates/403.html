@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Erro 403 - Acesso Negado</title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+    
+            *,
+            *:before,
+            *:after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+    
+            html,
+            body {
+                height: 100%;
+                font-family: 'Roboto', sans-serif;
+                background-color: #fff;
+                color: #333;
+            }
+    
+            .text-wrapper {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+                padding: 0 20px;
+                text-align: center;
+            }
+    
+            .title {
+                font-size: 3em;
+                font-weight: 700;
+                color: #ff4d00;
+                margin-bottom: 10px;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            }
+    
+            .subtitle {
+                font-size: 24px;
+                font-weight: 700;
+                color: #333;
+                margin-bottom: 20px;
+            }
+    
+            .isi {
+                font-size: 16px;
+                line-height: 1.5;
+                margin-bottom: 30px;
+                color: #666;
+            }
+    
+            .buttons {
+                margin: 30px;
+            }
+    
+            .button {
+                display: inline-block;
+                padding: 15px 30px;
+                font-weight: 700;
+                text-transform: uppercase;
+                color: #fff;
+                background-color: #ff4d00;
+                border: 2px solid #ff4d00;
+                border-radius: 26px;
+                text-decoration: none;
+                transition: all 0.2s ease-in-out;
+            }
+    
+            .button:hover {
+                background-color: #fff;
+                color: #ff4d00;
+            }
+    
+            a {
+                color: inherit;
+                text-decoration: none;
+            }
+    
+            a:hover {
+                text-decoration: underline;
+            }
+        </style>
+    </head>
+<body>
+    <div class="text-wrapper">
+        <div class="title" data-content="404">
+            403 - ACESSO NEGADO
+        </div>
+
+        <div class="subtitle">
+            Ops, você não tem permissão para acessar esta página.
+        </div>
+        <div class="buttons">
+            <a class="button" href="/">Ir para página inicial</a>
+        </div>
+    </div>
+</body>
+</html>
