@@ -1,5 +1,5 @@
 from django import forms
-from .models import User
+from .models import User, UserProfile
 
 class UserForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput())
@@ -18,3 +18,21 @@ class UserForm(forms.ModelForm):
             raise forms.ValidationError(
                 'As senhas não coincidem.'
                 )
+        
+class UserProfileForm(forms.ModelForm):
+    address_line_1 = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Escreva aqui...', 'required': 'required'}))
+    profile_picture = forms.ImageField(widget=forms.FileInput(attrs={'class':'info-restaurante'}))
+    cover_photo = forms.ImageField(widget=forms.FileInput(attrs={'class':'btn btn-info'}))
+
+    # latitude = forms.ImageField(widget=forms.TextInput(attrs={'readonly':'readonly'}))
+    # longitude = forms.ImageField(widget=forms.TextInput(attrs={'readonly':'readonly'}))
+
+    class Meta:
+        model = UserProfile
+        fields = ['profile_picture', 'cover_photo', 'address_line_1', 'country', 'state', 'city', 'pin_code', 'latitude', 'longitude']
+
+    def __init__(self, *args, **kwargs):
+        super(UserProfileForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            if field == 'latitude' or field == 'longitude':
+                self.fields[field].widget.attrs['readonly'] = 'readonly'

@@ -1,0 +1,13 @@
+{% autoescape off %}
+
+Olá {{user.first_name}},
+
+{% if is_approved:  %}
+Parábens, o cadastro do seu restaurante foi aprovado com sucesso, pelo nosso time de administradores.
+{% else %}
+Lamentamos profundamente! Infelizmente o cadastro do seu restaurante, não foi aprovado para seguir em nosso marketplace. 
+{% endif %}
+
+Agradecemos, 
+Equipe GGR.
+{% endautoescape %}

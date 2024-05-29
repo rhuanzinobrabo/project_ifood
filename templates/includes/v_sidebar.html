@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barra de Navegação</title>
+    <style>
+        .user-account-sidebar {
+            font-family: Arial, sans-serif;
+        }
+        .user-nav-list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .user-nav-list li {
+            margin: 10px 0;
+        }
+        .user-nav-list a {
+            text-decoration: none;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
+        .user-nav-list a:hover {
+            color: #007bff;
+        }
+        .user-nav-list .active a {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .user-nav-list i {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="user-account-nav user-account-sidebar">
+        <div class="user-nav-list">
+            <ul>
+                <li class="active"><a href="{% url 'vendorDashboard' %}"><i class="icon-dashboard3"></i>Dashboard</a></li>
+                <li><a href="{% url 'vprofile' %}"><i class="icon-building"></i>Meu Restaurante</a></li>
+                <li><a href="{% url 'menu_builder' %}"><i class="icon-menu5"></i>Cardápio</a></li>
+                <li><a href="restaurant-orders.html"><i class="icon-add_shopping_cart"></i>Pedidos</a></li>
+                <li><a href="restaurant-earnings.html"><i class="icon-money"></i>Ganhos</a></li>
+                <li><a href="restaurant-statement.html"><i class="icon-file-text22"></i>Extrato</a></li>
+                <li><a href="restaurant-change-password.html"><i class="icon-unlock-alt"></i>Alterar Senha</a></li>
+                <li><a class="logout-btn" href="registration.html"><i class="icon-log-out"></i>Sair</a></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

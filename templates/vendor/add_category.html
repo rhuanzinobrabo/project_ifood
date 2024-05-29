@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'includes/alerts.html' %}
+
+<style>
+    .painel-usuario {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin-top: 20px;
+    }
+    .usuario h5 {
+        margin-bottom: 20px;
+        font-size: 1.75rem;
+        color: #333;
+        font-weight: 600;
+    }
+    .usuario hr {
+        margin-bottom: 20px;
+        border-top: 2px solid #f0f0f0;
+    }
+    .field-holder {
+        margin-bottom: 20px;
+    }
+    .field-holder label {
+        font-size: 1rem;
+        color: #555;
+        margin-bottom: 5px;
+        display: block;
+    }
+    .field-holder input,
+    .field-holder textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+        color: #333;
+    }
+    .btn-submit {
+        background: #17a2b8;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+    .btn-submit:hover {
+        background: #117a8b;
+    }
+</style>
+
+<!-- Seção Principal Início -->
+<div class="secao-principal">
+    {% include 'includes/cover.html' %}
+    <div class="secao-pagina cabecalho-conta comprador-logado">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-3 col-sm-12">
+                    {% include 'includes/v_sidebar.html' %}
+                </div>
+                <div class="col-lg-9 col-md-9 col-sm-12">
+                    <div class="painel-usuario carregando">
+                        <div class="usuario">
+                            <h5 class="text-uppercase">Adicionar uma nova Categoria</h5>  
+                            <hr>
+                            <button class="btn btn-secondary" onclick="history.back()"><i class="fa fa-angle-left" aria-hidden="true"></i> Voltar</button>
+                            <form action="{% url 'add_category' %}" method="POST">
+                                {% csrf_token %}
+                                <div class="form-fields-set">
+                                    <div class="row">
+                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                            <div class="field-holder">
+                                                <label>Nome da Categoria</label>
+                                                {{ form.category_name }}
+                                            </div>
+                                            <div class="field-holder">
+                                                <label>Descrição</label>
+                                                {{ form.description }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% for field in form %}
+                                    {% if field.errors %}
+                                        {% for error in field.errors %}
+                                            <li style="color: red;">Categoria com esse nome já existe.</li>
+                                        {% endfor %}    
+                                    {% endif %}
+                                {% endfor %}    
+                                <button type="submit" class="btn btn-submit">Criar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Seção Principal Fim -->
+
+{% endblock %}

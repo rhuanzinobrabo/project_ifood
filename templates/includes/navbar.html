@@ -1,88 +1,138 @@
-{% load static %}	
-	<!--Main Wrapper-->
-	<div class="wrapper">
-		<!-- Header Start -->
-		<header id="header">
-			<div class="main-header">
-				<div class="container">
-					<div class="row">
-						<div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
-							<div class="logo">
-								<figure>
-									<a href="{% url 'home' %}" class="light-logo">
-										<img src="{% static 'logo/icon_ifood.jpg' %}" alt="FoodBakery">
-									</a>
-								</figure>
-							</div>
-							<div class="main-nav">
-									<nav id="site-navigation" class="main-navigation">
-										<ul>
-											<li>
-												<a href="#">Demonstrações</a>
-												<ul>
-													<li><a href="index.html">Food Bakery</a></li>
-													<li><a href="mexican-restaurant.html">Mexican Restaurant</a></li>
-													<li><a href="foodstop.html">Food Stop</a></li>
-													<li><a href="rtl.html">Rtl Demo</a></li>
-													<li><a href="food-cout.html">Food Court</a></li>
-													<li><a href="single-restaurant.html">Single Restaurant Demo</a></li>
-												</ul>
-												<!--End Sub Menu -->
-											</li>
-											<li><a href="listings.html">Restaurantes</a></li>
-											<li>
-												<a href="#">Páginas</a>
-												<ul>
-													<li><a href="price-plans.html">Price Plans</a></li>
-													<li><a href="how-it-works.html">How it works</a></li>
-													<li><a href="faq.html">FAQ’s</a></li>
-													<li><a href="404.html">404</a></li>
-													<li><a href="search-result.html">Search Result</a></li>
-													<li><a href="contact-us.html">Contact</a></li>
-												</ul>
-												<!--End Sub Menu -->
-											</li>
-											<li>
-												<a href="#">Blogs</a>
-												<ul>
-													<li><a href="blog-large.html">Blog Large</a></li>
-													<li><a href="blog-medium.html">Blog Medium</a></li>
-													<li><a href="blog-masonry.html">Blog Masonry</a></li>
-													<li><a href="blog-detail.html">Blog Detail Page</a></li>
-												</ul>
-												<!--End Sub Menu -->
-											</li>
-										</ul>
-									</nav><!-- .main-navigation -->
-								</div>
-							
-							<div class="main-location">
-								<ul>
-									<li class="location-has-children choose-location">
-										<form action="#">
-											<input type="text" value="" name="location" placeholder="Informe a sua localização" autocomplete="off">
-											<span id="foodbakery_radius_location_open" class="foodbakery-radius-location"><i class="icon-target5"></i></span>
-										</form>
-										
-									</li>
-								</ul>
-								</div>
-						</div>
-						<div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
-							<div class="login-option">
-								{% if user.is_authenticated %}
-								<a class="cs-color cs-popup-joinus-btn login-popup" href="{% url 'myAccount' %}">Minha Conta</a>
-								<a class="cs-color cs-popup-joinus-btn login-popup text-danger" href="{% url 'logout' %}">Sair</a>
-								{% else %}
-								<a class="cs-color cs-popup-joinus-btn login-popup" href="{% url 'login' %}">Entrar</a> / 
-									<span><a href="{% url 'registerUser' %}" class="cs-color cs-popup-joinus-btn login-popup ml-0">Criar</a></span><a class="get-start-btn" href="{% url 'registerVendor' %}">
-									Registrar
-									Restaurante </a>
-								{% endif %}
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</header>
-		<!-- Header End -->
+{% load static %}
+<!-- Main Wrapper -->
+<div class="wrapper">
+    <!-- Header Start -->
+    <header id="header">
+        <div class="main-header">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+                        <div class="logo">
+                            <figure>
+                                <a href="{% url 'home' %}" class="light-logo">
+                                    <img src="{% static 'logo/icon_ifood.jpg' %}" alt="FoodBakery">
+                                </a>
+                            </figure>
+                        </div>
+                        <div class="main-location">
+                            <ul>
+                                <li class="location-has-children choose-location">
+                                    <form action="#">
+                                        <input type="text" value="" name="location" placeholder="Informe a sua localização" autocomplete="off">
+                                        <span id="foodbakery_radius_location_open" class="foodbakery-radius-location"><i class="icon-target5"></i></span>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                        <div class="login-option d-flex justify-content-end align-items-center">
+                            <a href="{% url 'marketplace' %}" class="btn btn-outline-danger btn-custom mx-2">Marketplace</a>
+                            {% if user.is_authenticated %}
+                            <a class="btn btn-secondary btn-custom mx-2" href="{% url 'myAccount' %}">Minha Conta</a>
+                            <a class="btn btn-danger btn-custom mx-2" href="{% url 'logout' %}">Sair</a>
+                            {% else %}
+                            <div class="btn-group btn-custom mx-2">
+                                <a class="btn btn-secondary btn-split-left" href="{% url 'login' %}">Entrar</a>
+                                <a class="btn btn-secondary btn-split-right" href="{% url 'registerUser' %}">Criar</a>
+                            </div>
+                            <a class="btn btn-primary btn-custom mx-2" href="{% url 'registerVendor' %}">Registrar Restaurante</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- Header End -->
+</div>
+<!-- Main Wrapper End -->
+
+<style>
+/* Custom CSS for the buttons */
+.btn-custom {
+    border-radius: 30px;
+    font-weight: bold;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+    color: #fff;
+}
+
+.btn-custom:hover {
+    opacity: 0.8;
+    transform: scale(1.05);
+}
+
+/* Split button styling */
+.btn-group .btn-split-left, .btn-group .btn-split-right {
+    border-radius: 30px 0 0 30px;
+    font-weight: bold;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+    margin-right: 0;
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.btn-group .btn-split-right {
+    border-radius: 0 30px 30px 0;
+    border-left: 1px solid #fff;
+}
+
+.btn-group .btn-split-left:hover, .btn-group .btn-split-right:hover {
+    opacity: 0.8;
+    transform: scale(1.05);
+    color: #fff;
+}
+
+.btn-group .btn-split-left {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.btn-group .btn-split-right {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* Adjusting the buttons in the header */
+.login-option a {
+    margin: 0 5px;
+}
+
+.login-option .btn-outline-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.login-option .btn-outline-danger:hover {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.login-option .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.login-option .btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+.login-option .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.login-option .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.login-option .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+</style>

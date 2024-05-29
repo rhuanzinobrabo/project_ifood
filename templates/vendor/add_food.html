@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'includes/alerts.html' %}
+
+<style>
+    .painel-usuario {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 25px;
+        margin-top: 30px;
+    }
+    .usuario h5 {
+        margin-bottom: 25px;
+        font-size: 1.75rem;
+        color: #444;
+        font-weight: 700;
+    }
+    .usuario hr {
+        margin-bottom: 25px;
+        border-top: 2px solid #eaeaea;
+    }
+    .field-holder {
+        margin-bottom: 20px;
+    }
+    .field-holder label {
+        font-size: 1rem;
+        color: #555;
+        margin-bottom: 5px;
+        display: block;
+    }
+    .field-holder input,
+    .field-holder textarea,
+    .field-holder select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+        color: #333;
+    }
+    .field-holder input:focus,
+    .field-holder textarea:focus,
+    .field-holder select:focus {
+        border-color: #17a2b8;
+        box-shadow: 0 0 5px rgba(23, 162, 184, 0.25);
+    }
+    .btn-submit {
+        background: #17a2b8;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+    .btn-submit:hover {
+        background: #117a8b;
+    }
+    .btn-secondary {
+        background: #6c757d;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 20px;
+    }
+    .btn-secondary:hover {
+        background: #5a6268;
+    }
+</style>
+
+<!-- Seção Principal Início -->
+<div class="secao-principal">
+    {% include 'includes/cover.html' %}
+    <div class="secao-pagina cabecalho-conta comprador-logado">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-3 col-sm-12">
+                    {% include 'includes/v_sidebar.html' %}
+                </div>
+                <div class="col-lg-9 col-md-9 col-sm-12">
+                    <div class="painel-usuario carregando">
+                        <div class="usuario">
+                            <h5 class="text-uppercase">Adicionar um novo prato</h5>
+                            <hr>
+                            <button class="btn btn-secondary" onclick="history.back()">
+                                <i class="fa fa-angle-left" aria-hidden="true"></i> Voltar
+                            </button>
+                            <form action="{% url 'add_food' %}" method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="form-fields-set">
+                                    <div class="row">
+                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                            <div class="field-holder">
+                                                <label for="id_food_title">Nome da Comida</label>
+                                                {{ form.food_title }}
+                                            </div>
+                                            <div class="field-holder">
+                                                <label for="id_category">Categoria</label>
+                                                {{ form.category }}
+                                            </div>
+                                            <div class="field-holder">
+                                                <label for="id_description">Descrição</label>
+                                                {{ form.description }}
+                                            </div>
+                                            <div class="field-holder">
+                                                <label for="id_price">Preço</label>
+                                                {{ form.price }}
+                                            </div>
+                                            <div class="field-holder">
+                                                <label for="id_image">Imagem</label>
+                                                {{ form.image }}
+                                            </div>
+                                            <div class="field-holder">
+                                                <label for="id_is_available">Está disponível?</label>
+                                                {{ form.is_available }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% for field in form %}
+                                    {% if field.errors %}
+                                        <div class="alert alert-danger">
+                                            {% for error in field.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                                <button type="submit" class="btn btn-submit">Criar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Seção Principal Fim -->
+
+{% endblock %}
