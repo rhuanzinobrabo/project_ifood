@@ -20,6 +20,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+        flex-wrap: wrap;
     }
     .info-restaurante .img-holder {
         flex: 0 0 150px;
@@ -87,7 +88,7 @@
     .pagamento {
         text-align: center;
     }
-    .pagamento input[type="submit"] {
+    .pagamento button {
         padding: 10px 20px;
         cursor: pointer;
         background: #28a745;
@@ -97,7 +98,7 @@
         font-size: 1.1rem;
         transition: background 0.3s ease;
     }
-    .pagamento input[type="submit"]:hover {
+    .pagamento button:hover {
         background: #218838;
     }
 </style>
@@ -121,85 +122,111 @@
                                 <div class="conjunto-campos-formulario">
                                     <ul>
                                         <li>
+                                            <!-- Logo -->
                                             <div class="info-restaurante">
                                                 <div class="img-holder">
                                                     <div class="item-thumb">
-                                                        <img class="thumbnail" src="{{profile.profile_picture.url}}" alt="Logo do Restaurante">
+                                                        {% if profile.profile_picture %}
+                                                            <img class="thumbnail img-fluid" src="{{ profile.profile_picture.url }}" alt="Logo do Restaurante">
+                                                        {% else %}
+                                                            <img class="thumbnail img-fluid" src="{% static 'images/default-logo.png' %}" alt="Logo padrão">
+                                                        {% endif %}
                                                     </div>
                                                 </div>
                                                 <div class="text-holder">
-                                                    <label>Atualizar Logo</label>
+                                                    <label for="id_profile_picture">Atualizar Logo</label>
                                                     <div class="upload-gallery">
-                                                        {{profile_form.profile_picture}}
+                                                        {{ profile_form.profile_picture }}
                                                     </div>
                                                 </div>
                                             </div>
-                                            <br>
+
+                                            <!-- Capa -->
                                             <div class="info-restaurante">
                                                 <div class="img-holder">
                                                     <div class="item-thumb">
-                                                        <img class="thumbnail" src="{{profile.cover_photo.url}}" alt="Foto de Capa">
+                                                        {% if profile.cover_photo %}
+                                                            <img class="thumbnail img-fluid" src="{{ profile.cover_photo.url }}" alt="Foto de Capa">
+                                                        {% else %}
+                                                            <img class="thumbnail img-fluid" src="{% static 'images/default-cover.jpg' %}" alt="Foto de capa padrão">
+                                                        {% endif %}
                                                     </div>
                                                 </div>
                                                 <div class="text-holder">
-                                                    <label>Atualizar Foto de Capa</label>
+                                                    <label for="id_cover_photo">Atualizar Foto de Capa</label>
                                                     <div class="upload-gallery">
-                                                        {{profile_form.cover_photo}}
+                                                        {{ profile_form.cover_photo }}
                                                     </div>
                                                 </div>
                                             </div>
-                                            <br>
+
+                                            <!-- Licença -->
                                             <div class="info-restaurante">
                                                 <div class="img-holder">
                                                     <div class="item-thumb">
-                                                        <img class="thumbnail" src="{{vendor.vendor_license.url}}" alt="Licença">
+                                                        {% if vendor.vendor_license %}
+                                                            <img class="thumbnail img-fluid" src="{{ vendor.vendor_license.url }}" alt="Licença">
+                                                        {% else %}
+                                                            <img class="thumbnail img-fluid" src="{% static 'images/default-license.png' %}" alt="Licença padrão">
+                                                        {% endif %}
                                                     </div>
                                                 </div>
                                                 <div class="text-holder">
-                                                    <label>Atualizar Licença</label>
+                                                    <label for="id_vendor_license">Atualizar Licença</label>
                                                     <div class="upload-gallery">
-                                                        {{vendor_form.vendor_license}}
+                                                        {{ vendor_form.vendor_license }}
                                                     </div>
                                                 </div>
                                             </div>
+
                                             <br>
+
+                                            <!-- Nome do Restaurante -->
                                             <div class="campo">
-                                                <label>Nome do Restaurante *</label>
-                                                {{vendor_form.vendor_name}}
+                                                <label for="id_vendor_name">Nome do Restaurante *</label>
+                                                {{ vendor_form.vendor_name }}
                                             </div>
+
+                                            <!-- Localização -->
+                                            <h6 class="mt-4">Localização</h6>
+
                                             <div class="campo">
-                                                <label>Endereço</label>
-                                                {{profile_form.address_line_1}}
+                                                <label for="id_address_line_1">Endereço</label>
+                                                {{ profile_form.address_line_1 }}
                                                 <small class="text-muted float-right">Powered by Google Maps</small>
                                             </div>
                                             <div class="campo">
-                                                <label>Cidade</label>
-                                                {{profile_form.city}}
+                                                <label for="id_city">Cidade</label>
+                                                {{ profile_form.city }}
                                             </div>
                                             <div class="campo">
-                                                <label>Estado</label>
-                                                {{profile_form.state}}
+                                                <label for="id_state">Estado</label>
+                                                {{ profile_form.state }}
                                             </div>
                                             <div class="campo">
-                                                <label>País</label>
-                                                {{profile_form.country}}
+                                                <label for="id_country">País</label>
+                                                {{ profile_form.country }}
                                             </div>
                                             <div class="campo">
-                                                <label>CEP</label>
-                                                {{profile_form.pin_code}}
+                                                <label for="id_pin_code">CEP</label>
+                                                {{ profile_form.pin_code }}
                                             </div>
                                             <div class="campo">
-                                                <label>Latitude</label>
-                                                {{profile_form.latitude}}
+                                                <label for="id_latitude">Latitude</label>
+                                                {{ profile_form.latitude }}
                                             </div>
                                             <div class="campo">
-                                                <label>Longitude</label>
-                                                {{profile_form.longitude}}
+                                                <label for="id_longitude">Longitude</label>
+                                                {{ profile_form.longitude }}
                                             </div>
                                         </li>
                                     </ul>
+
+                                    <!-- Botão Submit -->
                                     <div class="pagamento">
-                                        <input class="atualizar-restaurante" type="submit" value="Atualizar Restaurante">
+                                        <button type="submit" class="atualizar-restaurante">
+                                            <i class="fas fa-save"></i> Atualizar Restaurante
+                                        </button>
                                     </div>
                                 </div>
                             </form>
@@ -211,6 +238,5 @@
         </div>
     </div>
 </div>
-<!-- Seção Principal Fim -->
 
 {% endblock %}

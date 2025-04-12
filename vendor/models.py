@@ -18,7 +18,7 @@ class Vendor(models.Model):
     
     def save(self, *args, **kwargs):
         if self.pk is not None:
-            # update das ifnormações do checkbox
+            # update das informações do checkbox de aprovação
             orig = Vendor.objects.get(pk=self.pk)
             if orig.is_approved != self.is_approved:
                 mail_template = 'accounts/emails/admin_approval_email.html'
@@ -26,12 +26,10 @@ class Vendor(models.Model):
                     'user': self.user,
                     'is_approved': self.is_approved
                 }
-                if self.is_approved == True:
-                    #aqui faz os envios dos emails
-                    mail_subject = "Parábens, o cadastro do seu restaurante foi aprovado com sucesso!"
-                    send_notification(mail_subject, mail_template, context)
+                if self.is_approved:
+                    mail_subject = "Parabéns, o cadastro do seu restaurante foi aprovado com sucesso!"
                 else:
-                    #aqui faz os envios dos emails
-                    mail_subject = "Infelizmenete o seu restaurante não foi aprovado"
-                    send_notification(mail_subject, mail_template, context)
+                    mail_subject = "Infelizmente, o seu restaurante não foi aprovado"
+
+                send_notification(mail_subject, mail_template, context)
         return super(Vendor, self).save(*args, **kwargs)

@@ -6,4 +6,5 @@ class AccountsConfig(AppConfig):
     name = 'accounts'
 
     def ready(self):
-        import accounts.signals
+        # Importa os sinais apenas quando o app estiver pronto
+        import accounts.signals  # noqa

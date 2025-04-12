@@ -1,38 +1,173 @@
 from django import forms
 from .models import User, UserProfile
 
+
+class EmailForm(forms.Form):
+    email = forms.EmailField(
+        label='E-mail',
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Digite seu e-mail'
+        })
+    )
+
+
+class OTPForm(forms.Form):
+    otp = forms.CharField(
+        label='Código de Verificação',
+        max_length=6,
+        min_length=6,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Digite o código enviado ao seu e-mail'
+        })
+    )
+
+
 class UserForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput())
-    confirm_password = forms.CharField(widget=forms.PasswordInput())
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username', 'email', 'password']
+        fields = ['first_name', 'last_name', 'role', 'phone_number']
+        widgets = {
+            'first_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Primeiro nome'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Último nome'
+            }),
+            'role': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'phone_number': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Telefone'
+            }),
+        }
 
-        
-    def clean(self):
-        cleaned_data = super(UserForm, self).clean()
-        password = cleaned_data.get('password')
-        confirm_password = cleaned_data.get('confirm_password')
+    def __init__(self, *args, **kwargs):
+        super(UserForm, self).__init__(*args, **kwargs)
+        self.fields['role'].label = "Tipo de conta"
+        self.fields['role'].choices = (
+            (1, 'Restaurante'),
+            (2, 'Cliente'),
+        )
 
-        if password != confirm_password:
-            raise forms.ValidationError(
-                'As senhas não coincidem.'
-                )
-        
+
 class UserProfileForm(forms.ModelForm):
-    address_line_1 = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Escreva aqui...', 'required': 'required'}))
-    profile_picture = forms.ImageField(widget=forms.FileInput(attrs={'class':'info-restaurante'}))
-    cover_photo = forms.ImageField(widget=forms.FileInput(attrs={'class':'btn btn-info'}))
+    address_line_1 = forms.CharField(
+        label='Endereço',
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Rua, número, complemento...',
+            'required': 'required',
+            'class': 'form-control'
+        })
+    )
+    profile_picture = forms.ImageField(
+        label='Foto de Perfil',
+        required=False,
+        widget=forms.FileInput(attrs={'class': 'form-control'})
+    )
+    cover_photo = forms.ImageField(
+        label='Capa',
+        required=False,
+        widget=forms.FileInput(attrs={'class': 'form-control'})
+    )
 
-    # latitude = forms.ImageField(widget=forms.TextInput(attrs={'readonly':'readonly'}))
-    # longitude = forms.ImageField(widget=forms.TextInput(attrs={'readonly':'readonly'}))
+    class Meta:
+        model = UserProfile
+        fields = [
+            'profile_picture', 'cover_photo', 'address_line_1', 'country',
+            'state', 'city', 'pin_code', 'latitude', 'longitude'
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super(UserProfileForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs['class'] = 'form-control'
+            if field in ['latitude', 'longitude']:
+                self.fields[field].widget.attrs['readonly'] = 'readonly'
+
+
+class AccountTypeForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['role']
+        widgets = {
+            'role': forms.RadioSelect(attrs={'class': 'form-check-input'})
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(AccountTypeForm, self).__init__(*args, **kwargs)
+        self.fields['role'].label = "Tipo de conta"
+        self.fields['role'].choices = (
+            (1, 'Restaurante'),
+            (2, 'Cliente'),
+        )
+
+
+class CustomerProfileForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Primeiro nome'
+    }))
+    last_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Último nome'
+    }))
+    phone_number = forms.CharField(max_length=15, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Telefone'
+    }))
+    address_line_1 = forms.CharField(widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Rua, número, complemento...'
+    }))
+
+    class Meta:
+        model = UserProfile
+        fields = ['address_line_1', 'country', 'state', 'city', 'pin_code', 'latitude', 'longitude']
+
+    def __init__(self, *args, **kwargs):
+        super(CustomerProfileForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs['class'] = 'form-control'
+            if field in ['latitude', 'longitude']:
+                self.fields[field].widget.attrs['readonly'] = 'readonly'
+
+
+class RestaurantProfileForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Primeiro nome'
+    }))
+    last_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Último nome'
+    }))
+    phone_number = forms.CharField(max_length=15, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Telefone'
+    }))
+    profile_picture = forms.ImageField(required=True, widget=forms.FileInput(attrs={
+        'class': 'form-control'
+    }))
+    cover_photo = forms.ImageField(required=True, widget=forms.FileInput(attrs={
+        'class': 'form-control'
+    }))
+    address_line_1 = forms.CharField(widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Rua, número, complemento...'
+    }))
 
     class Meta:
         model = UserProfile
         fields = ['profile_picture', 'cover_photo', 'address_line_1', 'country', 'state', 'city', 'pin_code', 'latitude', 'longitude']
 
     def __init__(self, *args, **kwargs):
-        super(UserProfileForm, self).__init__(*args, **kwargs)
+        super(RestaurantProfileForm, self).__init__(*args, **kwargs)
         for field in self.fields:
-            if field == 'latitude' or field == 'longitude':
+            self.fields[field].widget.attrs['class'] = 'form-control'
+            if field in ['latitude', 'longitude']:
                 self.fields[field].widget.attrs['readonly'] = 'readonly'

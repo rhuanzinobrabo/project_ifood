@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% include 'includes/alerts.html' %}
+
+<style>
+    .painel-usuario {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin-top: 20px;
+    }
+    .usuario h5 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+    .form-control:focus {
+        box-shadow: none;
+        border-color: #28a745;
+    }
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+    .btn-success:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
+    .form-check-label {
+        margin-left: 5px;
+    }
+</style>
+
+<!-- Seção Principal Início -->
+<div class="secao-principal">
+    {% include 'includes/cover.html' %}
+    <div class="secao-pagina cabecalho-conta comprador-logado">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-3 col-sm-12">
+                    {% include 'includes/v_sidebar.html' %}
+                </div>
+                <div class="col-lg-9 col-md-9 col-sm-12">
+                    <div class="painel-usuario carregando">
+                        <div class="usuario">
+                            <h5 class="text-uppercase">Editar Prato</h5>
+                            <hr>
+
+                            <a href="{% url 'menu_builder' %}" class="btn btn-secondary mb-4">
+                                <i class="fa fa-angle-left" aria-hidden="true"></i> Voltar ao Menu
+                            </a>
+
+                            <form method="POST" enctype="multipart/form-data" novalidate>
+                                {% csrf_token %}
+                                {{ form.non_field_errors }}
+
+                                <div class="form-group">
+                                    <label for="{{ form.category.id_for_label }}">Categoria</label>
+                                    {{ form.category }}
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="{{ form.food_title.id_for_label }}">Nome do Prato</label>
+                                    {{ form.food_title }}
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="{{ form.description.id_for_label }}">Descrição</label>
+                                    {{ form.description }}
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="{{ form.price.id_for_label }}">Preço (R$)</label>
+                                    {{ form.price }}
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="{{ form.image.id_for_label }}">Imagem do Prato</label>
+                                    {{ form.image }}
+                                    {% if form.instance.image %}
+                                        <div class="mt-2">
+                                            <img src="{{ form.instance.image.url }}" alt="Imagem atual" width="100" class="img-thumbnail">
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-check mb-3">
+                                    {{ form.is_available }}
+                                    <label class="form-check-label" for="{{ form.is_available.id_for_label }}">
+                                        Disponível no cardápio
+                                    </label>
+                                </div>
+
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fa fa-save"></i> &nbsp; Salvar Alterações
+                                </button>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Seção Principal Fim -->
+{% endblock %}

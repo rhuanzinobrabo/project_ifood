@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">Entrar com e-mail</h2>
+    <p class="text-center">Digite seu e-mail para receber o código de acesso.</p>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="email">E-mail:</label>
+                    <input type="email" name="email" class="form-control" placeholder="exemplo@email.com" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Enviar Código</button>
+            </form>
+
+            <hr class="my-4">
+
+            <div class="text-center">
+                <p>Ou entre com:</p>
+                <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-danger btn-block">
+                    <i class="fab fa-google mr-2"></i> Entrar com Google
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

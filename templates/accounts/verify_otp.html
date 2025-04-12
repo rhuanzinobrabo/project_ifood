@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">Verificar Código</h2>
+    <p class="text-center">Enviamos um código para <strong>{{ email }}</strong>. Digite o código abaixo para continuar.</p>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="email" value="{{ email }}">
+                <div class="form-group">
+                    <label for="otp">Código OTP:</label>
+                    <input type="text" name="otp" class="form-control" placeholder="Ex: 123456" required>
+                </div>
+                <button type="submit" class="btn btn-success btn-block">Verificar</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -22,8 +22,7 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             opacity: 0;
             transform: translateX(100%);
-            transition: opacity 5s ease-in-out, transform 0.3s ease-in-out;
-            animation: slide-in-out 3s ease-in-out forwards;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
         }
 
         .custom-alert.show-notification {
@@ -40,16 +39,11 @@
             font-size: 1.25rem;
             color: #000;
             opacity: 0.6;
-            transition: opacity 5s;
+            transition: opacity 0.3s;
         }
 
         .custom-alert .btn-close:hover {
             opacity: 1;
-        }
-
-        .custom-alert strong {
-            font-weight: bold;
-            color: inherit;
         }
 
         .alert-success {
@@ -76,24 +70,6 @@
             border-color: #bee5eb;
         }
 
-        @keyframes slide-in-out {
-            0% {
-                opacity: 0;
-                transform: translateX(100%);
-            }
-            10% {
-                opacity: 1;
-                transform: translateX(0);
-            }
-            90% {
-                opacity: 1;
-                transform: translateX(0);
-            }
-            100% {
-                opacity: 0;
-                transform: translateX(100%);
-            }
-        }
     </style>
 </head>
 <body>
@@ -107,5 +83,17 @@
             {% endfor %}
         {% endif %}
     </div>
+    <script>
+        // Adicionando um pequeno script para garantir que a animação de desaparecimento ocorra de forma controlada
+        document.querySelectorAll('.btn-close').forEach(function (closeButton) {
+            closeButton.addEventListener('click', function (e) {
+                var alert = e.target.closest('.custom-alert');
+                alert.classList.remove('show-notification');
+                setTimeout(function() {
+                    alert.style.display = 'none'; // Para garantir que o alerta seja removido após a animação
+                }, 500); // Sincronizando o tempo com a animação
+            });
+        });
+    </script>
 </body>
 </html>

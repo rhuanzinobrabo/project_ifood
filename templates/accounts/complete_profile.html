@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+      <div class="card shadow border-0 rounded-4">
+        <div class="card-body p-5">
+          <h2 class="text-center mb-4">Complete seu perfil</h2>
+
+          <!-- Exibição de Mensagens -->
+          {% if messages %}
+            <div class="alert alert-info">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+          {% endif %}
+
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="form-floating">
+                  {{ user_form.first_name }}
+                  <label for="{{ user_form.first_name.id_for_label }}">{{ user_form.first_name.label }}</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating">
+                  {{ user_form.last_name }}
+                  <label for="{{ user_form.last_name.id_for_label }}">{{ user_form.last_name.label }}</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Campos de Restaurante (se aplicável) -->
+            <div id="restaurante-campos" class="row g-3 mt-3" style="display: none;">
+              <div class="col-md-6">
+                <label class="form-label">{{ profile_form.profile_picture.label }}</label>
+                {{ profile_form.profile_picture }}
+                <img id="previewProfile" class="img-fluid rounded mt-2 d-none" style="max-height: 150px;" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">{{ profile_form.cover_photo.label }}</label>
+                {{ profile_form.cover_photo }}
+                <img id="previewCover" class="img-fluid rounded mt-2 d-none" style="max-height: 150px;" />
+              </div>
+            </div>
+
+            <!-- Endereço e localização -->
+            <div class="form-floating mt-4">
+              {{ profile_form.address_line_1 }}
+              <label for="{{ profile_form.address_line_1.id_for_label }}">{{ profile_form.address_line_1.label }}</label>
+            </div>
+
+            <div class="row g-3 mt-2">
+              <div class="col-md-4">
+                <div class="form-floating">
+                  {{ profile_form.country }}
+                  <label for="{{ profile_form.country.id_for_label }}">{{ profile_form.country.label }}</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-floating">
+                  {{ profile_form.state }}
+                  <label for="{{ profile_form.state.id_for_label }}">{{ profile_form.state.label }}</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-floating">
+                  {{ profile_form.city }}
+                  <label for="{{ profile_form.city.id_for_label }}">{{ profile_form.city.label }}</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+              <div class="col-md-4">
+                <div class="form-floating">
+                  {{ profile_form.pin_code }}
+                  <label for="{{ profile_form.pin_code.id_for_label }}">{{ profile_form.pin_code.label }}</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-floating">
+                  {{ profile_form.latitude }}
+                  <label for="{{ profile_form.latitude.id_for_label }}">{{ profile_form.latitude.label }}</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-floating">
+                  {{ profile_form.longitude }}
+                  <label for="{{ profile_form.longitude.id_for_label }}">{{ profile_form.longitude.label }}</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <button type="submit" class="btn btn-success w-100 rounded-pill py-2 fs-5">
+                Finalizar cadastro
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const role = {{ user.role }};  // Corrigido para passar como valor numérico
+    const restauranteCampos = document.getElementById('restaurante-campos');
+
+    // Exibe campos de restaurante se o usuário for restaurante
+    if (role == 1) {
+      restauranteCampos.style.display = 'flex';
+    }
+
+    const previewImage = (input, previewId) => {
+      const fileInput = document.querySelector(`input[name="${input}"]`);
+      const preview = document.getElementById(previewId);
+
+      fileInput?.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            preview.src = e.target.result;
+            preview.classList.remove('d-none');
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    };
+
+    previewImage('profile_picture', 'previewProfile');
+    previewImage('cover_photo', 'previewCover');
+  });
+</script>
+{% endblock %}

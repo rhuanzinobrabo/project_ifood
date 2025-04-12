@@ -5,7 +5,7 @@
 
 <!-- Main Section Start -->
 <div class="main-section">
-    <div class="page-section restaurant-detail-image-section" style="background: url({% if vendor.user_profile.cover_photo %} {{ vendor.user_profile.cover_photo.url }} {% else %} {% static 'images/default-cover.png' %} {% endif %}) no-repeat scroll 0 0 / cover;">
+    <div class="page-section restaurant-detail-image-section" style="background: url('{% if vendor.user_profile.cover_photo %}{{ vendor.user_profile.cover_photo.url }}{% else %}{% static 'images/default-cover.png' %}{% endif %}') no-repeat scroll 0 0 / cover;">
         <!-- Container Start -->
         <div class="container">
             <!-- Row Start -->
@@ -30,21 +30,20 @@
                                 <div class="text">
                                     {% if vendor.user_profile.address %}
                                     <i class="icon-location"></i>
-                                    <p>{{vendor.user_profile.address}}</p>
+                                    <p>{{ vendor.user_profile.address }}</p>
                                     {% endif %}
                                 </div>
                             </div>
                         </div>
+
                         {% if opening_hours %}
                         <div class="delivery-timing reviews-sortby">
-                            
                             <ul>
                                 <li>
                                     <a href="#" class="reviews-sortby-active">
                                         <span>Today :</span>
                                         {% for i in current_opening_hours %}
                                         <span>{% if i.is_closed %}Closed{% else %}{{ i.from_hour }} - {{ i.to_hour }}{% endif %}</span>
-                                        
                                         {% endfor %}
                                         <i class="icon-chevron-small-down"></i>
                                     </a>
@@ -70,41 +69,42 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12 sticky-sidebar">
-                    
                     <div class="filter-wrapper">
                         <div class="categories-menu">
                             <h6><i class="icon-restaurant_menu"></i>Categories</h6>
                             <ul class="menu-list">
                                 {% for category in categories %}
-                                <li class="active"><a href="#" class="menu-category-link"> {{ category }} </a></li>
+                                <li class="active">
+                                    <a href="#" class="menu-category-link"> {{ category }} </a>
+                                    <a href="{% url 'edit_category' category.id %}" class="edit-category">Editar</a>  <!-- Link para editar a categoria -->
+                                </li>
                                 {% endfor %}
                             </ul>
+                            <a href="{% url 'add_category' %}" class="btn btn-primary">Adicionar Categoria</a>  <!-- Link para adicionar nova categoria -->
                         </div>
                     </div>
                 </div>
+
                 <div class="col-lg-9 col-md-9 col-sm-8 col-xs-12">
                     <div class="tabs-holder horizontal">
                         <ul class="stickynav-tabs nav nav-tabs">
-                            <li class="active"><a data-toggle="tab" href="#home"><i class="icon- icon-room_service"></i>Menu</a></li>
-                            
+                            <li class="active"><a data-toggle="tab" href="#menu"><i class="icon-room_service"></i>Menu</a></li>
                         </ul>
                         <div class="tab-content">
-                            <div id="home" class="tab-pane in active">
-                                <div class="menu-itam-holder">
-                                    
-                                    <div id="menu-item-list-6272" class="menu-itam-list">
-                                        
+                            <div id="menu" class="tab-pane in active">
+                                <div class="menu-item-holder">
+                                    <div id="menu-item-list-6272" class="menu-item-list">
                                         {% for category in categories %}
                                         <div class="element-title" id="menu-category-2">
-                                            <h5 class="text-color">{{ category }}</h5>
+                                            <h5 class="text-color">{{ category.name }}</h5>
                                             <span>{{ category.description }}</span>
                                         </div>
                                         <ul>
                                             {% for food in category.fooditems.all %}
                                             <li>
-                                                <div class="image-holder"> <img src="{{ food.image.url }}" alt=""></div>
+                                                <div class="image-holder"><img src="{{ food.image.url }}" alt=""></div>
                                                 <div class="text-holder">
-                                                    <h6>{{ food }}</h6>
+                                                    <h6>{{ food.name }}</h6>
                                                     <span>{{ food.description }}</span>
                                                 </div>
                                                 <div class="price-holder">
@@ -113,30 +113,18 @@
                                                     <a href="#" class="decrease_cart" data-id="{{ food.id }}" data-url="{% url 'decrease_cart' food.id %}" style="margin-right: 28px;"><i class="icon-minus text-color"></i></a>
                                                     <label id="qty-{{food.id}}">0</label>
                                                     <a href="#" class="add_to_cart" data-id="{{ food.id }}" data-url="{% url 'add_to_cart' food.id %}"><i class="icon-plus4 text-color"></i></a>
-                                                    
                                                 </div>
                                             </li>
                                             {% endfor %}
-                                            
                                         </ul>
                                         {% endfor %}
-                                        
                                     </div>
-
-                                    {% for item in cart_items %}
-
-                                    <span id="qty-{{item.fooditem.id}}" class="item_qty d-none" data-qty="{{ item.quantity }}">{{ item.quantity }}</span>
-
-                                    
-
-                                    {% endfor %}
+                                    <a href="{% url 'add_food' %}" class="btn btn-success">Adicionar Alimento</a>  <!-- Link para adicionar alimentos -->
                                 </div>
                             </div>
-                            
                         </div>
                     </div>
                 </div>
-                
             </div>
         </div>
     </div>

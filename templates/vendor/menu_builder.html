@@ -17,14 +17,14 @@
         color: #333;
         font-weight: 600;
     }
-    .usuario hr {
-        margin-bottom: 20px;
-        border-top: 2px solid #f0f0f0;
-    }
     .usuario h6 {
         margin-bottom: 10px;
         font-size: 1.25rem;
         color: #555;
+    }
+    .usuario hr {
+        margin-bottom: 20px;
+        border-top: 2px solid #f0f0f0;
     }
     .btn-float-right {
         float: right;
@@ -46,6 +46,9 @@
     }
     .btn-info:hover {
         background: #117a8b;
+    }
+    .btn-success:hover {
+        background: #218838 !important;
     }
     .table-borderless th,
     .table-borderless td {
@@ -88,35 +91,47 @@
                     <div class="painel-usuario carregando">
                         <div class="usuario">
                             <h5 class="text-uppercase">Cardápio do seu restaurante</h5>
-                            <h6>Categorias</h6>
+                            <h6 class="mt-4">Categorias</h6>
+
                             {% if categories %}
-                            <a href="{% url 'add_food' %}" class="btn btn-info btn-float-right"><i class="fa fa-plus"></i> Adicionar Prato</a>
-                            <a href="{% url 'add_category' %}" class="btn btn-success btn-float-right"><i class="fa fa-plus"></i> Adicionar Categoria</a>
-                            <br><br>
-                            <table class="table table-hover table-borderless">
-                                <tbody>
-                                {% for cat in categories %}
-                                    <tr>
-                                        <td class="text-left" style="width: 10%;">{{ forloop.counter }}</td>
-                                        <td>
-                                            <a href="{% url 'fooditems_by_category' cat.id %}" class="text-decoration-none">
-                                                <p class="mb-0 font-weight-bold">{{ cat }}</p>
-                                                <small class="text-muted">{{ cat.description }}</small>
-                                            </a>
-                                        </td>
-                                        <td class="action-icons" style="width: 20%;">
-                                            <a href="{% url 'edit_category' cat.id %}" title="Editar Categoria"><i class="fa fa-pencil-alt" aria-hidden="true"></i></a>
-                                            <a href="{% url 'delete_category' cat.id %}" onclick="return confirm('Tem certeza que deseja excluir esta categoria?')" title="Excluir Categoria"><i class="fa fa-trash text-danger" aria-hidden="true"></i></a>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
+                                <a href="{% url 'add_food' %}" class="btn btn-info btn-float-right">
+                                    <i class="fa fa-plus"></i> Adicionar Prato
+                                </a>
+                                <a href="{% url 'add_category' %}" class="btn btn-success btn-float-right">
+                                    <i class="fa fa-plus"></i> Adicionar Categoria
+                                </a>
+                                <div class="clearfix mb-3"></div>
+
+                                <table class="table table-hover table-borderless">
+                                    <tbody>
+                                        {% for cat in categories %}
+                                            <tr>
+                                                <td style="width: 10%;">{{ forloop.counter }}</td>
+                                                <td>
+                                                    <a href="{% url 'fooditems_by_category' cat.id %}" class="text-decoration-none">
+                                                        <p class="mb-0 font-weight-bold">{{ cat }}</p>
+                                                        <small class="text-muted">{{ cat.description }}</small>
+                                                    </a>
+                                                </td>
+                                                <td class="action-icons" style="width: 20%;">
+                                                    <a href="{% url 'edit_category' cat.id %}" title="Editar Categoria">
+                                                        <i class="fa fa-pencil-alt"></i>
+                                                    </a>
+                                                    <a href="{% url 'delete_category' cat.id %}" onclick="return confirm('Tem certeza que deseja excluir esta categoria?')" title="Excluir Categoria">
+                                                        <i class="fa fa-trash text-danger"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
                             {% else %}
-                            <h5 class="text-center">Nenhuma categoria encontrada.</h5>
-                            <div class="text-center">
-                                <a href="{% url 'add_category' %}" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> Adicionar Categoria</a>
-                            </div>
+                                <h5 class="text-center">Nenhuma categoria encontrada.</h5>
+                                <div class="text-center mt-3">
+                                    <a href="{% url 'add_category' %}" class="btn btn-success">
+                                        <i class="fa fa-plus"></i> Adicionar Categoria
+                                    </a>
+                                </div>
                             {% endif %}
                         </div>
                     </div>
@@ -125,6 +140,6 @@
         </div>
     </div>
 </div>
-<!-- Seção Principal Fim -->
 
+<!-- Seção Principal Fim -->
 {% endblock %}
