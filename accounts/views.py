@@ -42,7 +42,7 @@ from allauth.socialaccount.providers.oauth2.views import OAuth2LoginView, OAuth2
 # Imports locais (do próprio projeto )
 from .utils import detectUser
 from .forms import EmailForm, OTPForm, AccountTypeForm, CustomerProfileForm, RestaurantProfileForm, UserForm, UserProfileForm, UserAddressForm, UserAddress
-from .models import User, UserProfile, OTPModel
+from .models import User, UserProfile, OTPModel, UserAddress
 from vendor.forms import VendorForm
 from vendor.models import Vendor
 
@@ -583,3 +583,124 @@ def vendorDashboard(request):
         'vendor': vendor,
     }
     return render(request, 'accounts/vendorDashboard.html', context)
+
+# --- CRUD de Endereços ---
+
+@login_required(login_url='request_otp')
+def address_list(request):
+    """
+    Lista todos os endereços do usuário logado
+    """
+    addresses = UserAddress.objects.filter(user=request.user).order_by('-is_default')
+    
+    context = {
+        'addresses': addresses,
+        'title': 'Meus Endereços',
+    }
+    return render(request, 'accounts/address_list.html', context)
+
+@login_required(login_url='request_otp')
+def address_create(request):
+    """
+    Cria um novo endereço para o usuário logado
+    """
+    if request.method == 'POST':
+        form = UserAddressForm(request.POST)
+        if form.is_valid():
+            address = form.save(commit=False)
+            address.user = request.user
+            
+            # Se for o primeiro endereço ou is_default estiver marcado
+            if UserAddress.objects.filter(user=request.user).count() == 0 or form.cleaned_data.get('is_default'):
+                # Desmarcar outros endereços padrão
+                UserAddress.objects.filter(user=request.user, is_default=True).update(is_default=False)
+                address.is_default = True
+                
+            address.save()
+            messages.success(request, 'Endereço adicionado com sucesso!')
+            return redirect('address_list')
+    else:
+        form = UserAddressForm()
+    
+    context = {
+        'form': form,
+        'title': 'Adicionar Endereço',
+    }
+    return render(request, 'accounts/address_form.html', context)
+
+@login_required(login_url='request_otp')
+def address_update(request, pk):
+    """
+    Atualiza um endereço existente do usuário logado
+    """
+    address = get_object_or_404(UserAddress, pk=pk, user=request.user)
+    
+    if request.method == 'POST':
+        form = UserAddressForm(request.POST, instance=address)
+        if form.is_valid():
+            updated_address = form.save(commit=False)
+            
+            # Se is_default estiver marcado, desmarcar outros endereços padrão
+            if form.cleaned_data.get('is_default'):
+                UserAddress.objects.filter(user=request.user, is_default=True).exclude(pk=pk).update(is_default=False)
+                updated_address.is_default = True
+            
+            updated_address.save()
+            messages.success(request, 'Endereço atualizado com sucesso!')
+            return redirect('address_list')
+    else:
+        form = UserAddressForm(instance=address)
+    
+    context = {
+        'form': form,
+        'title': 'Atualizar Endereço',
+        'address': address,
+    }
+    return render(request, 'accounts/address_form.html', context)
+
+@login_required(login_url='request_otp')
+def address_delete(request, pk):
+    """
+    Exclui um endereço do usuário logado
+    """
+    address = get_object_or_404(UserAddress, pk=pk, user=request.user)
+    
+    if request.method == 'POST':
+        was_default = address.is_default
+        address.delete()
+        
+        # Se o endereço excluído era o padrão, definir outro como padrão
+        if was_default:
+            remaining_address = UserAddress.objects.filter(user=request.user).first()
+            if remaining_address:
+                remaining_address.is_default = True
+                remaining_address.save()
+        
+        messages.success(request, 'Endereço excluído com sucesso!')
+        return redirect('address_list')
+    
+    context = {
+        'address': address,
+        'title': 'Excluir Endereço',
+    }
+    return render(request, 'accounts/address_delete.html', context)
+
+@login_required(login_url='request_otp')
+def set_default_address(request, pk):
+    """
+    Define um endereço como padrão para o usuário logado
+    """
+    address = get_object_or_404(UserAddress, pk=pk, user=request.user)
+    
+    # Desmarcar o endereço padrão atual
+    UserAddress.objects.filter(user=request.user, is_default=True).update(is_default=False)
+    
+    # Definir o novo endereço padrão
+    address.is_default = True
+    address.save()
+    
+    messages.success(request, 'Endereço padrão atualizado com sucesso!')
+    
+    # Redirecionar de volta para a página anterior ou para a lista de endereços
+    next_url = request.GET.get('next', 'address_list')
+    return HttpResponseRedirect(next_url)

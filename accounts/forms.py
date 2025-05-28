@@ -14,7 +14,7 @@ Dependências principais:
 from django import forms
 
 # Imports locais (do próprio projeto)
-from .models import User, UserProfile
+from .models import User, UserProfile, UserAddress
 
 
 class EmailForm(forms.Form):
@@ -110,8 +110,9 @@ class UserProfileForm(forms.ModelForm):
         model = UserProfile
         fields = [
             'profile_picture', 'cover_photo', 'address_line_1', 'country',
-            'state', 'city', 'pin_code', 'latitude', 'longitude'
+            'state', 'city', 'latitude', 'longitude'
         ]
+        # Removi o campo 'pin_code' que estava causando o erro
 
     def __init__(self, *args, **kwargs):
         super(UserProfileForm, self).__init__(*args, **kwargs)
@@ -166,7 +167,8 @@ class CustomerProfileForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ['address_line_1', 'country', 'state', 'city', 'pin_code', 'latitude', 'longitude']
+        fields = ['address_line_1', 'country', 'state', 'city', 'latitude', 'longitude']
+        # Removi o campo 'pin_code'
 
     def __init__(self, *args, **kwargs):
         super(CustomerProfileForm, self).__init__(*args, **kwargs)
@@ -174,7 +176,6 @@ class CustomerProfileForm(forms.ModelForm):
             self.fields[field].widget.attrs['class'] = 'form-control'
             if field in ['latitude', 'longitude']:
                 self.fields[field].widget.attrs['readonly'] = 'readonly'
-
 
 class RestaurantProfileForm(forms.ModelForm):
     """
@@ -206,7 +207,8 @@ class RestaurantProfileForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ['profile_picture', 'cover_photo', 'address_line_1', 'country', 'state', 'city', 'pin_code', 'latitude', 'longitude']
+        fields = ['profile_picture', 'cover_photo', 'address_line_1', 'country', 'state', 'city', 'latitude', 'longitude']
+        # Removi o campo 'pin_code'
 
     def __init__(self, *args, **kwargs):
         super(RestaurantProfileForm, self).__init__(*args, **kwargs)
@@ -214,3 +216,27 @@ class RestaurantProfileForm(forms.ModelForm):
             self.fields[field].widget.attrs['class'] = 'form-control'
             if field in ['latitude', 'longitude']:
                 self.fields[field].widget.attrs['readonly'] = 'readonly'
+
+
+class UserAddressForm(forms.ModelForm):
+    """
+    Formulário para criação e edição de endereços de usuário
+    """
+    class Meta:
+        model = UserAddress
+        fields = ['address_line_1', 'address_line_2', 'city', 'state', 'country', 
+                 'address_type', 'is_default', 'latitude', 'longitude']
+        exclude = ['user']
+        
+    def __init__(self, *args, **kwargs):
+        super(UserAddressForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs['class'] = 'form-control'
+        
+        # Tornar alguns campos opcionais
+        self.fields['address_line_2'].required = False
+        self.fields['latitude'].required = False
+        self.fields['longitude'].required = False
+        self.fields['is_default'].widget = forms.CheckboxInput(attrs={
+            'class': 'form-check-input'
+        })
