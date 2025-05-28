@@ -1,6 +1,23 @@
-from django.urls import include, path
+"""
+Arquivo: accounts/urls.py
+Descrição: Define todas as rotas relacionadas a contas de usuário, incluindo:
+- Autenticação (login, registro, logout)
+- Dashboards específicos por tipo de usuário
+- Gerenciamento de perfil
+- Administração de usuários
+- Gerenciamento de endereços
+
+Dependências principais:
+- accounts/views.py: Views para manipulação de contas de usuário
+- accounts/address_views.py: Views para manipulação de endereços
+"""
+
+# Imports do Django
+from django.urls import path, include
+
+# Imports locais (do próprio projeto)
 from . import views
-from .views import address_list
+from . import address_views
 
 urlpatterns = [
     path('', views.myAccount, name='myAccount'),
@@ -35,9 +52,9 @@ urlpatterns = [
     path('social-callback/', views.social_callback, name='social_callback'),
     
     # CRUD de Endereços
-    path('addresses/', views.address_list, name='address_list'),
-    path('addresses/create/', views.address_create, name='address_create'),
-    path('addresses/<int:pk>/update/', views.address_update, name='address_update'),
-    path('addresses/<int:pk>/delete/', views.address_delete, name='address_delete'),
-    path('addresses/<int:pk>/set-default/', views.set_default_address, name='set_default_address'),
+    path('addresses/', address_views.address_list, name='address_list'),
+    path('addresses/create/', address_views.address_create, name='address_create'),
+    path('addresses/<int:pk>/update/', address_views.address_update, name='address_update'),
+    path('addresses/<int:pk>/delete/', address_views.address_delete, name='address_delete'),
+    path('addresses/<int:pk>/set-default/', address_views.set_default_address, name='set_default_address'),
 ]

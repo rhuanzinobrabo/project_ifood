@@ -1,3 +1,27 @@
+"""
+Arquivo: marketplace/views.py
+Descrição: Contém as views principais do marketplace, incluindo:
+- Página inicial do marketplace
+- Gerenciamento de carrinho de compras
+- Visualização de detalhes de restaurantes
+- Busca geral de produtos e restaurantes
+- Funcionalidades de favoritos
+- Busca avançada de restaurantes e produtos
+
+Dependências principais:
+- vendor/models.py: Modelo Vendor
+- menu/models.py: Modelos Category e FoodItem
+- marketplace/models.py: Modelos Cart, FavoriteRestaurant, Tax, Order, OrderItem, Payment, Invoice
+- accounts/models.py: Modelos UserProfile e UserAddress
+"""
+
+# Imports da biblioteca padrão Python
+import os
+import uuid
+import json
+import datetime
+
+# Imports do Django
 from django.http import HttpResponse, JsonResponse, FileResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
@@ -7,13 +31,12 @@ from django.conf import settings
 from django.utils import timezone
 from django.template.loader import get_template
 from django.contrib import messages
-import os
-import uuid
-import json
-import datetime
+
+# Imports de bibliotecas de terceiros
 from weasyprint import HTML, CSS
 from weasyprint.text.fonts import FontConfiguration
 
+# Imports locais (do próprio projeto )
 from accounts.models import UserProfile, UserAddress
 from menu.models import Category, FoodItem
 from vendor.models import Vendor
@@ -21,6 +44,17 @@ from .models import Cart, FavoriteRestaurant, Tax, Order, OrderItem, Payment, In
 
 
 def marketplace(request):
+    """
+    Página inicial do marketplace.
+    
+    Exibe restaurantes aprovados e ativos.
+    
+    Args:
+        request: Objeto request do Django
+        
+    Returns:
+        HttpResponse: Renderiza a página inicial do marketplace
+    """
     vendors = Vendor.objects.filter(is_approved=True, user__is_active=True)
     vendor_count = vendors.count()
     context = {
@@ -31,10 +65,32 @@ def marketplace(request):
 
 
 def vendor_detail(request, vendor_slug):
+    """
+    Exibe detalhes de um restaurante específico.
+    
+    Args:
+        request: Objeto request do Django
+        vendor_slug: Slug do restaurante a ser visualizado
+        
+    Returns:
+        HttpResponse: Renderiza a página de detalhes do restaurante
+    """
     return render(request, 'marketplace/vendor_detail.html')
 
 
 def add_to_cart(request, food_id):
+    """
+    Adiciona um item ao carrinho de compras.
+    
+    Incrementa a quantidade se o item já estiver no carrinho.
+    
+    Args:
+        request: Objeto request do Django
+        food_id: ID do item de comida a ser adicionado
+        
+    Returns:
+        JsonResponse: Resposta JSON com status da operação
+    """
     if request.user.is_authenticated:
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             # Check if the food item exists
@@ -60,6 +116,18 @@ def add_to_cart(request, food_id):
 
 
 def decrease_cart(request, food_id):
+    """
+    Diminui a quantidade de um item no carrinho.
+    
+    Remove o item se a quantidade chegar a zero.
+    
+    Args:
+        request: Objeto request do Django
+        food_id: ID do item de comida a ser diminuído
+        
+    Returns:
+        JsonResponse: Resposta JSON com status da operação
+    """
     if request.user.is_authenticated:
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             # Check if the food item exists
@@ -89,6 +157,17 @@ def decrease_cart(request, food_id):
 
 @login_required(login_url = 'login')
 def cart(request):
+    """
+    Exibe o carrinho de compras do usuário.
+    
+    Mostra os itens no carrinho do usuário logado.
+    
+    Args:
+        request: Objeto request do Django
+        
+    Returns:
+        HttpResponse: Renderiza a página do carrinho de compras
+    """
     cart_items = Cart.objects.filter(user=request.user).order_by('created_at')
     context = {
         'cart_items': cart_items,
@@ -97,6 +176,16 @@ def cart(request):
 
 
 def delete_cart(request, cart_id):
+    """
+    Remove um item do carrinho.
+    
+    Args:
+        request: Objeto request do Django
+        cart_id: ID do item no carrinho a ser removido
+        
+    Returns:
+        JsonResponse: Resposta JSON com status da operação
+    """
     if request.user.is_authenticated:
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             try:
@@ -112,6 +201,17 @@ def delete_cart(request, cart_id):
 
 
 def search(request):
+    """
+    Busca geral de restaurantes por localização e palavra-chave.
+    
+    Permite buscar restaurantes por endereço, coordenadas e palavra-chave.
+    
+    Args:
+        request: Objeto request do Django
+        
+    Returns:
+        HttpResponse: Renderiza a página de resultados da busca
+    """
     if not 'address' in request.GET:
         return redirect('marketplace')
     else:
@@ -140,7 +240,16 @@ def search(request):
 
 def restaurant_search(request):
     """
-    Página de busca pública de restaurantes com filtros avançados
+    Página de busca pública de restaurantes com filtros avançados.
+    
+    Permite buscar restaurantes por palavra-chave, categoria, localização e favoritos,
+    com opções de ordenação por relevância, avaliação ou proximidade.
+    
+    Args:
+        request: Objeto request do Django
+        
+    Returns:
+        HttpResponse: Renderiza a página de busca de restaurantes com resultados filtrados
     """
     # Parâmetros de busca e filtros
     keyword = request.GET.get('keyword', '')
@@ -248,9 +357,20 @@ def restaurant_search(request):
     
     return render(request, 'marketplace/restaurant_search.html', context)
 
+
 def restaurant_detail(request, vendor_id):
     """
-    Exibe detalhes de um restaurante específico com seu cardápio
+    Exibe detalhes de um restaurante específico com seu cardápio.
+    
+    Mostra informações detalhadas sobre um restaurante, incluindo categorias
+    e itens do cardápio organizados por categoria.
+    
+    Args:
+        request: Objeto request do Django
+        vendor_id: ID do restaurante a ser visualizado
+        
+    Returns:
+        HttpResponse: Renderiza a página de detalhes do restaurante
     """
     vendor = get_object_or_404(Vendor, pk=vendor_id, is_approved=True, user__is_active=True)
     
@@ -277,10 +397,21 @@ def restaurant_detail(request, vendor_id):
     
     return render(request, 'marketplace/restaurant_detail.html', context)
 
+
 @login_required
 def add_to_favorites(request, vendor_id):
     """
-    Adiciona ou remove um restaurante dos favoritos do usuário
+    Adiciona ou remove um restaurante dos favoritos do usuário.
+    
+    Funciona como um toggle: se o restaurante já é favorito, remove;
+    se não é favorito, adiciona.
+    
+    Args:
+        request: Objeto request do Django
+        vendor_id: ID do restaurante a ser adicionado/removido dos favoritos
+        
+    Returns:
+        JsonResponse: Resposta JSON com status da operação
     """
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         try:
@@ -314,10 +445,19 @@ def add_to_favorites(request, vendor_id):
     
     return JsonResponse({'status': 'failed', 'message': 'Requisição inválida'})
 
+
 @login_required
 def list_favorites(request):
     """
-    Lista todos os restaurantes favoritos do usuário
+    Lista todos os restaurantes favoritos do usuário.
+    
+    Exibe uma página com todos os restaurantes que o usuário marcou como favorito.
+    
+    Args:
+        request: Objeto request do Django
+        
+    Returns:
+        HttpResponse: Renderiza a página de restaurantes favoritos
     """
     favorites = FavoriteRestaurant.objects.filter(user=request.user).select_related('vendor')
     
@@ -327,11 +467,21 @@ def list_favorites(request):
     
     return render(request, 'marketplace/favorite_restaurants.html', context)
 
+
 # --- Funcionalidades de busca de produtos com filtros ---
 
 def product_search(request):
     """
-    Página de busca pública de produtos com filtros avançados
+    Página de busca pública de produtos com filtros avançados.
+    
+    Permite buscar produtos por palavra-chave, categoria, restaurante e faixa de preço,
+    com opções de ordenação por relevância, preço ou popularidade.
+    
+    Args:
+        request: Objeto request do Django
+        
+    Returns:
+        HttpResponse: Renderiza a página de busca de produtos com resultados filtrados
     """
     # Parâmetros de busca e filtros
     keyword = request.GET.get('keyword', '')
@@ -425,32 +575,39 @@ def product_search(request):
         'categories': categories,
         'selected_vendor': vendor_id,
         'vendors': vendors,
-        'price_min': price_min or price_range.get('min_price', 0),
-        'price_max': price_max or price_range.get('max_price', 100),
+        'price_min': price_min,
+        'price_max': price_max,
+        'price_range': price_range,
         'sort_by': sort_by,
         'cart_items': cart_items,
     }
     
     return render(request, 'marketplace/product_search.html', context)
 
+
 def product_detail(request, product_id):
     """
-    Exibe detalhes de um produto específico
+    Exibe detalhes de um produto específico.
+    
+    Mostra informações detalhadas sobre um produto, incluindo descrição, preço,
+    restaurante e produtos relacionados.
+    
+    Args:
+        request: Objeto request do Django
+        product_id: ID do produto a ser visualizado
+        
+    Returns:
+        HttpResponse: Renderiza a página de detalhes do produto
     """
     product = get_object_or_404(FoodItem, pk=product_id, is_available=True)
+    vendor = product.vendor
     
     # Verificar se o produto está no carrinho do usuário
     in_cart = False
-    cart_item_quantity = 0
     if request.user.is_authenticated:
-        try:
-            cart_item = Cart.objects.get(user=request.user, fooditem=product)
-            in_cart = True
-            cart_item_quantity = cart_item.quantity
-        except Cart.DoesNotExist:
-            pass
+        in_cart = Cart.objects.filter(user=request.user, fooditem=product).exists()
     
-    # Obter produtos relacionados (mesma categoria)
+    # Produtos relacionados (mesma categoria)
     related_products = FoodItem.objects.filter(
         category=product.category, 
         is_available=True
@@ -458,19 +615,29 @@ def product_detail(request, product_id):
     
     context = {
         'product': product,
+        'vendor': vendor,
         'in_cart': in_cart,
-        'cart_item_quantity': cart_item_quantity,
         'related_products': related_products,
     }
     
     return render(request, 'marketplace/product_detail.html', context)
+
 
 # --- Funcionalidades de checkout e pedidos ---
 
 @login_required(login_url='login')
 def checkout(request):
     """
-    Página de checkout para finalizar o pedido
+    Página de checkout para finalizar o pedido.
+    
+    Permite ao usuário selecionar endereço de entrega, método de pagamento,
+    adicionar observações e visualizar o resumo do pedido antes de finalizar.
+    
+    Args:
+        request: Objeto request do Django
+        
+    Returns:
+        HttpResponse: Renderiza a página de checkout ou redireciona para outra página
     """
     # Verificar se há itens no carrinho
     cart_items = Cart.objects.filter(user=request.user)
@@ -593,10 +760,21 @@ def checkout(request):
     
     return render(request, 'marketplace/checkout.html', context)
 
+
 @login_required(login_url='login')
 def payment(request, order_id, payment_method):
     """
-    Página de pagamento para processar o pagamento do pedido
+    Página de pagamento para processar o pagamento do pedido.
+    
+    Permite ao usuário realizar o pagamento do pedido usando o método selecionado.
+    
+    Args:
+        request: Objeto request do Django
+        order_id: ID do pedido a ser pago
+        payment_method: Método de pagamento selecionado
+        
+    Returns:
+        HttpResponse: Renderiza a página de pagamento ou redireciona para confirmação
     """
     # Obter pedido
     order = get_object_or_404(Order, id=order_id, user=request.user)
@@ -641,10 +819,20 @@ def payment(request, order_id, payment_method):
     else:
         return redirect('checkout')
 
+
 @login_required(login_url='login')
 def order_complete(request, order_number):
     """
-    Página de confirmação do pedido
+    Página de confirmação do pedido.
+    
+    Exibe os detalhes do pedido finalizado, incluindo itens, valores e status.
+    
+    Args:
+        request: Objeto request do Django
+        order_number: Número do pedido finalizado
+        
+    Returns:
+        HttpResponse: Renderiza a página de confirmação do pedido
     """
     order = get_object_or_404(Order, order_number=order_number, user=request.user)
     ordered_food = OrderItem.objects.filter(order=order)
@@ -664,10 +852,19 @@ def order_complete(request, order_number):
     
     return render(request, 'marketplace/order_complete.html', context)
 
+
 @login_required(login_url='login')
 def my_orders(request):
     """
-    Página de pedidos do usuário
+    Página de pedidos do usuário.
+    
+    Lista todos os pedidos realizados pelo usuário logado.
+    
+    Args:
+        request: Objeto request do Django
+        
+    Returns:
+        HttpResponse: Renderiza a página de pedidos do usuário
     """
     orders = Order.objects.filter(user=request.user, is_ordered=True).order_by('-created_at')
     
@@ -677,10 +874,20 @@ def my_orders(request):
     
     return render(request, 'marketplace/my_orders.html', context)
 
+
 @login_required(login_url='login')
 def order_detail(request, order_number):
     """
-    Página de detalhes do pedido
+    Página de detalhes do pedido.
+    
+    Exibe informações detalhadas sobre um pedido específico.
+    
+    Args:
+        request: Objeto request do Django
+        order_number: Número do pedido a ser visualizado
+        
+    Returns:
+        HttpResponse: Renderiza a página de detalhes do pedido
     """
     order = get_object_or_404(Order, order_number=order_number, user=request.user)
     ordered_food = OrderItem.objects.filter(order=order)
@@ -697,12 +904,22 @@ def order_detail(request, order_number):
     
     return render(request, 'marketplace/order_detail.html', context)
 
-# --- Funcionalidades de nota fiscal ---
+
+# --- Funcionalidades de notas fiscais ---
 
 @login_required(login_url='login')
 def generate_invoice(request, order_number):
     """
-    Gera a nota fiscal para um pedido específico
+    Gera a nota fiscal para um pedido específico.
+    
+    Cria um arquivo PDF com os detalhes do pedido e o disponibiliza para download.
+    
+    Args:
+        request: Objeto request do Django
+        order_number: Número do pedido para o qual gerar a nota fiscal
+        
+    Returns:
+        FileResponse: Arquivo PDF da nota fiscal para download
     """
     # Obter o pedido
     order = get_object_or_404(Order, order_number=order_number, user=request.user)
@@ -791,10 +1008,20 @@ def generate_invoice(request, order_number):
         filename=f'nota_fiscal_{invoice.invoice_number}.pdf'
     )
 
+
 @login_required(login_url='login')
 def view_invoice(request, order_number):
     """
-    Visualiza a nota fiscal de um pedido específico
+    Visualiza a nota fiscal de um pedido específico.
+    
+    Exibe o PDF da nota fiscal no navegador sem fazer download.
+    
+    Args:
+        request: Objeto request do Django
+        order_number: Número do pedido cuja nota fiscal será visualizada
+        
+    Returns:
+        FileResponse: Arquivo PDF da nota fiscal para visualização
     """
     # Obter o pedido
     order = get_object_or_404(Order, order_number=order_number, user=request.user)
@@ -815,10 +1042,19 @@ def view_invoice(request, order_number):
         messages.error(request, 'Não existe nota fiscal para este pedido.')
         return redirect('order_detail', order_number=order_number)
 
+
 @login_required(login_url='login')
 def invoice_list(request):
     """
-    Lista todas as notas fiscais do usuário
+    Lista todas as notas fiscais do usuário.
+    
+    Exibe uma página com todas as notas fiscais dos pedidos do usuário.
+    
+    Args:
+        request: Objeto request do Django
+        
+    Returns:
+        HttpResponse: Renderiza a página de listagem de notas fiscais
     """
     # Obter pedidos do usuário que possuem nota fiscal
     invoices = Invoice.objects.filter(order__user=request.user).order_by('-invoice_date')

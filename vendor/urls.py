@@ -1,4 +1,18 @@
+"""
+Arquivo: vendor/urls.py
+Descrição: Define todas as rotas relacionadas ao gerenciamento de restaurantes, incluindo:
+- CRUD completo de restaurantes
+- Dashboard e perfil do restaurante
+- Aprovação e gerenciamento de status
+
+Dependências principais:
+- vendor/views.py: Views para manipulação de restaurantes
+"""
+
+# Imports do Django
 from django.urls import path
+
+# Imports locais (do próprio projeto)
 from . import views
 
 urlpatterns = [

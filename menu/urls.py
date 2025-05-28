@@ -1,4 +1,18 @@
+"""
+Arquivo: menu/urls.py
+Descrição: Define todas as rotas relacionadas ao gerenciamento de cardápio, incluindo:
+- CRUD de categorias de alimentos
+- CRUD de itens de comida
+- Visualização e organização do cardápio
+
+Dependências principais:
+- menu/views.py: Views para manipulação de categorias e itens de comida
+"""
+
+# Imports do Django
 from django.urls import path
+
+# Imports locais (do próprio projeto)
 from . import views
 
 urlpatterns = [

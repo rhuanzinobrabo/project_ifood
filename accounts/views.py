@@ -1,19 +1,36 @@
+"""
+Arquivo: accounts/views.py
+Descrição: Contém todas as views relacionadas a contas de usuário, incluindo:
+- Autenticação (login, registro, logout)
+- Gerenciamento de perfil
+- Verificação de email e OTP
+- Administração de usuários
+- Integração com login social
+- Gerenciamento de endereços
+
+Dependências principais:
+- accounts/models.py: Modelos de usuário, perfil e endereço
+- accounts/forms.py: Formulários para manipulação de dados de usuário
+- accounts/utils.py: Funções utilitárias para notificações e verificações
+"""
+
+# Imports do Django
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils import timezone
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.crypto import get_random_string
-from datetime import timedelta
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, UpdateView, DeleteView
-from django.urls import reverse_lazy
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.core.paginator import Paginator
 
+# Imports da biblioteca padrão Python
+from datetime import timedelta
 
 # Imports para autenticação social
 from allauth.socialaccount.models import SocialAccount
@@ -22,6 +39,7 @@ from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from allauth.socialaccount.providers.oauth2.views import OAuth2LoginView, OAuth2CallbackView
 
+# Imports locais (do próprio projeto )
 from .utils import detectUser
 from .forms import EmailForm, OTPForm, AccountTypeForm, CustomerProfileForm, RestaurantProfileForm, UserForm, UserProfileForm, UserAddressForm, UserAddress
 from .models import User, UserProfile, OTPModel
@@ -31,24 +49,60 @@ from vendor.models import Vendor
 # --- Funções auxiliares ---
 
 def check_role_vendor(user):
+    """
+    Verifica se o usuário tem papel de restaurante.
+    
+    Args:
+        user: Instância do modelo User
+        
+    Returns:
+        bool: True se o usuário é restaurante, False caso contrário
+    """
     if user.role == 1:
         return True
     messages.error(user, 'Acesso restrito. Somente restaurantes podem acessar esta área.')
     return False
 
 def check_role_customer(user):
+    """
+    Verifica se o usuário tem papel de cliente.
+    
+    Args:
+        user: Instância do modelo User
+        
+    Returns:
+        bool: True se o usuário é cliente, False caso contrário
+    """
     if user.role == 2:
         return True
     messages.error(user, 'Acesso restrito. Somente clientes podem acessar esta área.')
     return False
 
 def check_role_admin(user):
+    """
+    Verifica se o usuário é administrador.
+    
+    Args:
+        user: Instância do modelo User
+        
+    Returns:
+        bool: True se o usuário é administrador, False caso contrário
+    """
     if user.is_superuser:
         return True
     messages.error(user, 'Acesso restrito. Somente administradores podem acessar esta área.')
     return False
 
 def detectUser(user):
+    """
+    Detecta o tipo de usuário e retorna a URL de redirecionamento apropriada.
+    
+    Args:
+        user: Instância do modelo User
+        
+    Returns:
+        str: URL para redirecionamento baseada no papel do usuário
+    """
     if user.role == 1:
         return 'vendorDashboard'
     elif user.role == 2:
@@ -58,6 +112,12 @@ def detectUser(user):
     return 'myAccount'
 
 def send_otp_via_email(email):
+    """
+    Gera e envia um código OTP para o email fornecido.
+    
+    Args:
+        email: Email do usuário para envio do OTP
+    """
     otp = get_random_string(length=6, allowed_chars='1234567890')
     OTPModel.objects.update_or_create(
         email=email,
@@ -83,6 +143,9 @@ def social_login(request):
     return render(request, 'accounts/social_login.html')
 
 def social_callback(request):
+    """
+    Callback para processamento após autenticação social
+    """
     if request.user.is_authenticated:
         user = request.user
         
@@ -100,6 +163,9 @@ def social_callback(request):
 # --- Views principais ---
 
 def request_otp(request):
+    """
+    Solicita email para envio de código OTP
+    """
     if request.method == 'POST':
         form = EmailForm(request.POST)
         if form.is_valid():
@@ -113,6 +179,9 @@ def request_otp(request):
     return render(request, 'accounts/request_otp.html', {'form': form})
 
 def verify_otp(request):
+    """
+    Verifica o código OTP enviado por email
+    """
     email = request.session.get('otp_email')
     if not email:
         return redirect('request_otp')
@@ -168,6 +237,9 @@ def verify_otp(request):
 
 @login_required(login_url='request_otp')
 def choose_account_type(request):
+    """
+    Permite ao usuário escolher o tipo de conta (cliente ou restaurante)
+    """
     user = request.user
     if user.role:
         return redirect('complete_profile')
@@ -184,6 +256,9 @@ def choose_account_type(request):
 
 @login_required(login_url='request_otp')
 def complete_profile(request):
+    """
+    Permite ao usuário completar seu perfil após escolher o tipo de conta
+    """
     user = request.user
 
     if not user.role:
@@ -225,6 +300,9 @@ def complete_profile(request):
 @login_required(login_url='request_otp')
 @user_passes_test(check_role_admin)
 def admin_dashboard(request):
+    """
+    Dashboard administrativo com estatísticas e ações rápidas
+    """
     total_users = User.objects.count()
     total_customers = User.objects.filter(role=2).count()
     total_vendors = User.objects.filter(role=1).count()
@@ -449,183 +527,59 @@ def profile_delete(request):
 # --- Fluxos auxiliares ---
 
 def registerUser(request):
+    """
+    Redireciona para o fluxo de registro via OTP ou login social
+    """
     messages.info(request, 'Cadastre-se via OTP ou login social.')
     return redirect('social_login')
 
 def registerVendor(request):
+    """
+    Redireciona para o fluxo de registro de restaurante
+    """
     messages.info(request, 'Cadastre-se via OTP ou login social.')
     return redirect('social_login')
 
 def login(request):
+    """
+    Redireciona para o fluxo de login via OTP ou login social
+    """
+    messages.info(request, 'Faça login via OTP ou login social.')
     return redirect('social_login')
 
 def logout(request):
+    """
+    Realiza o logout do usuário
+    """
     auth.logout(request)
-    messages.info(request, 'Sessão finalizada com êxito.')
+    messages.success(request, 'Você saiu da sua conta.')
     return redirect('social_login')
 
-@login_required(login_url='social_login')
+@login_required(login_url='request_otp')
 def myAccount(request):
+    """
+    Redireciona para o dashboard apropriado com base no tipo de usuário
+    """
     user = request.user
-    if user.role == 1:
-        return redirect('vendorDashboard')
-    elif user.role == 2:
-        return redirect('custDashboard')
-    elif user.is_superuser:
-        return redirect('admin_dashboard')
-    else:
-        messages.info(request, 'Complete seu cadastro.')
-        return redirect('choose_account_type')
+    redirectUrl = detectUser(user)
+    return redirect(redirectUrl)
 
-@login_required(login_url='social_login')
+@login_required(login_url='request_otp')
 @user_passes_test(check_role_customer)
 def custDashboard(request):
-    profile = UserProfile.objects.get(user=request.user)
+    """
+    Dashboard para usuários do tipo cliente
+    """
+    return render(request, 'accounts/custDashboard.html')
 
-    orders = [
-        {'id': '22606', 'date': 'Apr 9, 2020', 'total': '38.99', 'charges': '3.90', 'received': '35.09', 'status': 'Completed'},
-        {'id': '22583', 'date': 'Apr 9, 2020', 'total': '26.22', 'charges': '2.62', 'received': '23.60', 'status': 'Processing'},
-        {'id': '22493', 'date': 'Apr 2, 2020', 'total': '28.24', 'charges': '2.82', 'received': '25.42', 'status': 'Completed'},
-    ]
-
-    context = {
-        'user': request.user,
-        'profile': profile,
-        'orders': orders,
-    }
-    return render(request, 'accounts/custDashboard.html', context)
-
-@login_required(login_url='social_login')
+@login_required(login_url='request_otp')
 @user_passes_test(check_role_vendor)
 def vendorDashboard(request):
-    return render(request, 'accounts/vendorDashboard.html')
-
-# --- Redirecionamentos para OTP (em caso de esquecimento) ---
-
-def forgot_password(request):
-    messages.info(request, 'Login e recuperação de senha agora funcionam via OTP ou login social.')
-    return redirect('social_login')
-
-def reset_password_validate(request, uidb64, token):
-    return redirect('social_login')
-
-def reset_password(request):
-    return redirect('social_login')
-
-# --- CRUD de Endereços ---
-
-@login_required(login_url='social_login')
-def address_list(request):
     """
-    Lista todos os endereços do usuário logado
+    Dashboard para usuários do tipo restaurante
     """
-    addresses = UserAddress.objects.filter(user=request.user).order_by('-is_default', '-created_at')
-    
-    search_query = request.GET.get('search', '')
-    if search_query:
-        addresses = addresses.filter(
-            Q(address_line1__icontains=search_query) | 
-            Q(city__icontains=search_query) |
-            Q(state__icontains=search_query)
-        )
-    
-    # Paginação
-    paginator = Paginator(addresses, 5)  # 5 endereços por página
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    
+    vendor = get_object_or_404(Vendor, user=request.user)
     context = {
-        'addresses': page_obj,
-        'search_query': search_query,
+        'vendor': vendor,
     }
-    return render(request, 'accounts/address_list.html', context)
-
-@login_required(login_url='social_login')
-def address_create(request):
-    """
-    Cria um novo endereço para o usuário logado
-    """
-    if request.method == 'POST':
-        form = UserAddressForm(request.POST)
-        if form.is_valid():
-            address = form.save(commit=False)
-            address.user = request.user
-            address.save()
-            
-            messages.success(request, 'Endereço adicionado com sucesso!')
-            return redirect('address_list')
-    else:
-        form = UserAddressForm()
-    
-    context = {
-        'form': form,
-        'title': 'Adicionar Novo Endereço',
-    }
-    return render(request, 'accounts/address_form.html', context)
-
-@login_required(login_url='social_login')
-def address_update(request, pk):
-    """
-    Atualiza um endereço existente
-    """
-    address = get_object_or_404(UserAddress, pk=pk, user=request.user)
-    
-    if request.method == 'POST':
-        form = UserAddressForm(request.POST, instance=address)
-        if form.is_valid():
-            form.save()
-            
-            messages.success(request, 'Endereço atualizado com sucesso!')
-            return redirect('address_list')
-    else:
-        form = UserAddressForm(instance=address)
-    
-    context = {
-        'form': form,
-        'address': address,
-        'title': 'Editar Endereço',
-    }
-    return render(request, 'accounts/address_form.html', context)
-
-@login_required(login_url='social_login')
-def address_delete(request, pk):
-    """
-    Exclui um endereço
-    """
-    address = get_object_or_404(UserAddress, pk=pk, user=request.user)
-    
-    if request.method == 'POST':
-        was_default = address.is_default
-        address.delete()
-        
-        # Se o endereço excluído era o padrão, defina outro como padrão
-        if was_default:
-            remaining = UserAddress.objects.filter(user=request.user).first()
-            if remaining:
-                remaining.is_default = True
-                remaining.save()
-        
-        messages.success(request, 'Endereço excluído com sucesso!')
-        return redirect('address_list')
-    
-    context = {
-        'address': address,
-    }
-    return render(request, 'accounts/address_delete.html', context)
-
-@login_required(login_url='social_login')
-def set_default_address(request, pk):
-    """
-    Define um endereço como padrão
-    """
-    address = get_object_or_404(UserAddress, pk=pk, user=request.user)
-    
-    # Remover status padrão de todos os endereços do usuário
-    UserAddress.objects.filter(user=request.user, is_default=True).update(is_default=False)
-    
-    # Definir este endereço como padrão
-    address.is_default = True
-    address.save()
-    
-    messages.success(request, 'Endereço definido como padrão com sucesso!')
-    return redirect('address_list')
+    return render(request, 'accounts/vendorDashboard.html', context)

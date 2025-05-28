@@ -1,4 +1,20 @@
+"""
+Arquivo: marketplace/urls.py
+Descrição: Define todas as rotas (URLs) do aplicativo marketplace, incluindo:
+- Rotas para listagem e busca de restaurantes e produtos
+- Rotas para gerenciamento de carrinho
+- Rotas para checkout e processamento de pedidos
+- Rotas para geração e visualização de notas fiscais
+
+Dependências principais:
+- marketplace/views.py: Views principais do marketplace
+- marketplace/views_*.py: Views auxiliares para funcionalidades específicas
+"""
+
+# Imports do Django
 from django.urls import path
+
+# Imports locais (do próprio projeto)
 from . import views
 
 urlpatterns = [

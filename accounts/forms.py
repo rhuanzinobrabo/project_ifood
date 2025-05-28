@@ -1,8 +1,27 @@
+"""
+Arquivo: accounts/forms.py
+Descrição: Contém todos os formulários relacionados a contas de usuário, incluindo:
+- Formulários de autenticação (login, registro)
+- Formulários de perfil (edição, visualização)
+- Formulários para seleção de tipo de conta
+- Formulários para verificação (email, OTP)
+
+Dependências principais:
+- accounts/models.py: Modelos User e UserProfile
+"""
+
+# Imports do Django
 from django import forms
-from .models import User, UserProfile, UserAddress
+
+# Imports locais (do próprio projeto)
+from .models import User, UserProfile
 
 
 class EmailForm(forms.Form):
+    """
+    Formulário para entrada de email, usado em processos de verificação
+    e recuperação de senha.
+    """
     email = forms.EmailField(
         label='E-mail',
         widget=forms.EmailInput(attrs={
@@ -13,6 +32,10 @@ class EmailForm(forms.Form):
 
 
 class OTPForm(forms.Form):
+    """
+    Formulário para entrada de código OTP (One-Time Password),
+    usado no processo de verificação em duas etapas.
+    """
     otp = forms.CharField(
         label='Código de Verificação',
         max_length=6,
@@ -25,6 +48,10 @@ class OTPForm(forms.Form):
 
 
 class UserForm(forms.ModelForm):
+    """
+    Formulário para criação e edição de usuários,
+    com campos básicos como nome, sobrenome e tipo de conta.
+    """
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'role', 'phone_number']
@@ -56,6 +83,10 @@ class UserForm(forms.ModelForm):
 
 
 class UserProfileForm(forms.ModelForm):
+    """
+    Formulário para criação e edição de perfil de usuário,
+    incluindo endereço e imagens de perfil.
+    """
     address_line_1 = forms.CharField(
         label='Endereço',
         widget=forms.TextInput(attrs={
@@ -91,6 +122,10 @@ class UserProfileForm(forms.ModelForm):
 
 
 class AccountTypeForm(forms.ModelForm):
+    """
+    Formulário para seleção de tipo de conta (Cliente ou Restaurante),
+    usado no processo de registro.
+    """
     class Meta:
         model = User
         fields = ['role']
@@ -106,22 +141,12 @@ class AccountTypeForm(forms.ModelForm):
             (2, 'Cliente'),
         )
 
-class UserAddressForm(forms.ModelForm):
-    class Meta:
-        model = UserAddress
-        fields = ['address_type', 'address_line1', 'address_line2', 'city', 'state', 'postal_code', 'country', 'is_default']
-        widgets = {
-            'address_type': forms.Select(attrs={'class': 'form-control'}),
-            'address_line1': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Rua, número'}),
-            'address_line2': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Complemento, apartamento'}),
-            'city': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Cidade'}),
-            'state': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Estado'}),
-            'postal_code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'CEP'}),
-            'country': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'País'}),
-            'is_default': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-        }
 
 class CustomerProfileForm(forms.ModelForm):
+    """
+    Formulário específico para perfil de cliente,
+    com campos personalizados para este tipo de usuário.
+    """
     first_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs={
         'class': 'form-control',
         'placeholder': 'Primeiro nome'
@@ -152,6 +177,10 @@ class CustomerProfileForm(forms.ModelForm):
 
 
 class RestaurantProfileForm(forms.ModelForm):
+    """
+    Formulário específico para perfil de restaurante,
+    com campos personalizados para este tipo de usuário.
+    """
     first_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs={
         'class': 'form-control',
         'placeholder': 'Primeiro nome'
