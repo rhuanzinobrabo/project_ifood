@@ -175,6 +175,17 @@ def approve_restaurant(request, pk=None):
     messages.success(request, f'O restaurante {restaurant.vendor_name} foi aprovado com sucesso!')
     return redirect('restaurant_list')
 
+@login_required(login_url='social_login')
+@user_passes_test(check_role_vendor)
+def restaurant_dashboard(request):
+    """
+    Painel do restaurante logado (dashboard individual do restaurante)
+    """
+    vendor = request.user.vendor  # se houver relação OneToOne no modelo
+    context = {
+        'vendor': vendor,
+    }
+    return render(request, 'vendor/dashboard.html', context)
 
 @login_required(login_url='social_login')
 @user_passes_test(check_role_admin)
@@ -188,3 +199,4 @@ def disapprove_restaurant(request, pk=None):
     
     messages.success(request, f'O restaurante {restaurant.vendor_name} foi desaprovado com sucesso!')
     return redirect('restaurant_list')
+

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="container">
+    <h1 class="mt-4">Painel do Restaurante</h1>
+    <p>Bem-vindo, {{ vendor.vendor_name }}!</p>
+    <p>Status de aprovação: 
+        {% if vendor.is_approved %}
+            <span class="text-success">Aprovado</span>
+        {% else %}
+            <span class="text-danger">Pendente</span>
+        {% endif %}
+    </p>
+  </div>
+{% endblock %}

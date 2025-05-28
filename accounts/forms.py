@@ -224,8 +224,8 @@ class UserAddressForm(forms.ModelForm):
     """
     class Meta:
         model = UserAddress
-        fields = ['address_line_1', 'address_line_2', 'city', 'state', 'country', 
-                 'address_type', 'is_default', 'latitude', 'longitude']
+        fields = ['address_type', 'address_line1', 'address_line2', 'city', 'state', 'country', 
+                 'postal_code', 'latitude', 'longitude', 'is_default']
         exclude = ['user']
         
     def __init__(self, *args, **kwargs):
@@ -234,7 +234,7 @@ class UserAddressForm(forms.ModelForm):
             self.fields[field].widget.attrs['class'] = 'form-control'
         
         # Tornar alguns campos opcionais
-        self.fields['address_line_2'].required = False
+        self.fields['address_line2'].required = False
         self.fields['latitude'].required = False
         self.fields['longitude'].required = False
         self.fields['is_default'].widget = forms.CheckboxInput(attrs={

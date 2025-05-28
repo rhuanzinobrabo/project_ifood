@@ -42,7 +42,7 @@ from allauth.socialaccount.providers.oauth2.views import OAuth2LoginView, OAuth2
 # Imports locais (do próprio projeto )
 from .utils import detectUser
 from .forms import EmailForm, OTPForm, AccountTypeForm, CustomerProfileForm, RestaurantProfileForm, UserForm, UserProfileForm, UserAddressForm, UserAddress
-from .models import User, UserProfile, OTPModel, UserAddress
+from .models import User, UserProfile, UserAddress, OTPModel
 from vendor.forms import VendorForm
 from vendor.models import Vendor
 
@@ -586,7 +586,7 @@ def vendorDashboard(request):
 
 # --- CRUD de Endereços ---
 
-@login_required(login_url='request_otp')
+@login_required(login_url='login')  # Ajustei para usar 'login' em vez de 'request_otp'
 def address_list(request):
     """
     Lista todos os endereços do usuário logado
@@ -599,7 +599,7 @@ def address_list(request):
     }
     return render(request, 'accounts/address_list.html', context)
 
-@login_required(login_url='request_otp')
+@login_required(login_url='login')  # Ajustei para usar 'login' em vez de 'request_otp'
 def address_create(request):
     """
     Cria um novo endereço para o usuário logado
@@ -628,7 +628,7 @@ def address_create(request):
     }
     return render(request, 'accounts/address_form.html', context)
 
-@login_required(login_url='request_otp')
+@login_required(login_url='login')  # Ajustei para usar 'login' em vez de 'request_otp'
 def address_update(request, pk):
     """
     Atualiza um endereço existente do usuário logado
@@ -658,7 +658,7 @@ def address_update(request, pk):
     }
     return render(request, 'accounts/address_form.html', context)
 
-@login_required(login_url='request_otp')
+@login_required(login_url='login')  # Ajustei para usar 'login' em vez de 'request_otp'
 def address_delete(request, pk):
     """
     Exclui um endereço do usuário logado
@@ -685,7 +685,7 @@ def address_delete(request, pk):
     }
     return render(request, 'accounts/address_delete.html', context)
 
-@login_required(login_url='request_otp')
+@login_required(login_url='login')  # Ajustei para usar 'login' em vez de 'request_otp'
 def set_default_address(request, pk):
     """
     Define um endereço como padrão para o usuário logado

@@ -34,8 +34,8 @@ class Vendor(models.Model):
     - Pode estar em múltiplos Order (muitos para muitos)
     - Pode estar em múltiplos FavoriteRestaurant (um para muitos)
     """
-    user = models.OneToOneField(User, related_name='user', on_delete=models.CASCADE,
-                               help_text="Usuário proprietário do restaurante")
+    user = models.OneToOneField(User, related_name='vendor', on_delete=models.CASCADE,
+                            help_text="Usuário proprietário do restaurante")
     user_profile = models.OneToOneField(UserProfile, related_name='userprofile', on_delete=models.CASCADE,
                                        help_text="Perfil de usuário associado ao restaurante")
     vendor_name = models.CharField(max_length=50,

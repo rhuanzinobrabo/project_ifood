@@ -96,6 +96,23 @@ class UserManager(BaseUserManager):
             raise ValueError('Superuser must have is_superuser=True.')
         
         return self.create_user(first_name, last_name, username, email, password, **extra_fields)
+    
+
+class OTPModel(models.Model):
+    email = models.EmailField()
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    attempts = models.PositiveIntegerField(default=0)
+    blocked_until = models.DateTimeField(null=True, blank=True)
+
+    def is_expired(self):
+        return timezone.now() > self.created_at + timedelta(minutes=5)
+
+    def is_blocked(self):
+        return self.blocked_until and timezone.now() < self.blocked_until
+
+    def __str__(self):
+        return f"OTP para {self.email} - {self.otp}"
 
 
 # -------------------------
@@ -343,36 +360,3 @@ class UserAddress(models.Model):
             self.is_default = True
             
         super(UserAddress, self).save(*args, **kwargs)
-
-# Para models.py - Adicione este modelo
-class UserAddress(models.Model):
-    """
-    Modelo para armazenar múltiplos endereços de usuário
-    """
-    ADDRESS_TYPE_CHOICES = (
-        ('Home', 'Casa'),
-        ('Work', 'Trabalho'),
-        ('Other', 'Outro'),
-    )
-    
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses')
-    address_line_1 = models.CharField(max_length=100)
-    address_line_2 = models.CharField(max_length=100, blank=True, null=True)
-    city = models.CharField(max_length=50)
-    state = models.CharField(max_length=50)
-    country = models.CharField(max_length=50)
-    # Removido o campo pin_code
-    address_type = models.CharField(max_length=10, choices=ADDRESS_TYPE_CHOICES, default='Home')
-    is_default = models.BooleanField(default=False)
-    latitude = models.CharField(max_length=20, blank=True, null=True)
-    longitude = models.CharField(max_length=20, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    def __str__(self):
-        return f"{self.address_line_1}, {self.city}, {self.state}"
-    
-    class Meta:
-        verbose_name = 'Endereço'
-        verbose_name_plural = 'Endereços'
-        ordering = ['-is_default', '-created_at']
