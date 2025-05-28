@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Criar Novo Restaurante</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'restaurant_create' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if messages %}
+                        <div class="alert alert-danger">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="form-group mb-3">
+                            <label for="user">Proprietário *</label>
+                            <select name="user" id="user" class="form-control" required>
+                                <option value="">Selecione um usuário</option>
+                                {% for user in users %}
+                                <option value="{{ user.id }}">{{ user.first_name }} {{ user.last_name }} ({{ user.email }})</option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-text text-muted">Selecione o usuário que será o proprietário deste restaurante.</small>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="id_vendor_name">Nome do Restaurante *</label>
+                            {{ form.vendor_name }}
+                            <small class="form-text text-muted">Digite o nome comercial do restaurante.</small>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="id_vendor_license">Licença/Alvará *</label>
+                            {{ form.vendor_license }}
+                            <small class="form-text text-muted">Faça upload da licença ou alvará de funcionamento do restaurante.</small>
+                        </div>
+                        
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Salvar
+                            </button>
+                            <a href="{% url 'restaurant_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Voltar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

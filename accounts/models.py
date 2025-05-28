@@ -138,4 +138,38 @@ class OTPModel(models.Model):
     def __str__(self):
         return f"OTP para {self.email} - {self.otp}"
 
+# -------------------------
+# User Address Model
+# -------------------------
+class UserAddress(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses')
+    address_type = models.CharField(max_length=20, choices=[
+        ('home', 'Casa'),
+        ('work', 'Trabalho'),
+        ('other', 'Outro')
+    ], default='home')
+    address_line1 = models.CharField(max_length=100)
+    address_line2 = models.CharField(max_length=100, blank=True, null=True)
+    city = models.CharField(max_length=50)
+    state = models.CharField(max_length=50)
+    postal_code = models.CharField(max_length=10)
+    country = models.CharField(max_length=50, default='Brasil')
+    latitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True)
+    longitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True)
+    is_default = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return f"{self.address_type} - {self.address_line1}, {self.city}"
+    
+    def save(self, *args, **kwargs):
+        # Se este endereço for definido como padrão, remova o status padrão de outros endereços
+        if self.is_default:
+            UserAddress.objects.filter(user=self.user, is_default=True).update(is_default=False)
+        
+        # Se este for o primeiro endereço do usuário, defina-o como padrão
+        if not self.pk and not UserAddress.objects.filter(user=self.user).exists():
+            self.is_default = True
+            
+        super(UserAddress, self).save(*args, **kwargs)

@@ -1,5 +1,5 @@
 from django import forms
-from .models import User, UserProfile
+from .models import User, UserProfile, UserAddress
 
 
 class EmailForm(forms.Form):
@@ -106,6 +106,20 @@ class AccountTypeForm(forms.ModelForm):
             (2, 'Cliente'),
         )
 
+class UserAddressForm(forms.ModelForm):
+    class Meta:
+        model = UserAddress
+        fields = ['address_type', 'address_line1', 'address_line2', 'city', 'state', 'postal_code', 'country', 'is_default']
+        widgets = {
+            'address_type': forms.Select(attrs={'class': 'form-control'}),
+            'address_line1': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Rua, número'}),
+            'address_line2': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Complemento, apartamento'}),
+            'city': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Cidade'}),
+            'state': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Estado'}),
+            'postal_code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'CEP'}),
+            'country': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'País'}),
+            'is_default': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
 
 class CustomerProfileForm(forms.ModelForm):
     first_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs={

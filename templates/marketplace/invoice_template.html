@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <div class="row">
+        <div class="col-12 text-center">
+            <h1>Nota Fiscal</h1>
+            <p class="text-muted">Pedido #{{ order.order_number }}</p>
+        </div>
+    </div>
+
+    <!-- Cabeçalho da Nota Fiscal -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between">
+                        <h4 class="mb-0">Nota Fiscal Eletrônica - NF-e</h4>
+                        <h4 class="mb-0">Nº {{ invoice.invoice_number }}</h4>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Dados do Emitente</h5>
+                            <p><strong>{{ company_name }}</strong></p>
+                            <p>{{ company_address }}</p>
+                            <p>CNPJ: {{ company_cnpj }}</p>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <h5>Dados da Nota</h5>
+                            <p><strong>Data de Emissão:</strong> {{ invoice_date }}</p>
+                            <p><strong>Número do Pedido:</strong> {{ order.order_number }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dados do Cliente -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h4 class="mb-0">Dados do Cliente</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Nome:</strong> {{ order.first_name }} {{ order.last_name }}</p>
+                            <p><strong>Email:</strong> {{ order.email }}</p>
+                            <p><strong>Telefone:</strong> {{ order.phone }}</p>
+                            {% if invoice.customer_cpf %}
+                            <p><strong>CPF:</strong> {{ invoice.customer_cpf }}</p>
+                            {% endif %}
+                            {% if invoice.customer_cnpj %}
+                            <p><strong>CNPJ:</strong> {{ invoice.customer_cnpj }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Endereço:</strong> {{ order.address_line_1 }}</p>
+                            {% if order.address_line_2 %}<p>{{ order.address_line_2 }}</p>{% endif %}
+                            <p>{{ order.city }}, {{ order.state }}, {{ order.country }}</p>
+                            <p><strong>CEP:</strong> {{ order.postal_code }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Itens da Nota -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h4 class="mb-0">Itens da Nota</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Descrição</th>
+                                    <th>Restaurante</th>
+                                    <th class="text-center">Qtd</th>
+                                    <th class="text-right">Valor Unit.</th>
+                                    <th class="text-right">Valor Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in ordered_food %}
+                                <tr>
+                                    <td>{{ item.fooditem.id }}</td>
+                                    <td>{{ item.fooditem.food_title }}</td>
+                                    <td>{{ item.fooditem.vendor.vendor_name }}</td>
+                                    <td class="text-center">{{ item.quantity }}</td>
+                                    <td class="text-right">R$ {{ item.price|floatformat:2 }}</td>
+                                    <td class="text-right">R$ {{ item.amount|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Totais -->
+    <div class="row mb-4">
+        <div class="col-md-6 offset-md-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h4 class="mb-0">Totais</h4>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <span>R$ {{ subtotal|floatformat:2 }}</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Impostos:</span>
+                        <span>R$ {{ order.tax|floatformat:2 }}</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-2 font-weight-bold">
+                        <span>Total:</span>
+                        <span>R$ {{ order.order_total|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informações de Pagamento -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h4 class="mb-0">Informações de Pagamento</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Método de Pagamento:</strong> 
+                                {% for payment in order.payment_set.all %}
+                                    {{ payment.get_payment_method_display }}
+                                {% empty %}
+                                    Não informado
+                                {% endfor %}
+                            </p>
+                            <p><strong>Status do Pagamento:</strong> {{ order.get_payment_status_display }}</p>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <p><strong>Data do Pagamento:</strong> 
+                                {% for payment in order.payment_set.all %}
+                                    {{ payment.created_at|date:"d/m/Y H:i" }}
+                                {% empty %}
+                                    Não informado
+                                {% endfor %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informações Adicionais -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h4 class="mb-0">Informações Adicionais</h4>
+                </div>
+                <div class="card-body">
+                    <p>Esta é uma nota fiscal simplificada, emitida para fins de simulação.</p>
+                    <p>Em caso de dúvidas, entre em contato com nosso suporte.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <p class="text-muted">Documento emitido eletronicamente - {{ invoice_date }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

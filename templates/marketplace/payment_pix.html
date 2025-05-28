@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-light p-3">
+                    <li class="breadcrumb-item"><a href="{% url 'marketplace' %}">Início</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'cart' %}">Carrinho</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'checkout' %}">Checkout</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Pagamento</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Pagamento via PIX</h4>
+                </div>
+                <div class="card-body text-center">
+                    <div class="alert alert-info mb-4">
+                        <p class="mb-0"><strong>Valor a pagar:</strong> R$ {{ order.order_total|floatformat:2 }}</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5>Escaneie o QR Code abaixo</h5>
+                        <p>Use o aplicativo do seu banco para escanear o QR Code e efetuar o pagamento.</p>
+                        
+                        <div class="qr-code-container my-4">
+                            <img src="{% static 'images/qr-code-pix.png' %}" alt="QR Code PIX" class="img-fluid" style="max-width: 250px;">
+                        </div>
+                        
+                        <div class="pix-key-container mb-4">
+                            <h6>Ou copie a chave PIX</h6>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="pix-key" value="ifood-simulacao-{{ order.order_number }}" readonly>
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button" id="copy-pix-key">
+                                        <i class="fas fa-copy"></i> Copiar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning mb-4">
+                        <p class="mb-0"><strong>Nota:</strong> Este é um ambiente de simulação. Nenhum pagamento real será processado.</p>
+                    </div>
+                    
+                    <form action="{% url 'payment' order.id payment_method %}" method="POST">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'checkout' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Voltar
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check-circle"></i> Confirmar Pagamento
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Função para copiar a chave PIX
+        const copyButton = document.getElementById('copy-pix-key');
+        const pixKeyInput = document.getElementById('pix-key');
+        
+        copyButton.addEventListener('click', function() {
+            pixKeyInput.select();
+            document.execCommand('copy');
+            
+            // Feedback visual
+            copyButton.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+            setTimeout(function() {
+                copyButton.innerHTML = '<i class="fas fa-copy"></i> Copiar';
+            }, 2000);
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Detalhes do Restaurante</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                    <div class="alert alert-info">
+                        {% for message in messages %}
+                            {{ message }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            {% if restaurant.user_profile.profile_picture %}
+                                <img src="{{ restaurant.user_profile.profile_picture.url }}" alt="Logo do restaurante" class="img-fluid rounded mb-3">
+                            {% else %}
+                                <img src="{% static 'images/default-restaurant.png' %}" alt="Logo padrão" class="img-fluid rounded mb-3">
+                            {% endif %}
+                            
+                            <div class="text-center mb-3">
+                                <span class="badge {% if restaurant.is_approved %}badge-success{% else %}badge-warning{% endif %} p-2">
+                                    {% if restaurant.is_approved %}Aprovado{% else %}Pendente{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <h3>{{ restaurant.vendor_name }}</h3>
+                            <p class="text-muted">Cadastrado em {{ restaurant.created_at|date:"d/m/Y" }}</p>
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <h5>Informações do Proprietário</h5>
+                                    <p><strong>Nome:</strong> {{ restaurant.user.first_name }} {{ restaurant.user.last_name }}</p>
+                                    <p><strong>Email:</strong> {{ restaurant.user.email }}</p>
+                                    <p><strong>Telefone:</strong> {{ restaurant.user_profile.phone_number|default:"Não informado" }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5>Endereço</h5>
+                                    <p><strong>Endereço:</strong> {{ restaurant.user_profile.address_line_1|default:"Não informado" }}</p>
+                                    <p><strong>Cidade:</strong> {{ restaurant.user_profile.city|default:"Não informada" }}</p>
+                                    <p><strong>Estado:</strong> {{ restaurant.user_profile.state|default:"Não informado" }}</p>
+                                    <p><strong>País:</strong> {{ restaurant.user_profile.country|default:"Não informado" }}</p>
+                                </div>
+                            </div>
+                            
+                            <h5>Licença/Alvará</h5>
+                            {% if restaurant.vendor_license %}
+                                <a href="{{ restaurant.vendor_license.url }}" target="_blank" class="btn btn-sm btn-info mb-3">
+                                    <i class="fas fa-file-alt"></i> Visualizar Licença
+                                </a>
+                            {% else %}
+                                <p>Nenhuma licença enviada.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'restaurant_update' restaurant.pk %}" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <a href="{% url 'restaurant_delete' restaurant.pk %}" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Excluir
+                        </a>
+                        <a href="{% url 'restaurant_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Voltar para Lista
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

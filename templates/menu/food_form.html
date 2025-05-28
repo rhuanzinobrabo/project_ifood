@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">{{ title }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if messages %}
+                        <div class="alert alert-info">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="form-group mb-3">
+                            <label for="id_category">Categoria *</label>
+                            {{ form.category }}
+                            <small class="form-text text-muted">Selecione a categoria deste item.</small>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="id_food_title">Nome do Item *</label>
+                            {{ form.food_title }}
+                            <small class="form-text text-muted">Digite o nome do item (ex: X-Burger, Pizza Margherita).</small>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="id_description">Descrição</label>
+                            {{ form.description }}
+                            <small class="form-text text-muted">Descreva os ingredientes e características do item.</small>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="id_price">Preço (R$) *</label>
+                            {{ form.price }}
+                            <small class="form-text text-muted">Digite o preço do item (ex: 19.90).</small>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="id_image">Imagem *</label>
+                            {{ form.image }}
+                            <small class="form-text text-muted">Faça upload de uma imagem do item (recomendado: 500x500px).</small>
+                            {% if food_item and food_item.image %}
+                                <div class="mt-2">
+                                    <p>Imagem atual:</p>
+                                    <img src="{{ food_item.image.url }}" alt="{{ food_item.food_title }}" class="img-thumbnail" style="max-width: 200px;">
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <div class="custom-control custom-switch">
+                                {{ form.is_available }}
+                                <label class="custom-control-label" for="id_is_available">Item Disponível</label>
+                            </div>
+                            <small class="form-text text-muted">Desmarque esta opção se o item estiver temporariamente indisponível.</small>
+                        </div>
+                        
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Salvar
+                            </button>
+                            <a href="{% url 'food_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Voltar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

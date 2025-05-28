@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Detalhes do Item</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                    <div class="alert alert-info">
+                        {% for message in messages %}
+                            {{ message }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            {% if food_item.image %}
+                                <img src="{{ food_item.image.url }}" alt="{{ food_item.food_title }}" class="img-fluid rounded mb-3">
+                            {% else %}
+                                <img src="{% static 'images/default-food.png' %}" alt="Imagem padrão" class="img-fluid rounded mb-3">
+                            {% endif %}
+                            
+                            <div class="text-center mb-3">
+                                <span class="badge {% if food_item.is_available %}badge-success{% else %}badge-secondary{% endif %} p-2">
+                                    {% if food_item.is_available %}Disponível{% else %}Indisponível{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <h3>{{ food_item.food_title }}</h3>
+                            <p class="text-muted">Categoria: {{ food_item.category.category_name }}</p>
+                            
+                            <div class="mb-4">
+                                <h5>Descrição</h5>
+                                <p>{{ food_item.description|default:"Sem descrição disponível." }}</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h5>Preço</h5>
+                                <h3 class="text-success">R$ {{ food_item.price }}</h3>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h5>Informações Adicionais</h5>
+                                <p><strong>Restaurante:</strong> {{ food_item.vendor.vendor_name }}</p>
+                                <p><strong>Data de Cadastro:</strong> {{ food_item.create_at|date:"d/m/Y" }}</p>
+                                <p><strong>Última Atualização:</strong> {{ food_item.updated_at|date:"d/m/Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'food_update' food_item.pk %}" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <a href="{% url 'food_delete' food_item.pk %}" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Excluir
+                        </a>
+                        <a href="{% url 'food_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Voltar para Lista
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

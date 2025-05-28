@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Detalhes do Usuário</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            {% if profile.profile_picture %}
+                                <img src="{{ profile.profile_picture.url }}" alt="Foto de perfil" class="img-fluid rounded mb-3">
+                            {% else %}
+                                <img src="{% static 'images/default-user.png' %}" alt="Foto de perfil padrão" class="img-fluid rounded mb-3">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <h3>{{ user_obj.first_name }} {{ user_obj.last_name }}</h3>
+                            <p class="text-muted">{{ user_obj.email }}</p>
+                            
+                            <div class="mb-3">
+                                {% if user_obj.role == 1 %}
+                                    <span class="badge bg-warning text-dark">Restaurante</span>
+                                {% elif user_obj.role == 2 %}
+                                    <span class="badge bg-success">Cliente</span>
+                                {% elif user_obj.is_superuser %}
+                                    <span class="badge bg-danger">Admin</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Indefinido</span>
+                                {% endif %}
+                                
+                                {% if user_obj.is_active %}
+                                    <span class="badge bg-success">Ativo</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inativo</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Nome de Usuário:</strong> {{ user_obj.username }}</p>
+                                    <p><strong>Telefone:</strong> {{ user_obj.phone_number|default:"Não informado" }}</p>
+                                    <p><strong>Data de Cadastro:</strong> {{ user_obj.date_joined|date:"d/m/Y H:i" }}</p>
+                                    <p><strong>Último Acesso:</strong> {{ user_obj.last_login|date:"d/m/Y H:i"|default:"Nunca acessou" }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Endereço:</strong> {{ profile.address_line_1|default:"Não informado" }}</p>
+                                    <p><strong>Cidade:</strong> {{ profile.city|default:"Não informada" }}</p>
+                                    <p><strong>Estado:</strong> {{ profile.state|default:"Não informado" }}</p>
+                                    <p><strong>País:</strong> {{ profile.country|default:"Não informado" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'user_update' user_obj.pk %}" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <a href="{% url 'user_delete' user_obj.pk %}" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Excluir
+                        </a>
+                        <a href="{% url 'user_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Voltar para Lista
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-light p-3">
+                    <li class="breadcrumb-item"><a href="{% url 'marketplace' %}">Início</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'cart' %}">Carrinho</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'checkout' %}">Checkout</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Pagamento</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Pagamento com Cartão</h4>
+                </div>
+                <div class="card-body">
+                    <form action="{% url 'payment' order.id payment_method %}" method="POST" id="payment-form">
+                        {% csrf_token %}
+                        
+                        <div class="alert alert-info mb-4">
+                            <p class="mb-0"><strong>Valor a pagar:</strong> R$ {{ order.order_total|floatformat:2 }}</p>
+                        </div>
+                        
+                        <!-- Dados do Cartão -->
+                        <div class="mb-4">
+                            <h5>Dados do Cartão</h5>
+                            
+                            <div class="form-group">
+                                <label for="card-number">Número do Cartão</label>
+                                <input type="text" class="form-control" id="card-number" placeholder="0000 0000 0000 0000" required>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="card-expiry">Data de Validade</label>
+                                        <input type="text" class="form-control" id="card-expiry" placeholder="MM/AA" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="card-cvc">Código de Segurança (CVV)</label>
+                                        <input type="text" class="form-control" id="card-cvc" placeholder="123" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="card-name">Nome no Cartão</label>
+                                <input type="text" class="form-control" id="card-name" placeholder="Nome como aparece no cartão" required>
+                            </div>
+                        </div>
+                        
+                        <!-- Parcelamento -->
+                        <div class="mb-4">
+                            <h5>Parcelamento</h5>
+                            <select class="form-control" id="installments">
+                                <option value="1">À vista - R$ {{ order.order_total|floatformat:2 }}</option>
+                                <option value="2">2x de R$ {{ order.order_total|floatformat:2|divisibleby:"2"|floatformat:2 }}</option>
+                                <option value="3">3x de R$ {{ order.order_total|floatformat:2|divisibleby:"3"|floatformat:2 }}</option>
+                                <option value="4">4x de R$ {{ order.order_total|floatformat:2|divisibleby:"4"|floatformat:2 }}</option>
+                                <option value="5">5x de R$ {{ order.order_total|floatformat:2|divisibleby:"5"|floatformat:2 }}</option>
+                                <option value="6">6x de R$ {{ order.order_total|floatformat:2|divisibleby:"6"|floatformat:2 }}</option>
+                            </select>
+                        </div>
+                        
+                        <div class="alert alert-warning mb-4">
+                            <p class="mb-0"><strong>Nota:</strong> Este é um ambiente de simulação. Nenhum pagamento real será processado.</p>
+                        </div>
+                        
+                        <!-- Botões -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'checkout' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Voltar
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-lock"></i> Pagar Agora
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Formatação do número do cartão
+        const cardNumberInput = document.getElementById('card-number');
+        cardNumberInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 16) value = value.slice(0, 16);
+            
+            // Adicionar espaços a cada 4 dígitos
+            let formattedValue = '';
+            for (let i = 0; i < value.length; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formattedValue += ' ';
+                }
+                formattedValue += value[i];
+            }
+            
+            e.target.value = formattedValue;
+        });
+        
+        // Formatação da data de validade
+        const cardExpiryInput = document.getElementById('card-expiry');
+        cardExpiryInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 4) value = value.slice(0, 4);
+            
+            // Formato MM/AA
+            if (value.length > 2) {
+                value = value.slice(0, 2) + '/' + value.slice(2);
+            }
+            
+            e.target.value = value;
+        });
+        
+        // Formatação do CVV
+        const cardCvcInput = document.getElementById('card-cvc');
+        cardCvcInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 3) value = value.slice(0, 3);
+            e.target.value = value;
+        });
+    });
+</script>
+{% endblock %}

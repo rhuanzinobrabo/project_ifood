@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">Excluir Usuário</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h5><i class="fas fa-exclamation-triangle"></i> Atenção!</h5>
+                        <p>Você está prestes a excluir permanentemente o usuário <strong>{{ user_obj.first_name }} {{ user_obj.last_name }}</strong> ({{ user_obj.email }}).</p>
+                        <p>Esta ação não pode ser desfeita. Todos os dados associados a este usuário serão removidos.</p>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Informações do Usuário</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Nome:</strong> {{ user_obj.first_name }} {{ user_obj.last_name }}</p>
+                                    <p><strong>Email:</strong> {{ user_obj.email }}</p>
+                                    <p><strong>Tipo:</strong> 
+                                        {% if user_obj.role == 1 %}
+                                            Restaurante
+                                        {% elif user_obj.role == 2 %}
+                                            Cliente
+                                        {% else %}
+                                            Indefinido
+                                        {% endif %}
+                                    </p>
+                                    <p><strong>Data de Cadastro:</strong> {{ user_obj.date_joined|date:"d/m/Y H:i" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form method="post" action="{% url 'user_delete' user_obj.pk %}">
+                        {% csrf_token %}
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Confirmar Exclusão
+                            </button>
+                            <a href="{% url 'user_detail' user_obj.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

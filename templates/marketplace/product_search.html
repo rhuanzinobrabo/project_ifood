@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Título e Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Produtos{% if keyword %} - Resultados para "{{ keyword }}"{% endif %}</h2>
+            <p class="text-muted">{{ product_count }} produtos encontrados</p>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Filtros</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" action="{% url 'product_search' %}" id="search-form">
+                        <div class="row">
+                            <!-- Busca por palavra-chave -->
+                            <div class="col-md-4 mb-3">
+                                <label for="keyword">Buscar produto</label>
+                                <input type="text" class="form-control" id="keyword" name="keyword" 
+                                       placeholder="Ex: Pizza, Sushi, Hambúrguer..." value="{{ keyword }}">
+                            </div>
+                            
+                            <!-- Filtro por categoria -->
+                            <div class="col-md-3 mb-3">
+                                <label for="category">Categoria</label>
+                                <select class="form-control" id="category" name="category">
+                                    <option value="">Todas as categorias</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"i" %}selected{% endif %}>
+                                            {{ category.category_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <!-- Filtro por restaurante -->
+                            <div class="col-md-3 mb-3">
+                                <label for="vendor">Restaurante</label>
+                                <select class="form-control" id="vendor" name="vendor">
+                                    <option value="">Todos os restaurantes</option>
+                                    {% for vendor in vendors %}
+                                        <option value="{{ vendor.id }}" {% if selected_vendor == vendor.id|stringformat:"i" %}selected{% endif %}>
+                                            {{ vendor.vendor_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <!-- Ordenação -->
+                            <div class="col-md-2 mb-3">
+                                <label for="sort_by">Ordenar por</label>
+                                <select class="form-control" id="sort_by" name="sort_by">
+                                    <option value="relevance" {% if sort_by == 'relevance' %}selected{% endif %}>Relevância</option>
+                                    <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Menor preço</option>
+                                    <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Maior preço</option>
+                                    <option value="popularity" {% if sort_by == 'popularity' %}selected{% endif %}>Popularidade</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Filtro por faixa de preço -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label>Faixa de preço</label>
+                                <div class="d-flex">
+                                    <div class="input-group mr-2">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">R$</span>
+                                        </div>
+                                        <input type="number" class="form-control" id="price_min" name="price_min" 
+                                               placeholder="Mínimo" value="{{ price_min }}" min="0" step="0.01">
+                                    </div>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">R$</span>
+                                        </div>
+                                        <input type="number" class="form-control" id="price_max" name="price_max" 
+                                               placeholder="Máximo" value="{{ price_max }}" min="0" step="0.01">
+                                    </div>
+                                </div>
+                                {% if price_range %}
+                                <small class="text-muted">
+                                    Faixa disponível: R$ {{ price_range.min_price|floatformat:2 }} - R$ {{ price_range.max_price|floatformat:2 }}
+                                </small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> Buscar
+                                </button>
+                                <a href="{% url 'product_search' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-redo"></i> Limpar filtros
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resultados -->
+    <div class="row">
+        {% for product in products %}
+        <div class="col-md-3 mb-4">
+            <div class="card h-100">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.food_title }}" style="height: 180px; object-fit: cover;">
+                {% else %}
+                    <img src="{% static 'images/default-food.jpg' %}" class="card-img-top" alt="{{ product.food_title }}" style="height: 180px; object-fit: cover;">
+                {% endif %}
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.food_title }}</h5>
+                    
+                    <!-- Restaurante -->
+                    <p class="card-text text-muted">
+                        <small>
+                            <i class="fas fa-store"></i> {{ product.vendor.vendor_name }}
+                        </small>
+                    </p>
+                    
+                    <!-- Categoria -->
+                    <p class="card-text">
+                        <span class="badge badge-pill badge-light">{{ product.category.category_name }}</span>
+                    </p>
+                    
+                    <!-- Descrição -->
+                    <p class="card-text small">{{ product.description|truncatechars:60 }}</p>
+                    
+                    <!-- Preço -->
+                    <p class="card-text font-weight-bold">R$ {{ product.price }}</p>
+                </div>
+                
+                <div class="card-footer bg-white d-flex justify-content-between">
+                    <a href="{% url 'product_detail' product.id %}" class="btn btn-outline-primary">
+                        <i class="fas fa-eye"></i> Detalhes
+                    </a>
+                    
+                    {% if product.id in cart_items %}
+                        <button class="btn btn-success add-to-cart" data-item-id="{{ product.id }}" disabled>
+                            <i class="fas fa-check"></i> No carrinho
+                        </button>
+                    {% else %}
+                        <button class="btn btn-primary add-to-cart" data-item-id="{{ product.id }}">
+                            <i class="fas fa-plus"></i> Adicionar
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Nenhum produto encontrado com os filtros selecionados.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Paginação -->
+    {% if products.has_other_pages %}
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <nav aria-label="Navegação de página">
+                <ul class="pagination justify-content-center">
+                    {% if products.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ products.previous_page_number }}{% if keyword %}&keyword={{ keyword }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_vendor %}&vendor={{ selected_vendor }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}" aria-label="Anterior">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo;</span>
+                        </li>
+                    {% endif %}
+                    
+                    {% for i in products.paginator.page_range %}
+                        {% if products.number == i %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ i }}</span>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ i }}{% if keyword %}&keyword={{ keyword }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_vendor %}&vendor={{ selected_vendor }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}">{{ i }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if products.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ products.next_page_number }}{% if keyword %}&keyword={{ keyword }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_vendor %}&vendor={{ selected_vendor }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}" aria-label="Próximo">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&raquo;</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- JavaScript para atualizar formulário automaticamente ao mudar filtros -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterControls = document.querySelectorAll('#category, #vendor, #sort_by');
+        
+        filterControls.forEach(control => {
+            control.addEventListener('change', function() {
+                document.getElementById('search-form').submit();
+            });
+        });
+        
+        // Adicionar ao carrinho
+        const addToCartButtons = document.querySelectorAll('.add-to-cart');
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                if (this.disabled) return;
+                
+                const itemId = this.getAttribute('data-item-id');
+                
+                fetch(`/marketplace/add_cart/${itemId}/`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'Success') {
+                        // Atualizar visual do botão
+                        this.innerHTML = '<i class="fas fa-check"></i> No carrinho';
+                        this.classList.remove('btn-primary');
+                        this.classList.add('btn-success');
+                        this.disabled = true;
+                        
+                        // Atualizar contador do carrinho no header (se existir)
+                        const cartCounter = document.getElementById('cart-counter');
+                        if (cartCounter) {
+                            cartCounter.textContent = parseInt(cartCounter.textContent || 0) + 1;
+                        }
+                    } else if (data.status === 'login_required') {
+                        window.location.href = '/login/';
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Título e Informações do Restaurante -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>{{ vendor.vendor_name }}</h2>
+            
+            <!-- Categorias do restaurante -->
+            <p class="text-muted">
+                {% for category in categories %}
+                    <span class="badge badge-pill badge-light">{{ category.category_name }}</span>
+                {% endfor %}
+            </p>
+            
+            <!-- Avaliação (placeholder) -->
+            <div class="mb-2">
+                <span class="text-warning">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                    <i class="far fa-star"></i>
+                </span>
+                <small class="text-muted">(4.5)</small>
+            </div>
+            
+            <!-- Tempo de entrega e taxa (placeholder) -->
+            <p>
+                <i class="fas fa-clock text-muted"></i> 30-45 min &nbsp;|&nbsp;
+                <i class="fas fa-motorcycle text-muted"></i> Taxa de entrega: R$ 5,99
+            </p>
+        </div>
+        
+        <div class="col-md-4 text-right">
+            {% if vendor.user_profile.profile_picture %}
+                <img src="{{ vendor.user_profile.profile_picture.url }}" class="img-fluid rounded" alt="{{ vendor.vendor_name }}" style="max-height: 150px;">
+            {% else %}
+                <img src="{% static 'images/default-restaurant.jpg' %}" class="img-fluid rounded" alt="{{ vendor.vendor_name }}" style="max-height: 150px;">
+            {% endif %}
+            
+            <!-- Botão de favorito -->
+            {% if user.is_authenticated %}
+            <button class="btn btn-outline-danger mt-2" id="favorite-btn" data-vendor-id="{{ vendor.id }}">
+                {% if is_favorite %}
+                <i class="fas fa-heart"></i> Favoritado
+                {% else %}
+                <i class="far fa-heart"></i> Favoritar
+                {% endif %}
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Menu do Restaurante -->
+    <div class="row">
+        <div class="col-md-3">
+            <!-- Navegação por categorias -->
+            <div class="list-group mb-4">
+                <div class="list-group-item bg-light font-weight-bold">Categorias</div>
+                {% for category in categories %}
+                    <a href="#category-{{ category.id }}" class="list-group-item list-group-item-action">
+                        {{ category.category_name }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <!-- Itens do cardápio por categoria -->
+            {% for category, items in menu_items.items %}
+                <div id="category-{{ category.id }}" class="mb-4">
+                    <h4 class="border-bottom pb-2">{{ category.category_name }}</h4>
+                    
+                    <div class="row">
+                        {% for item in items %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100">
+                                    <div class="row no-gutters">
+                                        <div class="col-md-4">
+                                            {% if item.image %}
+                                                <img src="{{ item.image.url }}" class="card-img" alt="{{ item.food_title }}" style="height: 100%; object-fit: cover;">
+                                            {% else %}
+                                                <img src="{% static 'images/default-food.jpg' %}" class="card-img" alt="{{ item.food_title }}" style="height: 100%; object-fit: cover;">
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div class="card-body">
+                                                <h5 class="card-title">{{ item.food_title }}</h5>
+                                                <p class="card-text small text-muted">{{ item.description|truncatechars:60 }}</p>
+                                                <p class="card-text font-weight-bold">R$ {{ item.price }}</p>
+                                                <button class="btn btn-sm btn-primary add-to-cart" data-item-id="{{ item.id }}">
+                                                    <i class="fas fa-plus"></i> Adicionar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="col-12">
+                                <p class="text-muted">Nenhum item disponível nesta categoria.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript para adicionar aos favoritos -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const favoriteBtn = document.getElementById('favorite-btn');
+        
+        if (favoriteBtn) {
+            favoriteBtn.addEventListener('click', function() {
+                const vendorId = this.getAttribute('data-vendor-id');
+                
+                fetch(`/marketplace/favorite/${vendorId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Atualizar visual do botão
+                        if (data.action === 'added') {
+                            this.innerHTML = '<i class="fas fa-heart"></i> Favoritado';
+                            this.classList.remove('btn-outline-danger');
+                            this.classList.add('btn-danger');
+                        } else {
+                            this.innerHTML = '<i class="far fa-heart"></i> Favoritar';
+                            this.classList.remove('btn-danger');
+                            this.classList.add('btn-outline-danger');
+                        }
+                    } else if (data.status === 'login_required') {
+                        window.location.href = '/login/';
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                });
+            });
+        }
+        
+        // Função para obter o token CSRF
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>
+{% endblock %}

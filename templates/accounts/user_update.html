@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Editar Usuário</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'user_update' user_obj.pk %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if messages %}
+                        <div class="alert alert-danger">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="id_first_name">Nome *</label>
+                                    {{ user_form.first_name }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="id_last_name">Sobrenome *</label>
+                                    {{ user_form.last_name }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="id_role">Tipo de Conta *</label>
+                                    {{ user_form.role }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="id_phone_number">Telefone</label>
+                                    {{ user_form.phone_number }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="id_profile_picture">Foto de Perfil</label>
+                                    {{ profile_form.profile_picture }}
+                                    {% if profile.profile_picture %}
+                                        <div class="mt-2">
+                                            <img src="{{ profile.profile_picture.url }}" alt="Foto atual" class="img-thumbnail" style="max-height: 100px;">
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="id_cover_photo">Foto de Capa</label>
+                                    {{ profile_form.cover_photo }}
+                                    {% if profile.cover_photo %}
+                                        <div class="mt-2">
+                                            <img src="{{ profile.cover_photo.url }}" alt="Capa atual" class="img-thumbnail" style="max-height: 100px;">
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group mb-3">
+                                    <label for="id_address_line_1">Endereço</label>
+                                    {{ profile_form.address_line_1 }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label for="id_city">Cidade</label>
+                                    {{ profile_form.city }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label for="id_state">Estado</label>
+                                    {{ profile_form.state }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label for="id_country">País</label>
+                                    {{ profile_form.country }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label for="id_pin_code">CEP</label>
+                                    {{ profile_form.pin_code }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label for="id_latitude">Latitude</label>
+                                    {{ profile_form.latitude }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label for="id_longitude">Longitude</label>
+                                    {{ profile_form.longitude }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Salvar Alterações
+                            </button>
+                            <a href="{% url 'user_detail' user_obj.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

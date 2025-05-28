@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb bg-light">
+            <li class="breadcrumb-item"><a href="{% url 'marketplace' %}">Início</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'product_search' %}">Produtos</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ product.food_title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Imagem do Produto -->
+        <div class="col-md-5 mb-4">
+            <div class="card">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.food_title }}" style="max-height: 400px; object-fit: cover;">
+                {% else %}
+                    <img src="{% static 'images/default-food.jpg' %}" class="card-img-top" alt="{{ product.food_title }}" style="max-height: 400px; object-fit: cover;">
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Detalhes do Produto -->
+        <div class="col-md-7">
+            <h2>{{ product.food_title }}</h2>
+            
+            <!-- Restaurante -->
+            <p class="text-muted">
+                <i class="fas fa-store"></i> 
+                <a href="{% url 'restaurant_detail' vendor.id %}">{{ vendor.vendor_name }}</a>
+            </p>
+            
+            <!-- Categoria -->
+            <p>
+                <span class="badge badge-pill badge-light">{{ product.category.category_name }}</span>
+            </p>
+            
+            <!-- Descrição -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Descrição</h5>
+                    <p class="card-text">{{ product.description }}</p>
+                </div>
+            </div>
+            
+            <!-- Preço e Ações -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="text-primary mb-0">R$ {{ product.price }}</h3>
+                        
+                        <div class="quantity-controls">
+                            <button class="btn btn-outline-secondary btn-sm" id="decrease-quantity">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span class="mx-2" id="quantity">1</span>
+                            <button class="btn btn-outline-secondary btn-sm" id="increase-quantity">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    {% if in_cart %}
+                        <button class="btn btn-success btn-lg btn-block" disabled>
+                            <i class="fas fa-check"></i> Produto no carrinho
+                        </button>
+                    {% else %}
+                        <button class="btn btn-primary btn-lg btn-block" id="add-to-cart" data-item-id="{{ product.id }}">
+                            <i class="fas fa-shopping-cart"></i> Adicionar ao carrinho
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Produtos Relacionados -->
+    {% if related_products %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3 class="mb-4">Produtos Relacionados</h3>
+        </div>
+        
+        {% for related in related_products %}
+        <div class="col-md-3 mb-4">
+            <div class="card h-100">
+                {% if related.image %}
+                    <img src="{{ related.image.url }}" class="card-img-top" alt="{{ related.food_title }}" style="height: 150px; object-fit: cover;">
+                {% else %}
+                    <img src="{% static 'images/default-food.jpg' %}" class="card-img-top" alt="{{ related.food_title }}" style="height: 150px; object-fit: cover;">
+                {% endif %}
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ related.food_title }}</h5>
+                    <p class="card-text small">{{ related.description|truncatechars:60 }}</p>
+                    <p class="card-text font-weight-bold">R$ {{ related.price }}</p>
+                </div>
+                
+                <div class="card-footer bg-white">
+                    <a href="{% url 'product_detail' related.id %}" class="btn btn-outline-primary btn-block">
+                        Ver detalhes
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- JavaScript para adicionar ao carrinho -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Controles de quantidade
+        const decreaseBtn = document.getElementById('decrease-quantity');
+        const increaseBtn = document.getElementById('increase-quantity');
+        const quantityDisplay = document.getElementById('quantity');
+        const addToCartBtn = document.getElementById('add-to-cart');
+        
+        let quantity = 1;
+        
+        if (decreaseBtn && increaseBtn && quantityDisplay) {
+            decreaseBtn.addEventListener('click', function() {
+                if (quantity > 1) {
+                    quantity--;
+                    quantityDisplay.textContent = quantity;
+                }
+            });
+            
+            increaseBtn.addEventListener('click', function() {
+                quantity++;
+                quantityDisplay.textContent = quantity;
+            });
+        }
+        
+        // Adicionar ao carrinho
+        if (addToCartBtn) {
+            addToCartBtn.addEventListener('click', function() {
+                const itemId = this.getAttribute('data-item-id');
+                
+                // Adicionar ao carrinho a quantidade selecionada
+                addToCart(itemId, quantity);
+            });
+        }
+        
+        function addToCart(itemId, quantity) {
+            // Função para adicionar ao carrinho uma vez
+            function addSingleItem(itemId) {
+                return fetch(`/marketplace/add_cart/${itemId}/`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json());
+            }
+            
+            // Adicionar a quantidade desejada (sequencialmente)
+            let promises = [];
+            for (let i = 0; i < quantity; i++) {
+                promises.push(addSingleItem(itemId));
+            }
+            
+            Promise.all(promises)
+                .then(results => {
+                    // Verificar se todas as adições foram bem-sucedidas
+                    const allSuccess = results.every(data => data.status === 'Success');
+                    
+                    if (allSuccess) {
+                        // Atualizar visual do botão
+                        addToCartBtn.innerHTML = '<i class="fas fa-check"></i> Produto no carrinho';
+                        addToCartBtn.classList.remove('btn-primary');
+                        addToCartBtn.classList.add('btn-success');
+                        addToCartBtn.disabled = true;
+                        
+                        // Atualizar contador do carrinho no header (se existir)
+                        const cartCounter = document.getElementById('cart-counter');
+                        if (cartCounter) {
+                            cartCounter.textContent = parseInt(cartCounter.textContent || 0) + quantity;
+                        }
+                    } else if (results.some(data => data.status === 'login_required')) {
+                        window.location.href = '/login/';
+                    } else {
+                        alert('Ocorreu um erro ao adicionar o produto ao carrinho.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                });
+        }
+    });
+</script>
+{% endblock %}

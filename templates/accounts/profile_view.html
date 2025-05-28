@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Meu Perfil</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            {% if profile.profile_picture %}
+                                <img src="{{ profile.profile_picture.url }}" alt="Foto de perfil" class="img-fluid rounded mb-3">
+                            {% else %}
+                                <img src="{% static 'images/default-user.png' %}" alt="Foto de perfil padrão" class="img-fluid rounded mb-3">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <h3>{{ user.first_name }} {{ user.last_name }}</h3>
+                            <p class="text-muted">{{ user.email }}</p>
+                            
+                            <div class="mb-3">
+                                {% if user.role == 1 %}
+                                    <span class="badge bg-warning text-dark">Restaurante</span>
+                                {% elif user.role == 2 %}
+                                    <span class="badge bg-success">Cliente</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Indefinido</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Nome de Usuário:</strong> {{ user.username }}</p>
+                                    <p><strong>Telefone:</strong> {{ user.phone_number|default:"Não informado" }}</p>
+                                    <p><strong>Data de Cadastro:</strong> {{ user.date_joined|date:"d/m/Y H:i" }}</p>
+                                    <p><strong>Último Acesso:</strong> {{ user.last_login|date:"d/m/Y H:i" }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Endereço:</strong> {{ profile.address_line_1|default:"Não informado" }}</p>
+                                    <p><strong>Cidade:</strong> {{ profile.city|default:"Não informada" }}</p>
+                                    <p><strong>Estado:</strong> {{ profile.state|default:"Não informado" }}</p>
+                                    <p><strong>País:</strong> {{ profile.country|default:"Não informado" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'profile_edit' %}" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Editar Perfil
+                        </a>
+                        <a href="{% url 'profile_delete' %}" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Excluir Conta
+                        </a>
+                        <a href="{% url 'myAccount' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Voltar para Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

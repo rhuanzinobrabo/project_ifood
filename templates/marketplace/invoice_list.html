@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <div class="row">
+        <div class="col-12">
+            <h2>Minhas Notas Fiscais</h2>
+            <p class="text-muted">Visualize e baixe as notas fiscais dos seus pedidos.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            {% if invoices %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Número da NF</th>
+                                <th>Pedido</th>
+                                <th>Data de Emissão</th>
+                                <th>Valor Total</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for invoice in invoices %}
+                            <tr>
+                                <td>{{ invoice.invoice_number }}</td>
+                                <td>{{ invoice.order.order_number }}</td>
+                                <td>{{ invoice.invoice_date|date:"d/m/Y H:i" }}</td>
+                                <td>R$ {{ invoice.order.order_total|floatformat:2 }}</td>
+                                <td>
+                                    <a href="{% url 'view_invoice' invoice.order.order_number %}" class="btn btn-sm btn-info" target="_blank">
+                                        <i class="fas fa-eye"></i> Visualizar
+                                    </a>
+                                    <a href="{% url 'generate_invoice' invoice.order.order_number %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-download"></i> Baixar
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-0">Você ainda não possui notas fiscais.</p>
+                </div>
+                <a href="{% url 'my_orders' %}" class="btn btn-primary">
+                    <i class="fas fa-list"></i> Ver Meus Pedidos
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

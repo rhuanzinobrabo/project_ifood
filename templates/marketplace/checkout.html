@@ -1,212 +1,173 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block content %}
+<div class="container mt-4 mb-5">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-light p-3">
+                    <li class="breadcrumb-item"><a href="{% url 'marketplace' %}">Início</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'cart' %}">Carrinho</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Checkout</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
 
-<!-- Main Section Start -->
-<div class="main-section pt-5">
-    <div class="page-section">
-        <div class="container">
-            <div class="row">
-                
-                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                    <div class="tabs-holder horizontal">
-                        <ul class="stickynav-tabs nav nav-tabs">
-                            <li class="active"><a data-toggle="tab" href="#home"><i class="fa fa-shopping-cart text-danger"></i>Billing Address</a></li>
+    <div class="row">
+        <!-- Formulário de Checkout -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Finalizar Pedido</h4>
+                </div>
+                <div class="card-body">
+                    <form action="{% url 'checkout' %}" method="POST">
+                        {% csrf_token %}
+                        
+                        <!-- Endereço de Entrega -->
+                        <div class="mb-4">
+                            <h5>Endereço de Entrega</h5>
                             
-                        </ul>
-                        <div class="tab-content">
-                            <div id="home" class="tab-pane in active">
-                                <div class="menu-itam-holder">
-                                    
-                                
-                                    <div id="menu-item-list-6272" class="menu-itam-list">
-                                        
-                                        <form action="{% url 'place_order' %}" method="POST">
-                                            {% csrf_token %}
-
-                                            <div class="row">
-                                                <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                                                    First Name: {{ form.first_name }}
-                                                </div>
-                                                <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                                                    Last Name: {{ form.last_name }}
-                                                </div>
-                                            </div>
-
-                                            <div class="row">
-                                                <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                                                    Phone Number: {{ form.phone }}
-                                                </div>
-                                                <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                                                    Email Address: {{ form.email }}
-                                                </div>
-                                            </div>
-
-                                            <div class="row">
-                                                <div class="form-group col-md-12 col-sm-12 col-lg-12">
-                                                    Address: {{ form.address }}
-                                                </div>
-                                            </div>
-
-                                            <div class="row">
-                                                <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                                                    Country: {{ form.country }}
-                                                </div>
-                                                <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                                                    State: {{ form.state }}
-                                                </div>
-                                            </div>
-
-                                            <div class="row">
-                                                <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                                                    City: {{ form.city }}
-                                                </div>
-                                                <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                                                    Pin Code: {{ form.pin_code }}
-                                                </div>
-                                            </div>
-
-                                        
-                                        
-                                        
-                                    </div>
-
-                                  
+                            {% if addresses %}
+                                {% for address in addresses %}
+                                <div class="form-check mb-3 border p-3 {% if address.is_default %}border-primary{% endif %}">
+                                    <input class="form-check-input" type="radio" name="address" id="address-{{ address.id }}" 
+                                           value="{{ address.id }}" {% if address.is_default %}checked{% endif %} required>
+                                    <label class="form-check-label" for="address-{{ address.id }}">
+                                        <strong>{{ address.address_type }}</strong><br>
+                                        {{ address.address_line1 }}<br>
+                                        {% if address.address_line2 %}{{ address.address_line2 }}<br>{% endif %}
+                                        {{ address.city }}, {{ address.state }}, {{ address.country }}<br>
+                                        CEP: {{ address.postal_code }}<br>
+                                        {% if address.is_default %}<span class="badge badge-primary">Endereço Padrão</span>{% endif %}
+                                    </label>
                                 </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="alert alert-warning">
+                                    <p>Você não possui endereços cadastrados.</p>
+                                    <a href="{% url 'address_create' %}" class="btn btn-sm btn-primary">Adicionar Endereço</a>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="mt-2">
+                                <a href="{% url 'address_create' %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-plus"></i> Adicionar Novo Endereço
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Método de Pagamento -->
+                        <div class="mb-4">
+                            <h5>Método de Pagamento</h5>
+                            
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="payment_method" id="payment-credit" 
+                                       value="CREDIT_CARD" checked required>
+                                <label class="form-check-label" for="payment-credit">
+                                    <i class="far fa-credit-card"></i> Cartão de Crédito
+                                </label>
                             </div>
                             
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Your order section -->
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                    <div class="tabs-holder horizontal">
-                        <ul class="stickynav-tabs nav nav-tabs">
-                            <li class="active"><a data-toggle="tab" href="#home"><i class="icon- icon-room_service"></i>Your Order</a></li>
-                            
-                        </ul>
-                        <div class="tab-content">
-                            <div id="home" class="tab-pane in active">
-                                <div class="menu-itam-holder">
-
-                                    <div id="menu-item-list-6272" class="menu-itam-list">
-                                        
-                                        <ul>
-                                            
-                                                {% for item in cart_items %}
-                                                <li id="cart-item-{{item.id}}">
-                                                    <div class="image-holder"> <img src="{{ item.fooditem.image.url }}" alt=""></div>
-                                                    <div class="text-holder">
-                                                        <h6>{{ item.fooditem }}</h6>
-                                                        <span>{{ item.fooditem.description }}</span>
-                                                        <a href="{% url 'vendor_detail' item.fooditem.vendor.vendor_slug %}" class="badge badge-warning">{{ item.fooditem.vendor }}</a>
-                                                    </div>
-
-                                                    <div class="quantity" style="display: inline-block; position: absolute; top: 50%; transform: translateY(-50%); margin-top: -10px;">
-                                                        <span>{{ item.quantity }} QTY</span>
-                                                    </div>
-                                                    <div class="price-holder">
-                                                        <span class="price">${{ item.fooditem.price }}</span>
-                                                    </div>
-                                                </li>
-                                                {% endfor %}
-                                            
-                                        </ul>
-                                        
-                                        
-                                        
-                                    </div>
-                                    
-                                    <div>
-                                        <ul>
-                                            <li style="list-style-type: none;">
-                                                Subtotal
-                                                <span class="price float-right">
-                                                    <span class="currency">$</span>
-                                                    <span id="subtotal">{{ subtotal }}</span>
-                                                </span>
-                                            </li>
-
-                                            {% for key, value in tax_dict.items %}
-                                                {% for i, j in value.items %}
-                                                    <li style="list-style-type: none;">
-                                                        {{ key }} <small>({{ i }}%)</small>
-                                                        <span class="price float-right">
-                                                            <span class="currency">$</span>
-                                                            <span id="tax-{{ key }}">{{ j }}</span>
-                                                        </span>
-                                                    </li>
-                                                {% endfor %}
-                                            {% endfor %}
-
-
-                                            <li style="list-style-type: none; font-weight: 600;">
-                                                TOTAL
-                                                <span class="price float-right">
-                                                    <span class="currency">$</span>
-                                                    <span id="total">{{ grand_total }}</span>
-                                                </span>
-                                            </li>
-
-                                            <!-- Select payment method -->
-                                            <h5>SELECT PAYMENT METHOD</h5>
-                                            <div class="payment-method">
-                                                <label>
-                                                    <input type="radio" name="payment_method" value="PayPal">
-                                                    <img src="{% static 'images/PayPal.png' %}" alt="PayPal" width="100">
-                                                </label>
-                                                &emsp;
-                                                <label>
-                                                    <input type="radio" name="payment_method" value="RazorPay">
-                                                    <img src="{% static 'images/razorpay_logo.png' %}" alt="RazorPay" width="100">
-                                                </label>
-                                            </div>
-                                            <span class="text-danger" id="payment-method-error"></span>
-                                            <!-- Select payment method -->
-
-                                            <button onclick="return payMethodConfirm();" type="submit" class="btn btn-danger w-100 p-2 mt-3">PLACE ORDER</button>
-                                        </ul>
-
-
-                                        <!-- end the form -->
-                                    </form>
-                                    </div>
-                                    
-                                </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="payment_method" id="payment-debit" 
+                                       value="DEBIT_CARD" required>
+                                <label class="form-check-label" for="payment-debit">
+                                    <i class="fas fa-credit-card"></i> Cartão de Débito
+                                </label>
                             </div>
                             
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="payment_method" id="payment-pix" 
+                                       value="PIX" required>
+                                <label class="form-check-label" for="payment-pix">
+                                    <i class="fas fa-qrcode"></i> PIX
+                                </label>
+                            </div>
+                            
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="payment_method" id="payment-cash" 
+                                       value="CASH" required>
+                                <label class="form-check-label" for="payment-cash">
+                                    <i class="fas fa-money-bill-wave"></i> Dinheiro na Entrega
+                                </label>
+                            </div>
                         </div>
+                        
+                        <!-- Observações -->
+                        <div class="mb-4">
+                            <h5>Observações do Pedido</h5>
+                            <textarea name="order_note" class="form-control" rows="3" 
+                                      placeholder="Instruções especiais para entrega, referências, etc."></textarea>
+                        </div>
+                        
+                        <!-- Botão de Finalizar -->
+                        <div class="text-right">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-check-circle"></i> Finalizar Pedido
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Resumo do Pedido -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">Resumo do Pedido</h4>
+                </div>
+                <div class="card-body">
+                    <h5 class="mb-3">Itens ({{ cart_items.count }})</h5>
+                    
+                    <div class="order-items mb-4">
+                        {% for item in cart_items %}
+                        <div class="d-flex justify-content-between mb-2">
+                            <div>
+                                <span class="badge badge-pill badge-secondary">{{ item.quantity }}x</span>
+                                {{ item.fooditem.food_title }}
+                                <div class="small text-muted">{{ item.fooditem.vendor.vendor_name }}</div>
+                            </div>
+                            <div class="text-right">
+                                R$ {{ item.fooditem.price|floatformat:2 }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Cálculos -->
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <span>R$ {{ subtotal|floatformat:2 }}</span>
+                    </div>
+                    
+                    {% for key, value in tax_dict.items %}
+                        {% for i, j in value.items %}
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>{{ key }} ({{ i }}%):</span>
+                            <span>R$ {{ j|floatformat:2 }}</span>
+                        </div>
+                        {% endfor %}
+                    {% endfor %}
+                    
+                    <div class="d-flex justify-content-between mb-2 font-weight-bold">
+                        <span>Total:</span>
+                        <span>R$ {{ grand_total|floatformat:2 }}</span>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="alert alert-info small">
+                        <i class="fas fa-info-circle"></i> Ao finalizar o pedido, você será redirecionado para a página de pagamento.
                     </div>
                 </div>
-                
             </div>
         </div>
     </div>
 </div>
-<!-- Main Section End -->
-
-
-<script>
-    function payMethodConfirm(){
-        var payMethod = $("input[name='payment_method']:checked").val()
-        if(!payMethod){
-            $('#payment-method-error').html("Select Payment Method!");
-            return false;
-        }else{
-            var conf = confirm('You have selected '+payMethod+' as your preferred payment method.\nClick "OK" to continue.')
-            if(conf == true){
-                return true;
-            }else{
-                return false;
-            }
-        }
-        
-    }
-
-    $('input[name=payment_method]').on('change', function(){
-        $('#payment-method-error').html("");
-    })
-</script>
-
 {% endblock %}

@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Meus Restaurantes Favoritos</h2>
+            <p class="text-muted">Gerencie seus restaurantes favoritos</p>
+        </div>
+        <div class="col-md-4 text-right">
+            <a href="{% url 'restaurant_search' %}" class="btn btn-primary">
+                <i class="fas fa-search"></i> Buscar Restaurantes
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for favorite in favorites %}
+        <div class="col-md-3 mb-4">
+            <div class="card h-100">
+                {% if favorite.vendor.user_profile.profile_picture %}
+                    <img src="{{ favorite.vendor.user_profile.profile_picture.url }}" class="card-img-top" alt="{{ favorite.vendor.vendor_name }}" style="height: 180px; object-fit: cover;">
+                {% else %}
+                    <img src="{% static 'images/default-restaurant.jpg' %}" class="card-img-top" alt="{{ favorite.vendor.vendor_name }}" style="height: 180px; object-fit: cover;">
+                {% endif %}
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ favorite.vendor.vendor_name }}</h5>
+                    
+                    <!-- Categorias do restaurante -->
+                    <p class="card-text text-muted">
+                        {% with categories=favorite.vendor.category_set.all|slice:":3" %}
+                            {% for category in categories %}
+                                <span class="badge badge-pill badge-light">{{ category.category_name }}</span>
+                            {% empty %}
+                                <span class="badge badge-pill badge-light">Restaurante</span>
+                            {% endfor %}
+                        {% endwith %}
+                    </p>
+                    
+                    <!-- Data de adição aos favoritos -->
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar-alt"></i> Adicionado em {{ favorite.created_at|date:"d/m/Y" }}
+                        </small>
+                    </p>
+                    
+                    <!-- Botão de remover dos favoritos -->
+                    <button class="btn btn-sm btn-danger remove-favorite" data-vendor-id="{{ favorite.vendor.id }}">
+                        <i class="fas fa-heart-broken"></i> Remover dos favoritos
+                    </button>
+                </div>
+                
+                <div class="card-footer bg-white">
+                    <a href="{% url 'restaurant_detail' favorite.vendor.id %}" class="btn btn-outline-primary btn-block">
+                        Ver cardápio
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Você ainda não tem restaurantes favoritos.
+                <a href="{% url 'restaurant_search' %}" class="alert-link">Buscar restaurantes</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- JavaScript para remover dos favoritos -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const removeFavoriteButtons = document.querySelectorAll('.remove-favorite');
+        
+        removeFavoriteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const vendorId = this.getAttribute('data-vendor-id');
+                const card = this.closest('.col-md-3');
+                
+                fetch(`/marketplace/favorite/${vendorId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success' && data.action === 'removed') {
+                        // Remover o card com animação
+                        card.style.opacity = '0';
+                        setTimeout(() => {
+                            card.remove();
+                            
+                            // Verificar se ainda há favoritos
+                            if (document.querySelectorAll('.remove-favorite').length === 0) {
+                                const row = document.querySelector('.row');
+                                row.innerHTML = `
+                                    <div class="col-md-12">
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle"></i> Você ainda não tem restaurantes favoritos.
+                                            <a href="{% url 'restaurant_search' %}" class="alert-link">Buscar restaurantes</a>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        }, 300);
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                });
+            });
+        });
+        
+        // Função para obter o token CSRF
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>
+{% endblock %}

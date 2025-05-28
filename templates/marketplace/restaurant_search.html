@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Título e Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Restaurantes{% if keyword %} - Resultados para "{{ keyword }}"{% endif %}</h2>
+            <p class="text-muted">{{ restaurant_count }} restaurantes encontrados</p>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Filtros</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" action="{% url 'restaurant_search' %}" id="search-form">
+                        <div class="row">
+                            <!-- Busca por palavra-chave -->
+                            <div class="col-md-4 mb-3">
+                                <label for="keyword">Buscar por nome ou prato</label>
+                                <input type="text" class="form-control" id="keyword" name="keyword" 
+                                       placeholder="Ex: Pizza, Sushi, Restaurante..." value="{{ keyword }}">
+                            </div>
+                            
+                            <!-- Filtro por categoria -->
+                            <div class="col-md-3 mb-3">
+                                <label for="category">Categoria</label>
+                                <select class="form-control" id="category" name="category">
+                                    <option value="">Todas as categorias</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"i" %}selected{% endif %}>
+                                            {{ category.category_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <!-- Filtro por endereço/localização -->
+                            <div class="col-md-3 mb-3">
+                                <label for="address">Entregar em</label>
+                                <select class="form-control" id="address" name="address">
+                                    <option value="">Selecione um endereço</option>
+                                    {% for address in user_addresses %}
+                                        <option value="{{ address.id }}" {% if selected_address == address.id|stringformat:"i" %}selected{% endif %}>
+                                            {{ address.address_line1 }}, {{ address.city }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                {% if not user_addresses %}
+                                    <small class="text-muted">
+                                        <a href="{% url 'address_create' %}">Adicione um endereço</a> para filtrar por proximidade
+                                    </small>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Ordenação -->
+                            <div class="col-md-2 mb-3">
+                                <label for="sort_by">Ordenar por</label>
+                                <select class="form-control" id="sort_by" name="sort_by">
+                                    <option value="relevance" {% if sort_by == 'relevance' %}selected{% endif %}>Relevância</option>
+                                    <option value="rating" {% if sort_by == 'rating' %}selected{% endif %}>Avaliação</option>
+                                    <option value="distance" {% if sort_by == 'distance' %}selected{% endif %}>Distância</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Filtro de favoritos -->
+                        {% if user.is_authenticated %}
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="favorites_only" name="favorites_only" {% if favorites_only %}checked{% endif %}>
+                                    <label class="form-check-label" for="favorites_only">
+                                        Mostrar apenas meus favoritos
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> Buscar
+                                </button>
+                                <a href="{% url 'restaurant_search' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-redo"></i> Limpar filtros
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resultados -->
+    <div class="row">
+        {% for restaurant in restaurants %}
+        <div class="col-md-3 mb-4">
+            <div class="card h-100">
+                {% if restaurant.user_profile.profile_picture %}
+                    <img src="{{ restaurant.user_profile.profile_picture.url }}" class="card-img-top" alt="{{ restaurant.vendor_name }}" style="height: 180px; object-fit: cover;">
+                {% else %}
+                    <img src="{% static 'images/default-restaurant.jpg' %}" class="card-img-top" alt="{{ restaurant.vendor_name }}" style="height: 180px; object-fit: cover;">
+                {% endif %}
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ restaurant.vendor_name }}</h5>
+                    
+                    <!-- Categorias do restaurante -->
+                    <p class="card-text text-muted">
+                        {% with categories=restaurant.category_set.all|slice:":3" %}
+                            {% for category in categories %}
+                                <span class="badge badge-pill badge-light">{{ category.category_name }}</span>
+                            {% empty %}
+                                <span class="badge badge-pill badge-light">Restaurante</span>
+                            {% endfor %}
+                        {% endwith %}
+                    </p>
+                    
+                    <!-- Avaliação (placeholder) -->
+                    <div class="mb-2">
+                        <span class="text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                            <i class="far fa-star"></i>
+                        </span>
+                        <small class="text-muted">(4.5)</small>
+                    </div>
+                    
+                    <!-- Tempo de entrega (placeholder) -->
+                    <p class="card-text">
+                        <i class="fas fa-clock text-muted"></i> 30-45 min
+                    </p>
+                    
+                    <!-- Indicador de favorito -->
+                    {% if user.is_authenticated %}
+                    <p class="card-text">
+                        {% if restaurant.id in favorite_vendor_ids %}
+                            <i class="fas fa-heart text-danger favorite-indicator" data-vendor-id="{{ restaurant.id }}"></i>
+                        {% else %}
+                            <i class="far fa-heart text-danger favorite-indicator" data-vendor-id="{{ restaurant.id }}"></i>
+                        {% endif %}
+                        <span class="favorite-text">
+                            {% if restaurant.id in favorite_vendor_ids %}Favoritado{% else %}Favoritar{% endif %}
+                        </span>
+                    </p>
+                    {% endif %}
+                </div>
+                
+                <div class="card-footer bg-white">
+                    <a href="{% url 'restaurant_detail' restaurant.id %}" class="btn btn-outline-primary btn-block">
+                        Ver cardápio
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Nenhum restaurante encontrado com os filtros selecionados.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Paginação -->
+    {% if restaurants.has_other_pages %}
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <nav aria-label="Navegação de página">
+                <ul class="pagination justify-content-center">
+                    {% if restaurants.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ restaurants.previous_page_number }}{% if keyword %}&keyword={{ keyword }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_address %}&address={{ selected_address }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if favorites_only %}&favorites_only=on{% endif %}" aria-label="Anterior">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo;</span>
+                        </li>
+                    {% endif %}
+                    
+                    {% for i in restaurants.paginator.page_range %}
+                        {% if restaurants.number == i %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ i }}</span>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ i }}{% if keyword %}&keyword={{ keyword }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_address %}&address={{ selected_address }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if favorites_only %}&favorites_only=on{% endif %}">{{ i }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if restaurants.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ restaurants.next_page_number }}{% if keyword %}&keyword={{ keyword }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_address %}&address={{ selected_address }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if favorites_only %}&favorites_only=on{% endif %}" aria-label="Próximo">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&raquo;</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- JavaScript para atualizar formulário automaticamente ao mudar filtros -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterControls = document.querySelectorAll('#category, #address, #sort_by, #favorites_only');
+        
+        filterControls.forEach(control => {
+            control.addEventListener('change', function() {
+                document.getElementById('search-form').submit();
+            });
+        });
+        
+        // Favoritar/desfavoritar restaurantes
+        const favoriteIndicators = document.querySelectorAll('.favorite-indicator');
+        favoriteIndicators.forEach(indicator => {
+            indicator.addEventListener('click', function() {
+                const vendorId = this.getAttribute('data-vendor-id');
+                
+                fetch(`/marketplace/favorite/${vendorId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Atualizar visual do indicador
+                        if (data.action === 'added') {
+                            this.classList.remove('far');
+                            this.classList.add('fas');
+                            this.nextElementSibling.textContent = 'Favoritado';
+                        } else {
+                            this.classList.remove('fas');
+                            this.classList.add('far');
+                            this.nextElementSibling.textContent = 'Favoritar';
+                        }
+                    } else if (data.status === 'login_required') {
+                        window.location.href = '/login/';
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                });
+            });
+        });
+        
+        // Função para obter o token CSRF
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>
+{% endblock %}

@@ -1,23 +1,15 @@
 from django.urls import path
 from . import views
-from accounts import views as AccountViews
 
 urlpatterns = [
-    # Dashboard
-    path('', AccountViews.vendorDashboard, name='vendor'),
+    # CRUD de Restaurantes
+    path('restaurants/', views.restaurant_list, name='restaurant_list'),
+    path('restaurants/create/', views.restaurant_create, name='restaurant_create'),
+    path('restaurants/<int:pk>/', views.restaurant_detail, name='restaurant_detail'),
+    path('restaurants/<int:pk>/update/', views.restaurant_update, name='restaurant_update'),
+    path('restaurants/<int:pk>/delete/', views.restaurant_delete, name='restaurant_delete'),
     
-    # Perfil do Restaurante
-    path('perfil/', views.vprofile, name='vprofile'),
-    
-    # Menu e Categorias
-    path('cardapio/', views.menu_builder, name='menu_builder'),
-    path('cardapio/categoria/<int:pk>/', views.fooditems_by_category, name='fooditems_by_category'),
-    path('cardapio/categoria/adicionar/', views.add_category, name='add_category'),
-    path('cardapio/categoria/editar/<int:pk>/', views.edit_category, name='edit_category'),
-    path('cardapio/categoria/apagar/<int:pk>/', views.delete_category, name='delete_category'),
-    
-    # Pratos
-    path('cardapio/prato/add/', views.add_food, name='add_food'),
-    path('cardapio/prato/editar/<int:pk>/', views.edit_food, name='edit_food'),
-    path('cardapio/prato/apagar/<int:pk>/', views.delete_food, name='delete_food'),
+    # Dashboard e Perfil do Restaurante
+    path('dashboard/', views.restaurant_dashboard, name='restaurant_dashboard'),
+    path('profile/', views.restaurant_profile, name='restaurant_profile'),
 ]
