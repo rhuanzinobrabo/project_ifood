@@ -160,6 +160,22 @@ def social_callback(request):
     messages.error(request, 'Falha na autenticação social. Tente novamente.')
     return redirect('social_login')
 
+# --- Nova view pública para a página inicial ---
+
+def home_view(request):
+    """
+    Página inicial pública do site, acessível sem autenticação.
+    Exibe restaurantes em destaque e categorias populares.
+    """
+    # Obter restaurantes aprovados para exibição
+    featured_vendors = Vendor.objects.filter(is_approved=True)[:8]
+    
+    context = {
+        'featured_vendors': featured_vendors,
+        'page_title': 'Bem-vindo ao iFood',
+    }
+    return render(request, 'home.html', context)
+
 # --- Views principais ---
 
 def request_otp(request):
@@ -294,6 +310,31 @@ def complete_profile(request):
         'user_form': user_form,
         'profile_form': profile_form,
     })
+
+@login_required(login_url='request_otp')
+def myAccount(request):
+    """
+    Redireciona o usuário para o dashboard apropriado com base no seu papel
+    """
+    user = request.user
+    redirectUrl = detectUser(user)
+    return redirect(redirectUrl)
+
+@login_required(login_url='request_otp')
+@user_passes_test(check_role_customer)
+def custDashboard(request):
+    """
+    Dashboard do cliente com pedidos e favoritos
+    """
+    return render(request, 'accounts/custDashboard.html')
+
+@login_required(login_url='request_otp')
+@user_passes_test(check_role_vendor)
+def vendorDashboard(request):
+    """
+    Dashboard do restaurante com estatísticas e pedidos
+    """
+    return render(request, 'accounts/vendorDashboard.html')
 
 # --- CRUD de Contas (Implementação Completa) ---
 
@@ -467,10 +508,12 @@ def profile_view(request):
     """
     user = request.user
     profile = UserProfile.objects.get(user=user)
+    addresses = UserAddress.objects.filter(user=user)
     
     context = {
         'user': user,
         'profile': profile,
+        'addresses': addresses,
     }
     return render(request, 'accounts/profile_view.html', context)
 
@@ -510,113 +553,162 @@ def profile_delete(request):
     user = request.user
     
     if request.method == 'POST':
+        # Confirmar senha antes de excluir
         password = request.POST.get('password')
         
-        # Verificar senha para confirmar exclusão
         if user.check_password(password):
-            email = user.email
-            auth.logout(request)
             user.delete()
-            messages.success(request, f'Conta {email} excluída com sucesso!')
-            return redirect('request_otp')
+            messages.success(request, 'Sua conta foi excluída com sucesso.')
+            return redirect('home')  # Redirecionar para a página inicial após exclusão
         else:
-            messages.error(request, 'Senha incorreta. Exclusão cancelada.')
+            messages.error(request, 'Senha incorreta. Tente novamente.')
     
     return render(request, 'accounts/profile_delete.html')
 
-# --- Fluxos auxiliares ---
+# --- Autenticação ---
 
 def registerUser(request):
     """
-    Redireciona para o fluxo de registro via OTP ou login social
+    Registra um novo cliente
     """
-    messages.info(request, 'Cadastre-se via OTP ou login social.')
-    return redirect('social_login')
+    if request.user.is_authenticated:
+        messages.warning(request, 'Você já está logado.')
+        return redirect('myAccount')
+        
+    if request.method == 'POST':
+        # Registrar usuário
+        form = UserForm(request.POST)
+        if form.is_valid():
+            # Criar usuário
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            username = form.cleaned_data['username']
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+            user = User.objects.create_user(first_name=first_name, last_name=last_name, username=username, email=email, password=password)
+            user.role = User.CUSTOMER
+            user.save()
+            
+            # Enviar email de verificação
+            # send_verification_email(request, user)
+            
+            messages.success(request, 'Sua conta foi registrada com sucesso!')
+            return redirect('login')
+        else:
+            messages.error(request, 'Erro ao registrar usuário.')
+    else:
+        form = UserForm()
+        
+    context = {
+        'form': form,
+    }
+    return render(request, 'accounts/registerUser.html', context)
 
 def registerVendor(request):
     """
-    Redireciona para o fluxo de registro de restaurante
+    Registra um novo restaurante
     """
-    messages.info(request, 'Cadastre-se via OTP ou login social.')
-    return redirect('social_login')
+    if request.user.is_authenticated:
+        messages.warning(request, 'Você já está logado.')
+        return redirect('myAccount')
+        
+    if request.method == 'POST':
+        # Registrar restaurante
+        form = UserForm(request.POST)
+        v_form = VendorForm(request.POST, request.FILES)
+        
+        if form.is_valid() and v_form.is_valid():
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            username = form.cleaned_data['username']
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+            user = User.objects.create_user(first_name=first_name, last_name=last_name, username=username, email=email, password=password)
+            user.role = User.VENDOR
+            user.save()
+            
+            vendor = v_form.save(commit=False)
+            vendor.user = user
+            vendor_name = v_form.cleaned_data['vendor_name']
+            vendor.vendor_slug = slugify(vendor_name)+'-'+str(user.id)
+            user_profile = UserProfile.objects.get(user=user)
+            vendor.user_profile = user_profile
+            vendor.save()
+            
+            # Enviar email de verificação
+            # send_verification_email(request, user)
+            
+            messages.success(request, 'Seu restaurante foi registrado com sucesso! Por favor, aguarde aprovação.')
+            return redirect('login')
+        else:
+            messages.error(request, 'Erro ao registrar restaurante.')
+    else:
+        form = UserForm()
+        v_form = VendorForm()
+        
+    context = {
+        'form': form,
+        'v_form': v_form,
+    }
+    return render(request, 'accounts/registerVendor.html', context)
 
 def login(request):
     """
-    Redireciona para o fluxo de login via OTP ou login social
+    Login de usuário
     """
-    messages.info(request, 'Faça login via OTP ou login social.')
-    return redirect('social_login')
+    if request.user.is_authenticated:
+        messages.warning(request, 'Você já está logado.')
+        return redirect('myAccount')
+        
+    if request.method == 'POST':
+        email = request.POST['email']
+        password = request.POST['password']
+        
+        user = auth.authenticate(email=email, password=password)
+        
+        if user is not None:
+            auth.login(request, user)
+            messages.success(request, 'Login efetuado com sucesso!')
+            return redirect('myAccount')
+        else:
+            messages.error(request, 'Credenciais inválidas')
+            return redirect('login')
+    
+    return render(request, 'accounts/login.html')
 
 def logout(request):
     """
-    Realiza o logout do usuário
+    Logout de usuário
     """
     auth.logout(request)
-    messages.success(request, 'Você saiu da sua conta.')
-    return redirect('social_login')
-
-@login_required(login_url='request_otp')
-def myAccount(request):
-    """
-    Redireciona para o dashboard apropriado com base no tipo de usuário
-    """
-    user = request.user
-    redirectUrl = detectUser(user)
-    return redirect(redirectUrl)
-
-@login_required(login_url='request_otp')
-@user_passes_test(check_role_customer)
-def custDashboard(request):
-    """
-    Dashboard para usuários do tipo cliente
-    """
-    return render(request, 'accounts/custDashboard.html')
-
-@login_required(login_url='request_otp')
-@user_passes_test(check_role_vendor)
-def vendorDashboard(request):
-    """
-    Dashboard para usuários do tipo restaurante
-    """
-    vendor = get_object_or_404(Vendor, user=request.user)
-    context = {
-        'vendor': vendor,
-    }
-    return render(request, 'accounts/vendorDashboard.html', context)
+    messages.info(request, 'Você saiu da sua conta.')
+    return redirect('login')
 
 # --- CRUD de Endereços ---
 
-@login_required(login_url='login')  # Ajustei para usar 'login' em vez de 'request_otp'
+@login_required(login_url='request_otp')
 def address_list(request):
     """
-    Lista todos os endereços do usuário logado
+    Lista todos os endereços do usuário (CREATE - Read - Update - Delete)
     """
-    addresses = UserAddress.objects.filter(user=request.user).order_by('-is_default')
-    
+    addresses = UserAddress.objects.filter(user=request.user)
     context = {
         'addresses': addresses,
-        'title': 'Meus Endereços',
     }
     return render(request, 'accounts/address_list.html', context)
 
-@login_required(login_url='login')  # Ajustei para usar 'login' em vez de 'request_otp'
+@login_required(login_url='request_otp')
 def address_create(request):
     """
-    Cria um novo endereço para o usuário logado
+    Cria um novo endereço (Create - READ - Update - Delete)
     """
     if request.method == 'POST':
         form = UserAddressForm(request.POST)
         if form.is_valid():
             address = form.save(commit=False)
             address.user = request.user
-            
-            # Se for o primeiro endereço ou is_default estiver marcado
-            if UserAddress.objects.filter(user=request.user).count() == 0 or form.cleaned_data.get('is_default'):
-                # Desmarcar outros endereços padrão
-                UserAddress.objects.filter(user=request.user, is_default=True).update(is_default=False)
-                address.is_default = True
-                
             address.save()
+            
             messages.success(request, 'Endereço adicionado com sucesso!')
             return redirect('address_list')
     else:
@@ -624,28 +716,21 @@ def address_create(request):
     
     context = {
         'form': form,
-        'title': 'Adicionar Endereço',
     }
-    return render(request, 'accounts/address_form.html', context)
+    return render(request, 'accounts/address_create.html', context)
 
-@login_required(login_url='login')  # Ajustei para usar 'login' em vez de 'request_otp'
+@login_required(login_url='request_otp')
 def address_update(request, pk):
     """
-    Atualiza um endereço existente do usuário logado
+    Atualiza um endereço existente (Create - Read - Update - DELETE)
     """
     address = get_object_or_404(UserAddress, pk=pk, user=request.user)
     
     if request.method == 'POST':
         form = UserAddressForm(request.POST, instance=address)
         if form.is_valid():
-            updated_address = form.save(commit=False)
+            form.save()
             
-            # Se is_default estiver marcado, desmarcar outros endereços padrão
-            if form.cleaned_data.get('is_default'):
-                UserAddress.objects.filter(user=request.user, is_default=True).exclude(pk=pk).update(is_default=False)
-                updated_address.is_default = True
-            
-            updated_address.save()
             messages.success(request, 'Endereço atualizado com sucesso!')
             return redirect('address_list')
     else:
@@ -653,54 +738,40 @@ def address_update(request, pk):
     
     context = {
         'form': form,
-        'title': 'Atualizar Endereço',
         'address': address,
     }
-    return render(request, 'accounts/address_form.html', context)
+    return render(request, 'accounts/address_update.html', context)
 
-@login_required(login_url='login')  # Ajustei para usar 'login' em vez de 'request_otp'
+@login_required(login_url='request_otp')
 def address_delete(request, pk):
     """
-    Exclui um endereço do usuário logado
+    Exclui um endereço (Create - Read - Update - DELETE)
     """
     address = get_object_or_404(UserAddress, pk=pk, user=request.user)
     
     if request.method == 'POST':
-        was_default = address.is_default
         address.delete()
-        
-        # Se o endereço excluído era o padrão, definir outro como padrão
-        if was_default:
-            remaining_address = UserAddress.objects.filter(user=request.user).first()
-            if remaining_address:
-                remaining_address.is_default = True
-                remaining_address.save()
-        
         messages.success(request, 'Endereço excluído com sucesso!')
         return redirect('address_list')
     
     context = {
         'address': address,
-        'title': 'Excluir Endereço',
     }
     return render(request, 'accounts/address_delete.html', context)
 
-@login_required(login_url='login')  # Ajustei para usar 'login' em vez de 'request_otp'
+@login_required(login_url='request_otp')
 def set_default_address(request, pk):
     """
-    Define um endereço como padrão para o usuário logado
+    Define um endereço como padrão
     """
     address = get_object_or_404(UserAddress, pk=pk, user=request.user)
     
-    # Desmarcar o endereço padrão atual
+    # Remover status padrão de outros endereços
     UserAddress.objects.filter(user=request.user, is_default=True).update(is_default=False)
     
-    # Definir o novo endereço padrão
+    # Definir este endereço como padrão
     address.is_default = True
     address.save()
     
     messages.success(request, 'Endereço padrão atualizado com sucesso!')
-    
-    # Redirecionar de volta para a página anterior ou para a lista de endereços
-    next_url = request.GET.get('next', 'address_list')
-    return HttpResponseRedirect(next_url)
+    return redirect('address_list')

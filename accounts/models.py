@@ -150,7 +150,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     # Campos obrigatórios
     date_joined = models.DateTimeField(auto_now_add=True, help_text="Data de ingresso no sistema")
     last_login = models.DateTimeField(auto_now_add=True, help_text="Data do último login")
-    created_date = models.DateTimeField(auto_now_add=True, help_text="Data de criação do registro")
+    created_date = models.DateTimeField(default=timezone.now, help_text="Data de criação do registro")
     modified_date = models.DateTimeField(auto_now=True, help_text="Data da última modificação")
     is_admin = models.BooleanField(default=False, help_text="Indica se o usuário é administrador")
     is_staff = models.BooleanField(default=False, help_text="Indica se o usuário é membro da equipe")
@@ -320,7 +320,7 @@ class UserAddress(models.Model):
                                    help_text="Tipo de endereço (Casa, Trabalho, Outro)")
     address_line1 = models.CharField(max_length=100,
                                     help_text="Primeira linha do endereço (rua, número)")
-    address_line2 = models.CharField(max_length=100, blank=True,
+    address_line2 = models.CharField(max_length=100, blank=True, default='',
                                     help_text="Segunda linha do endereço (complemento)")
     city = models.CharField(max_length=50,
                            help_text="Cidade")

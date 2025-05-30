@@ -27,6 +27,7 @@ urlpatterns = [
     
     # URLs para autenticação social
     path('accounts/', include('allauth.urls')),
+    path('social/', include('social_django.urls', namespace='social')),
 ]
 
 if settings.DEBUG:

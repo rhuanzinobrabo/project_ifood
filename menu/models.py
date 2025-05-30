@@ -10,6 +10,7 @@ Dependências principais:
 
 # Imports do Django
 from django.db import models
+from django.utils import timezone
 
 # Imports locais (do próprio projeto)
 from vendor.models import Vendor
@@ -83,7 +84,7 @@ class FoodItem(models.Model):
                              help_text="Imagem do item de comida")
     is_available = models.BooleanField(default=True, 
                                       help_text="Indica se o item está disponível para pedido")
-    created_at = models.DateTimeField(auto_now_add=True, 
+    created_at = models.DateTimeField(default=timezone.now, 
                                      help_text="Data e hora de criação do item")
     updated_at = models.DateTimeField(auto_now=True, 
                                      help_text="Data e hora da última atualização")

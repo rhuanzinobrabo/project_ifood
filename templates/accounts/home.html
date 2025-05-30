@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="jumbotron text-center">
+        <h1 class="display-4">Bem-vindo ao iFood</h1>
+        <p class="lead">Descubra os melhores restaurantes e pratos da sua região</p>
+        <hr class="my-4">
+        <p>Faça seu pedido agora mesmo ou cadastre seu restaurante na nossa plataforma.</p>
+        <div class="mt-4">
+            <a href="{% url 'request_otp' %}" class="btn btn-primary btn-lg mr-3">Entrar</a>
+            <a href="{% url 'registerUser' %}" class="btn btn-success btn-lg mr-3">Cadastrar como Cliente</a>
+            <a href="{% url 'registerVendor' %}" class="btn btn-warning btn-lg">Cadastrar Restaurante</a>
+        </div>
+    </div>
+
+    <!-- Restaurantes em Destaque -->
+    <section class="mt-5">
+        <h2 class="text-center mb-4">Restaurantes em Destaque</h2>
+        <div class="row">
+            {% if featured_vendors %}
+                {% for vendor in featured_vendors %}
+                    <div class="col-md-3 mb-4">
+                        <div class="card h-100">
+                            {% if vendor.user_profile.profile_picture %}
+                                <img src="{{ vendor.user_profile.profile_picture.url }}" class="card-img-top" alt="{{ vendor.vendor_name }}">
+                            {% else %}
+                                <img src="{% static 'images/default-restaurant.jpg' %}" class="card-img-top" alt="{{ vendor.vendor_name }}">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ vendor.vendor_name }}</h5>
+                                <p class="card-text">{{ vendor.vendor_address|truncatechars:50 }}</p>
+                                <a href="#" class="btn btn-primary">Ver Cardápio</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center">
+                    <p>Nenhum restaurante disponível no momento.</p>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Como Funciona -->
+    <section class="mt-5 mb-5">
+        <h2 class="text-center mb-4">Como Funciona</h2>
+        <div class="row text-center">
+            <div class="col-md-4">
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                        <i class="fas fa-search fa-3x mb-3 text-primary"></i>
+                        <h4>Encontre</h4>
+                        <p>Descubra os melhores restaurantes da sua região.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                        <i class="fas fa-utensils fa-3x mb-3 text-success"></i>
+                        <h4>Escolha</h4>
+                        <p>Selecione seus pratos favoritos do cardápio.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                        <i class="fas fa-motorcycle fa-3x mb-3 text-danger"></i>
+                        <h4>Receba</h4>
+                        <p>Receba seu pedido rapidamente em casa.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

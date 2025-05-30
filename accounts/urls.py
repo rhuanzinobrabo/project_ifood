@@ -18,7 +18,8 @@ from django.urls import path, include
 from . import views
 
 urlpatterns = [
-    path('', views.myAccount, name='myAccount'),
+    path('', views.home_view, name='home'),
+    path('minha-conta/', views.myAccount, name='myAccount'),
     path('request-otp/', views.request_otp, name='request_otp'),
     path('verify-otp/', views.verify_otp, name='verify_otp'),
     path('criarUsuario/', views.registerUser, name='registerUser'),
