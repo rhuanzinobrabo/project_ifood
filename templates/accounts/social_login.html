@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load socialaccount %}
 
 {% block content %}
 <div class="container mt-5">
@@ -23,16 +24,16 @@
                     </div>
                     
                     <div class="d-grid gap-3">
-                        <!-- Botão de Login com Google -->
-                        <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-danger btn-lg">
+                        <!-- Botão de Login com Google (CORRETO - usa allauth) -->
+                        <a href="{% provider_login_url 'google' %}" class="btn btn-danger btn-lg">
                             <i class="fab fa-google me-2"></i> Entrar com Google
                         </a>
                         
-                        <!-- Botão de Login com Facebook -->
-                        <a href="{% url 'social:begin' 'facebook' %}" class="btn btn-primary btn-lg">
+                        <!-- Botão de Login com Facebook (CORRETO - usa allauth) -->
+                        <a href="{% provider_login_url 'facebook' %}" class="btn btn-primary btn-lg">
                             <i class="fab fa-facebook-f me-2"></i> Entrar com Facebook
                         </a>
-                        
+
                         <!-- Separador -->
                         <div class="text-center my-3">
                             <span class="bg-white px-3">ou</span>

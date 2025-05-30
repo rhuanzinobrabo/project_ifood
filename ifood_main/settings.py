@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-6edyx5#lb@3!q7ztph^xteofa0x#mv6s^we2-96i)eem%s=lbn'  # ⚠️ Use variáveis de ambiente em produção
 DEBUG = True
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 # ========================
 # Login e Redirecionamento
@@ -30,7 +30,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',  # Necessário para django-allauth
 
     # Apps do projeto
     'accounts.apps.AccountsConfig',  # ✅ Importa signals automaticamente
@@ -40,13 +39,6 @@ INSTALLED_APPS = [
 
     # Terceiros
     'social_django',
-    
-    # Django AllAuth
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.facebook',
 ]
 
 # ========================
@@ -60,9 +52,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
-    # AllAuth middleware
-    'allauth.account.middleware.AccountMiddleware',
 ]
 
 # ========================
@@ -120,14 +109,7 @@ AUTH_USER_MODEL = 'accounts.User'
 # Backends de Autenticação
 # ========================
 AUTHENTICATION_BACKENDS = (
-    # Django AllAuth
-    'allauth.account.auth_backends.AuthenticationBackend',
-    
-    # Social Auth
     'social_core.backends.google.GoogleOAuth2',
-    'social_core.backends.facebook.FacebookOAuth2',
-    
-    # Django padrão
     'django.contrib.auth.backends.ModelBackend',
 )
 
@@ -172,66 +154,8 @@ DEFAULT_FROM_EMAIL = 'Projeto - Ifood'
 # ========================
 # Social Auth (Google)
 # ========================
-# Credenciais existentes do Google
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '944573324476-m9qcg6cqbk0gd83r5k2t5998vo753cei.apps.googleusercontent.com'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
-
-# ========================
-# Social Auth (Facebook)
-# ========================
-# ⚠️ IMPORTANTE: Substitua com suas credenciais do Facebook Developer
-SOCIAL_AUTH_FACEBOOK_KEY = '123456789012345'  # App ID
-SOCIAL_AUTH_FACEBOOK_SECRET = 'abcdefghijklmnopqrstuvwxyz123456'  # App Secret
-SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']  # Permissões solicitadas
-SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-    'fields': 'id, name, email, picture.type(large)'
-}
-
-# ========================
-# Django AllAuth
-# ========================
-SITE_ID = 1
-
-# Configurações gerais do AllAuth
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_EMAIL_VERIFICATION = 'none'  # Pode ser 'mandatory' para exigir verificação
-ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
-ACCOUNT_LOGOUT_ON_GET = True
-ACCOUNT_LOGIN_ON_PASSWORD_RESET = True
-ACCOUNT_SESSION_REMEMBER = True
-
-# Configurações de provedores sociais
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
-        }
-    },
-    'facebook': {
-        'METHOD': 'oauth2',
-        'SCOPE': ['email', 'public_profile'],
-        'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
-        'INIT_PARAMS': {'cookie': True},
-        'FIELDS': [
-            'id',
-            'email',
-            'name',
-            'first_name',
-            'last_name',
-            'picture',
-        ],
-        'EXCHANGE_TOKEN': True,
-        'VERIFIED_EMAIL': False,
-        'VERSION': 'v13.0',
-    }
-}
 
 # ========================
 # Outras Configurações

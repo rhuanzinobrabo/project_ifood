@@ -113,11 +113,11 @@
 <!-- Scripts -->
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    const role = Number("{{ user.role|default:'0' }}");
-
+    const role = {{ user.role }};  // Corrigido para passar como valor numérico
     const restauranteCampos = document.getElementById('restaurante-campos');
 
-    if (role === 1) {
+    // Exibe campos de restaurante se o usuário for restaurante
+    if (role == 1) {
       restauranteCampos.style.display = 'flex';
     }
 
