@@ -138,4 +138,66 @@ class OTPModel(models.Model):
     def __str__(self):
         return f"OTP para {self.email} - {self.otp}"
 
+class UserAddress(models.Model):
+    """
+    Endereços de usuário para entrega e faturamento.
+    
+    Permite que um usuário tenha múltiplos endereços cadastrados,
+    com diferentes tipos (casa, trabalho, etc.) e a possibilidade
+    de definir um endereço como padrão.
+    
+    Relacionamentos:
+    - Pertence a um User (muitos para um)
+    """
+    ADDRESS_TYPE_CHOICES = (
+        ("HOME", "Casa"),
+        ("WORK", "Trabalho"),
+        ("OTHER", "Outro"),
+    )
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="addresses",
+                            help_text="Usuário proprietário deste endereço")
+    address_type = models.CharField(max_length=10, choices=ADDRESS_TYPE_CHOICES, default="HOME",
+                                   help_text="Tipo de endereço (Casa, Trabalho, Outro)")
+    address_line1 = models.CharField(max_length=100,
+                                    help_text="Primeira linha do endereço (rua, número)")
+    address_line2 = models.CharField(max_length=100, blank=True, default="",
+                                    help_text="Segunda linha do endereço (complemento)")
+    city = models.CharField(max_length=50,
+                           help_text="Cidade")
+    state = models.CharField(max_length=50,
+                            help_text="Estado")
+    country = models.CharField(max_length=50, default="Brasil",
+                              help_text="País")
+    postal_code = models.CharField(max_length=10,
+                                  help_text="CEP")
+    latitude = models.DecimalField(max_digits=18, decimal_places=15, blank=True, null=True,
+                                  help_text="Latitude da localização")
+    longitude = models.DecimalField(max_digits=18, decimal_places=15, blank=True, null=True,
+                                   help_text="Longitude da localização")
+    is_default = models.BooleanField(default=False,
+                                    help_text="Indica se este é o endereço padrão do usuário")
+    created_at = models.DateTimeField(auto_now_add=True,
+                                     help_text="Data de criação do endereço")
+    updated_at = models.DateTimeField(auto_now=True,
+                                     help_text="Data da última atualização do endereço")
 
+    def __str__(self):
+        return f"{self.address_type} - {self.address_line1}, {self.city}"
+    
+    def save(self, *args, **kwargs):
+        """
+        Sobrescreve o método save para garantir que apenas um endereço seja definido como padrão.
+        
+        Se este endereço for definido como padrão, remove o status padrão de outros endereços.
+        Se este for o primeiro endereço do usuário, define-o automaticamente como padrão.
+        """
+        # Se este endereço for definido como padrão, remova o status padrão de outros endereços
+        if self.is_default:
+            UserAddress.objects.filter(user=self.user, is_default=True).exclude(pk=self.pk).update(is_default=False)
+        
+        # Se este for o primeiro endereço do usuário, defina-o como padrão
+        if not self.pk and not UserAddress.objects.filter(user=self.user).exists():
+            self.is_default = True
+            
+        super(UserAddress, self).save(*args, **kwargs)

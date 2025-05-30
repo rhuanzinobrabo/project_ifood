@@ -57,11 +57,13 @@
     <div class="user-account-nav user-account-sidebar">
         <div class="user-nav-list">
             <ul>
-                <!-- Item de menu com destaque para ativo -->
-                <li class="active"><a href="restaurant-dashboard.html"><i class="icon-dashboard3"></i>Dashboard</a></li>
-                <li><a href="restaurant-restaurant.html"><i class="icon-building"></i>Meus pedidos</a></li>
-                <li><a href="restaurant-menu-builder.html"><i class="icon-menu5"></i>Perfil</a></li>
-                <li><a class="logout-btn" href="registration.html"><i class="icon-log-out"></i>Sair</a></li>
+                <!-- Ajustar a classe 'active' dinamicamente com base na URL atual, se necessário -->
+                <li><a href="{% url 'custDashboard' %}"><i class="icon-dashboard3"></i>Dashboard</a></li>
+                <!-- Assumindo que existe uma URL chamada 'my_orders' no marketplace -->
+                <li><a href="{% url 'my_orders' %}"><i class="icon-building"></i>Meus pedidos</a></li> 
+                <!-- Assumindo que 'myAccount' leva ao perfil ou dashboard -->
+                <li><a href="{% url 'myAccount' %}"><i class="icon-menu5"></i>Perfil</a></li> 
+                <li><a class="logout-btn" href="{% url 'logout' %}"><i class="icon-log-out"></i>Sair</a></li>
             </ul>
         </div>
     </div>

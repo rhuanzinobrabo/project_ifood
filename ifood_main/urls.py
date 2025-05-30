@@ -1,30 +1,24 @@
-"""
-URL configuration for ifood_main project.
+# ifood_main/urls.py
 
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path, include
-from . import views
+from . import views # Mantém a importação se houver views em ifood_main
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', views.home, name='home'),
-    path('conta/', include('accounts.urls')),
-    path('oauth/', include('social_django.urls', namespace='social')),
-    path('mercado/', include('marketplace.urls'))
+    path("admin/", admin.site.urls),
+    path("", views.home, name="home"),
+    path("conta/", include("accounts.urls")), # Mantém prefixo /conta/
+    path("oauth/", include("social_django.urls", namespace="social")), # Mantém prefixo /oauth/
+    path("mercado/", include("marketplace.urls")), # Mantém prefixo /mercado/
+    
+    # ADICIONADO: Inclui as URLs do app menu
+    path("menu/", include("menu.urls")), 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Adiciona a configuração para arquivos estáticos em modo DEBUG
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+

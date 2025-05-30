@@ -34,14 +34,23 @@
     </style>
 </head>
 <body>
-    <div class="user-account-nav user-account-sidebar">
-        <div class="user-nav-list">
-            <ul>
-                <li class="active"><a href="{% url 'vendorDashboard' %}"><i class="icon-dashboard3"></i>Dashboard</a></li>
-                <li><a href="{% url 'vprofile' %}"><i class="icon-building"></i>Meu Restaurante</a></li>
-                <li><a href="{% url 'menu_builder' %}"><i class="icon-menu5"></i>Cardápio</a></li>
-            </ul>
-        </div>
+<div class="user-account-nav user-account-sidebar">
+    <div class="user-nav-list">
+        <ul>
+            <li class="active"><a href="{% url 'vendorDashboard' %}"><i class="icon-dashboard3"></i>Dashboard</a></li>
+            
+            {% if vendor %}
+                <!-- Se o vendor existir, mostre o link para editar -->
+                <li><a href="{% url 'restaurant_update' pk=vendor.pk %}"><i class="icon-building"></i>Meu Restaurante</a></li>
+                <!-- Corrigido: menu_builder → category_list -->
+                <li><a href="{% url 'category_list' %}"><i class="icon-menu5"></i>Cardápio</a></li>
+            {% else %}
+                <!-- Se não existir, desabilite os links -->
+                <li><a href="#" class="disabled"><i class="icon-building"></i>Meu Restaurante</a></li>
+                <li><a href="#" class="disabled"><i class="icon-menu5"></i>Cardápio</a></li>
+            {% endif %}
+        </ul>
     </div>
+</div>
 </body>
 </html>
