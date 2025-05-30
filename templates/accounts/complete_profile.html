@@ -21,19 +21,21 @@
           <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
 
-            <div class="row g-3">
+            <!-- Campos obrigatórios de informações pessoais -->
+            <div class="row g-3 mb-3">
               <div class="col-md-6">
-                <div class="form-floating">
-                  {{ user_form.first_name }}
-                  <label for="{{ user_form.first_name.id_for_label }}">{{ user_form.first_name.label }}</label>
-                </div>
+                <label for="first_name" class="form-label">Nome</label>
+                <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}" required>
               </div>
               <div class="col-md-6">
-                <div class="form-floating">
-                  {{ user_form.last_name }}
-                  <label for="{{ user_form.last_name.id_for_label }}">{{ user_form.last_name.label }}</label>
-                </div>
+                <label for="last_name" class="form-label">Sobrenome</label>
+                <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}" required>
               </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="phone_number" class="form-label">Telefone</label>
+              <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ user.phone_number }}" placeholder="(00) 00000-0000" required>
             </div>
 
             <!-- Campos de Restaurante (se aplicável) -->
@@ -82,18 +84,6 @@
                 <div class="form-floating">
                   {{ profile_form.pin_code }}
                   <label for="{{ profile_form.pin_code.id_for_label }}">{{ profile_form.pin_code.label }}</label>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-floating">
-                  {{ profile_form.latitude }}
-                  <label for="{{ profile_form.latitude.id_for_label }}">{{ profile_form.latitude.label }}</label>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-floating">
-                  {{ profile_form.longitude }}
-                  <label for="{{ profile_form.longitude.id_for_label }}">{{ profile_form.longitude.label }}</label>
                 </div>
               </div>
             </div>

@@ -8,31 +8,51 @@
             <div class="card">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">Cardápio - Itens</h4>
-                    <a href="{% url 'food_create' %}" class="btn btn-success">
-                        <i class="fas fa-plus"></i> Novo Item
-                    </a>
+                    <div>
+                        <a href="{% url 'category_create' %}" class="btn btn-warning me-2">
+                            <i class="fas fa-folder-plus"></i> Nova Categoria
+                        </a>
+                        <a href="{% url 'food_create' %}" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Novo Item
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
                     <!-- Filtros e Busca -->
                     <div class="row mb-4">
                         <div class="col-md-12">
-                            <form method="get" class="form-inline">
-                                <div class="input-group mb-3">
-                                    <input type="text" name="search" class="form-control" placeholder="Buscar por nome, descrição..." value="{{ search_query }}">
-                                    <select name="category" class="form-control">
-                                        <option value="" {% if not category_filter %}selected{% endif %}>Todas as categorias</option>
-                                        {% for category in categories %}
-                                        <option value="{{ category.id }}" {% if category_filter == category.id|stringformat:"i" %}selected{% endif %}>{{ category.category_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <select name="availability" class="form-control">
-                                        <option value="" {% if not availability_filter %}selected{% endif %}>Todos os status</option>
-                                        <option value="available" {% if availability_filter == 'available' %}selected{% endif %}>Disponível</option>
-                                        <option value="unavailable" {% if availability_filter == 'unavailable' %}selected{% endif %}>Indisponível</option>
-                                    </select>
-                                    <div class="input-group-append">
-                                        <button class="btn btn-primary" type="submit">
-                                            <i class="fas fa-search"></i> Filtrar
+                            <form method="get">
+                                <div class="row g-3">
+                                    <div class="col-md-4 mb-2">
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                            <input type="text" name="search" class="form-control" placeholder="Buscar por nome, descrição..." value="{{ search_query }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-folder"></i></span>
+                                            <select name="category" class="form-select">
+                                                <option value="" {% if not category_filter %}selected{% endif %}>Todas as categorias</option>
+                                                {% for category in categories %}
+                                                <option value="{{ category.id }}" {% if category_filter == category.id|stringformat:"i" %}selected{% endif %}>{{ category.category_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-toggle-on"></i></span>
+                                            <select name="availability" class="form-select">
+                                                <option value="" {% if not availability_filter %}selected{% endif %}>Todos os status</option>
+                                                <option value="available" {% if availability_filter == 'available' %}selected{% endif %}>Disponível</option>
+                                                <option value="unavailable" {% if availability_filter == 'unavailable' %}selected{% endif %}>Indisponível</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 mb-2">
+                                        <button class="btn btn-primary w-100" type="submit">
+                                            <i class="fas fa-filter me-1"></i> Filtrar
                                         </button>
                                     </div>
                                 </div>
@@ -75,9 +95,6 @@
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <a href="{% url 'food_detail' item.pk %}" class="btn btn-sm btn-info" title="Visualizar">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
                                             <a href="{% url 'food_update' item.pk %}" class="btn btn-sm btn-primary" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </a>

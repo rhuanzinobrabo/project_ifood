@@ -154,6 +154,7 @@ def category_delete(request, pk=None): # Renomeado de delete_category
 def food_list(request):
     """
     Lista todos os itens de comida do restaurante do usuário logado.
+    Permite filtrar por nome, categoria e disponibilidade.
     """
     if not check_role_vendor(request.user):
         messages.error(request, "Acesso restrito.")
@@ -161,14 +162,48 @@ def food_list(request):
         
     try:
         vendor = Vendor.objects.get(user=request.user)
-        fooditems = FoodItem.objects.filter(vendor=vendor).order_by('category__category_name', 'food_title')
+        
+        # Obter todas as categorias do vendor para o filtro
+        categories = Category.objects.filter(vendor=vendor).order_by('category_name')
+        
+        # Iniciar com todos os itens do vendor
+        fooditems = FoodItem.objects.filter(vendor=vendor)
+        
+        # Aplicar filtros se fornecidos
+        search_query = request.GET.get('search', '')
+        category_filter = request.GET.get('category', '')
+        availability_filter = request.GET.get('availability', '')
+        
+        # Filtrar por termo de busca
+        if search_query:
+            fooditems = fooditems.filter(
+                Q(food_title__icontains=search_query) | 
+                Q(description__icontains=search_query)
+            )
+        
+        # Filtrar por categoria
+        if category_filter:
+            fooditems = fooditems.filter(category__id=category_filter)
+        
+        # Filtrar por disponibilidade
+        if availability_filter:
+            is_available = availability_filter == 'available'
+            fooditems = fooditems.filter(is_available=is_available)
+        
+        # Ordenar resultados
+        fooditems = fooditems.order_by('category__category_name', 'food_title')
+        
     except Vendor.DoesNotExist:
         messages.error(request, "Perfil de restaurante não encontrado.")
         return redirect(reverse('home'))
 
     context = {
-        'fooditems': fooditems,
+        'food_items': fooditems,
+        'categories': categories,
         'vendor': vendor,
+        'search_query': search_query,
+        'category_filter': category_filter,
+        'availability_filter': availability_filter,
     }
     # Certifique-se que o template existe
     return render(request, 'menu/food_list.html', context)

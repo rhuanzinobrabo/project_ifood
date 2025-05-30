@@ -3,7 +3,8 @@ from django.http import HttpResponse
 from vendor.models import Vendor
 
 def home(request):
-    vendors = Vendor.objects.filter(is_approved=True, user__is_active=True)[:8]
+    # Removido filtro de aprovação e status do usuário para exibir todos os restaurantes cadastrados
+    vendors = Vendor.objects.all()[:8]
     context = {
         'vendors': vendors
     }

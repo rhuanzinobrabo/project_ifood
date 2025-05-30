@@ -54,3 +54,54 @@ def send_notification(mail_subject, mail_template, context):
     to_email = context['user'].email
     mail = EmailMessage(mail_subject, message, from_email, to=[to_email])
     mail.send()
+
+
+def send_otp_email(user, mail_subject, email_template):
+    """
+    Envia email com código OTP para o usuário.
+    Usado para autenticação e verificação de conta.
+    """
+    from_email = settings.DEFAULT_FROM_EMAIL
+    context = {
+        'user': user,
+        'otp': user.otp,
+        'to_email': user.email,
+    }
+    message = render_to_string(email_template, context)
+    to_email = user.email
+    mail = EmailMessage(mail_subject, message, from_email, to=[to_email])
+    mail.content_subtype = "html"
+    mail.send()
+
+
+def check_role_customer(user):
+    """
+    Verifica se o usuário tem papel de cliente.
+    Usada como decorator para restringir acesso a views específicas.
+    """
+    if user.role == 2:  # 2 = Cliente
+        return True
+    else:
+        return False
+
+
+def check_role_vendor(user):
+    """
+    Verifica se o usuário tem papel de restaurante.
+    Usada como decorator para restringir acesso a views específicas.
+    """
+    if user.role == 1:  # 1 = Restaurante
+        return True
+    else:
+        return False
+
+
+def check_role_admin(user):
+    """
+    Verifica se o usuário é um administrador.
+    Usada como decorator para restringir acesso a views administrativas.
+    """
+    if user.is_superadmin:
+        return True
+    else:
+        return False

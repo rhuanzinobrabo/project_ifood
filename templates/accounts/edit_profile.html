@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% include 'includes/alerts.html' %}
+
+<div class="main-section">
+  <!-- Cabeçalho simplificado -->
+  <div class="page-section" style="background-color: #f8f9fa;">
+    <div class="container py-4">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="text-center">
+            <h2 class="mb-2">Meu Perfil</h2>
+            <p class="text-muted">Visualize e atualize suas informações pessoais</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conteúdo principal -->
+  <div class="page-section account-header buyer-logged-in py-5">
+    <div class="container">
+      <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-3 mb-4">
+          {% include 'includes/c_sidebar.html' %}
+        </div>
+
+        <!-- Formulário de Perfil -->
+        <div class="col-lg-9">
+          <div class="user-dashboard loader-holder bg-white shadow rounded-4 p-4">
+            <div class="user-holder">
+              <!-- Título -->
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="mb-0">Meu Perfil</h5>
+              </div>
+
+              <!-- Formulário -->
+              <form action="{% url 'edit_profile' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="row">
+                  <!-- Informações Pessoais -->
+                  <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                      <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Informações Pessoais</h5>
+                      </div>
+                      <div class="card-body">
+                        <div class="mb-3">
+                          <label for="first_name" class="form-label">Nome</label>
+                          <input type="text" class="form-control" id="first_name" name="first_name" value="{{ profile_form.first_name.initial }}" required>
+                        </div>
+                        <div class="mb-3">
+                          <label for="last_name" class="form-label">Sobrenome</label>
+                          <input type="text" class="form-control" id="last_name" name="last_name" value="{{ profile_form.last_name.initial }}" required>
+                        </div>
+                        <div class="mb-3">
+                          <label for="phone_number" class="form-label">Telefone</label>
+                          <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ profile_form.phone_number.initial }}">
+                        </div>
+                        <div class="mb-3">
+                          <label for="email" class="form-label">Email</label>
+                          <input type="email" class="form-control" id="email" value="{{ user.email }}" disabled>
+                          <small class="text-muted">O email não pode ser alterado</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Endereço e Foto -->
+                  <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                      <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Endereço e Foto</h5>
+                      </div>
+                      <div class="card-body">
+                        <div class="mb-3">
+                          <label for="id_address_line_1" class="form-label">Endereço</label>
+                          {{ profile_form.address_line_1 }}
+                        </div>
+                        <div class="mb-3">
+                          <label for="id_country" class="form-label">País</label>
+                          {{ profile_form.country }}
+                        </div>
+                        <div class="row">
+                          <div class="col-md-6 mb-3">
+                            <label for="id_state" class="form-label">Estado</label>
+                            {{ profile_form.state }}
+                          </div>
+                          <div class="col-md-6 mb-3">
+                            <label for="id_city" class="form-label">Cidade</label>
+                            {{ profile_form.city }}
+                          </div>
+                        </div>
+                        <div class="mb-3">
+                          <label for="id_pin_code" class="form-label">CEP</label>
+                          {{ profile_form.pin_code }}
+                        </div>
+                        <div class="mb-3">
+                          <label for="id_profile_picture" class="form-label">Foto de Perfil</label>
+                          {{ profile_form.profile_picture }}
+                          {% if profile.profile_picture %}
+                            <div class="mt-2">
+                              <img src="{{ profile.profile_picture.url }}" alt="Foto atual" class="img-thumbnail" style="max-height: 100px;">
+                            </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Campos ocultos -->
+                {{ profile_form.latitude }}
+                {{ profile_form.longitude }}
+                
+                <!-- Botões -->
+                <div class="d-flex justify-content-end mt-3">
+                  <button type="submit" class="btn btn-success">Salvar Alterações</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

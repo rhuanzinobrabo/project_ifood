@@ -9,7 +9,7 @@ from django.template.defaultfilters import slugify
 from django.urls import reverse # Importar reverse
 
 from accounts.models import UserProfile # Importar UserProfile se necessário
-from accounts.views import check_role_admin, check_role_vendor
+from accounts.utils import check_role_admin, check_role_vendor
 from .models import Vendor
 from .forms import VendorForm
 

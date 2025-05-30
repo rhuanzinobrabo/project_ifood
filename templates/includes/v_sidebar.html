@@ -34,23 +34,30 @@
     </style>
 </head>
 <body>
+{% load static %}
+
+{% if user.is_authenticated %}
 <div class="user-account-nav user-account-sidebar">
     <div class="user-nav-list">
         <ul>
-            <li class="active"><a href="{% url 'vendorDashboard' %}"><i class="icon-dashboard3"></i>Dashboard</a></li>
+            {% url 'vendorDashboard' as dashboard_url %}
+            <li class="{% if request.path == dashboard_url %}active{% endif %}">
+                <a href="{{ dashboard_url }}"><i class="fas fa-tachometer-alt me-2"></i>DASHBOARD</a>
+            </li>
             
-            {% if vendor %}
-                <!-- Se o vendor existir, mostre o link para editar -->
-                <li><a href="{% url 'restaurant_update' pk=vendor.pk %}"><i class="icon-building"></i>Meu Restaurante</a></li>
-                <!-- Corrigido: menu_builder → category_list -->
-                <li><a href="{% url 'category_list' %}"><i class="icon-menu5"></i>Cardápio</a></li>
-            {% else %}
-                <!-- Se não existir, desabilite os links -->
-                <li><a href="#" class="disabled"><i class="icon-building"></i>Meu Restaurante</a></li>
-                <li><a href="#" class="disabled"><i class="icon-menu5"></i>Cardápio</a></li>
-            {% endif %}
+            {% url 'restaurant_detail' vendor.id as restaurant_url %}
+            <li class="{% if request.path == restaurant_url %}active{% endif %}">
+                <a href="{{ restaurant_url }}"><i class="fas fa-utensils me-2"></i>MEU RESTAURANTE</a>
+            </li>
+            
+            {% url 'food_list' as menu_url %}
+            <li class="{% if request.path == menu_url %}active{% endif %}">
+                <a href="{{ menu_url }}"><i class="fas fa-clipboard-list me-2"></i>CARDÁPIO</a>
+            </li>
         </ul>
     </div>
 </div>
+{% endif %}
+
 </body>
 </html>

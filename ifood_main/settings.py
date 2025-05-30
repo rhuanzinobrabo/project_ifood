@@ -154,8 +154,8 @@ DEFAULT_FROM_EMAIL = 'Projeto - Ifood'
 # ========================
 # Social Auth (Google)
 # ========================
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '944573324476-m9qcg6cqbk0gd83r5k2t5998vo753cei.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '944573324476-jgk82qjsn356ma091pfn25d67ilkqvs8.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
 
 # ========================
 # Outras Configurações

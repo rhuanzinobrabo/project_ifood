@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% include 'includes/alerts.html' %}
+
+<div class="main-section">
+    <div class="page-section account-header buyer-logged-in py-4">
+        <div class="container">
+            <div class="row">
+                <!-- Sidebar -->
+                <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 mb-4">
+                    {% include 'includes/v_sidebar.html' %}
+                </div>
+
+                <!-- Conteúdo Principal -->
+                <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+                    <div class="user-dashboard loader-holder bg-white shadow rounded-4 p-4">
+                        <div class="user-holder">
+                            <h4 class="text-uppercase mb-4">Meu Restaurante</h4>
+                            
+                            <form action="{% url 'restaurant_profile' %}" method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                
+                                <!-- Status do Restaurante -->
+                                <div class="card mb-4">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0">Status do Restaurante</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-check form-switch">
+                                            {{ form.is_open }}
+                                            <label class="form-check-label ms-3" for="{{ form.is_open.id_for_label }}">
+                                                <span class="badge bg-success me-2" id="status-badge-open">Aberto</span>
+                                                <span class="badge bg-danger me-2" id="status-badge-closed">Fechado</span>
+                                                Alterar status do restaurante
+                                            </label>
+                                        </div>
+                                        <small class="text-muted">Defina se seu restaurante está aberto ou fechado para receber pedidos.</small>
+                                    </div>
+                                </div>
+                                
+                                <!-- Informações do Restaurante -->
+                                <div class="card mb-4">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0">Informações do Restaurante</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row mb-3">
+                                            <div class="col-md-12">
+                                                <label for="{{ form.vendor_name.id_for_label }}">Nome do Restaurante</label>
+                                                {{ form.vendor_name }}
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="{{ form.first_name.id_for_label }}">Nome do Proprietário</label>
+                                                {{ form.first_name }}
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="{{ form.last_name.id_for_label }}">Sobrenome do Proprietário</label>
+                                                {{ form.last_name }}
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="{{ form.phone_number.id_for_label }}">Telefone</label>
+                                                {{ form.phone_number }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Endereço -->
+                                <div class="card mb-4">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0">Endereço</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row mb-3">
+                                            <div class="col-md-12">
+                                                <label for="{{ form.address_line_1.id_for_label }}">Endereço Completo</label>
+                                                {{ form.address_line_1 }}
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <label for="{{ form.country.id_for_label }}">País</label>
+                                                {{ form.country }}
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="{{ form.state.id_for_label }}">Estado</label>
+                                                {{ form.state }}
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="{{ form.city.id_for_label }}">Cidade</label>
+                                                {{ form.city }}
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <label for="{{ form.pin_code.id_for_label }}">CEP</label>
+                                                {{ form.pin_code }}
+                                            </div>
+                                        </div>
+                                        {{ form.latitude }}
+                                        {{ form.longitude }}
+                                    </div>
+                                </div>
+                                
+                                <!-- Imagens -->
+                                <div class="card mb-4">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0">Imagens</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="{{ form.profile_picture.id_for_label }}">Foto do Restaurante</label>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    {% if profile.profile_picture %}
+                                                        <img src="{{ profile.profile_picture.url }}" alt="Foto atual" class="img-thumbnail me-3" style="max-width: 100px;">
+                                                    {% endif %}
+                                                    {{ form.profile_picture }}
+                                                </div>
+                                                <small class="text-muted">Imagem principal do seu restaurante (logo ou fachada)</small>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="{{ form.cover_photo.id_for_label }}">Foto de Capa</label>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    {% if profile.cover_photo %}
+                                                        <img src="{{ profile.cover_photo.url }}" alt="Capa atual" class="img-thumbnail me-3" style="max-width: 100px;">
+                                                    {% endif %}
+                                                    {{ form.cover_photo }}
+                                                </div>
+                                                <small class="text-muted">Imagem de fundo para a página do seu restaurante</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-save me-2"></i>Salvar Alterações
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Função para atualizar a visibilidade dos badges de status
+        function updateStatusBadges() {
+            const isOpen = document.getElementById('{{ form.is_open.id_for_label }}').checked;
+            document.getElementById('status-badge-open').style.display = isOpen ? 'inline-block' : 'none';
+            document.getElementById('status-badge-closed').style.display = isOpen ? 'none' : 'inline-block';
+        }
+        
+        // Inicializar badges
+        updateStatusBadges();
+        
+        // Atualizar badges quando o status mudar
+        document.getElementById('{{ form.is_open.id_for_label }}').addEventListener('change', updateStatusBadges);
+    });
+</script>
+{% endblock %}

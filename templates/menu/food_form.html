@@ -58,9 +58,11 @@
                         </div>
                         
                         <div class="form-group mb-3">
-                            <div class="custom-control custom-switch">
-                                {{ form.is_available }}
-                                <label class="custom-control-label" for="id_is_available">Item Disponível</label>
+                            <div class="d-flex align-items-center">
+                                <div class="form-check form-switch">
+                                    {{ form.is_available }}
+                                </div>
+                                <label class="form-check-label ms-4" for="id_is_available">Item Disponível</label>
                             </div>
                             <small class="form-text text-muted">Desmarque esta opção se o item estiver temporariamente indisponível.</small>
                         </div>

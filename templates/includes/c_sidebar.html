@@ -54,19 +54,23 @@
     </style>
 </head>
 <body>
-    <div class="user-account-nav user-account-sidebar">
-        <div class="user-nav-list">
-            <ul>
-                <!-- Ajustar a classe 'active' dinamicamente com base na URL atual, se necessário -->
-                <li><a href="{% url 'custDashboard' %}"><i class="icon-dashboard3"></i>Dashboard</a></li>
-                <!-- Assumindo que existe uma URL chamada 'my_orders' no marketplace -->
-                <li><a href="{% url 'my_orders' %}"><i class="icon-building"></i>Meus pedidos</a></li> 
-                <!-- Assumindo que 'myAccount' leva ao perfil ou dashboard -->
-                <li><a href="{% url 'myAccount' %}"><i class="icon-menu5"></i>Perfil</a></li> 
-                <li><a class="logout-btn" href="{% url 'logout' %}"><i class="icon-log-out"></i>Sair</a></li>
-            </ul>
-        </div>
+<div class="user-account-nav user-account-sidebar">
+    <div class="user-nav-list">
+        <ul>
+            {% url 'custDashboard' as dashboard_url %}
+            {% url 'myAccount' as profile_url %}
+            
+            <li class="{% if request.path == dashboard_url %}active{% endif %}">
+                <a href="{{ dashboard_url }}"><i class="fas fa-tachometer-alt me-2"></i>DASHBOARD</a>
+            </li>
+            {% url 'edit_profile' as edit_profile_url %}
+            <li class="{% if request.path == edit_profile_url %}active{% endif %}">
+                <a href="{{ edit_profile_url }}"><i class="fas fa-user me-2"></i>PERFIL</a>
+            </li>
+        </ul>
     </div>
+</div>
+
 
     <!-- Linkando o script do Bootstrap (opcional para comportamentos interativos) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

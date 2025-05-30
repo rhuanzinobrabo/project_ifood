@@ -47,7 +47,8 @@ def marketplace(request):
     """
     Página inicial do marketplace.
     
-    Exibe restaurantes aprovados e ativos.
+    Exibe todos os restaurantes cadastrados, independente do status de aprovação.
+    Em ambiente de produção, deve-se filtrar apenas restaurantes aprovados e ativos.
     
     Args:
         request: Objeto request do Django
@@ -55,7 +56,8 @@ def marketplace(request):
     Returns:
         HttpResponse: Renderiza a página inicial do marketplace
     """
-    vendors = Vendor.objects.filter(is_approved=True, user__is_active=True)
+    # Removido filtro de aprovação e status do usuário para exibir todos os restaurantes cadastrados
+    vendors = Vendor.objects.all()
     vendor_count = vendors.count()
     context = {
         'vendors': vendors,

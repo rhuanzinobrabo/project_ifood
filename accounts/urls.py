@@ -10,8 +10,10 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
     path('minhaConta/', views.myAccount, name='myAccount'),
+    path('perfil/', views.edit_profile, name='edit_profile'),
     path('custDashboard/', views.custDashboard, name='custDashboard'),
     path('vendorDashboard/', views.vendorDashboard, name='vendorDashboard'),
+    path('meu-restaurante/', views.restaurant_profile, name='restaurant_profile'),
     path('restaurante/', include('vendor.urls')),  # Inclui rotas do app vendor
     path('choose-account/', views.choose_account_type, name='choose_account_type'),
     path('conta/cadastrar/', views.complete_profile, name='complete_profile'),

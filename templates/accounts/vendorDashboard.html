@@ -5,108 +5,151 @@
 {% include 'includes/alerts.html' %}
 
 <div class="main-section">
-    {% include 'includes/cover.html' %}
+    <!-- Cabeçalho simplificado -->
+    <div class="page-section" style="background-color: #8B0000; color: white;">
+        <div class="container py-4">
+            <div class="row align-items-center">
+                <div class="col-lg-3 col-md-4 mb-3 mb-md-0">
+                    {% if vendor.user_profile.profile_picture %}
+                        <img src="{{ vendor.user_profile.profile_picture.url }}" alt="{{ vendor.vendor_name }}" class="img-fluid rounded-circle" style="max-width: 100px; border: 3px solid white;">
+                    {% else %}
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 100px; height: 100px; border: 3px solid white;">
+                            <i class="fas fa-utensils fa-3x text-muted"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-lg-9 col-md-8">
+                    <h2 class="mb-1">{{ vendor.vendor_name }}</h2>
+                    <p class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>{{ vendor.user_profile.address_line_1 }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <div class="page-section account-header buyer-logged-in">
+    <div class="page-section account-header buyer-logged-in py-4">
         <div class="container">
             <div class="row">
                 <!-- Sidebar -->
-                <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 mb-4">
                     {% include 'includes/v_sidebar.html' %}
                 </div>
 
                 <!-- Dashboard Content -->
                 <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
-                    <div class="user-dashboard loader-holder">
+                    <div class="user-dashboard loader-holder bg-white shadow rounded-4 p-4">
                         <div class="user-holder">
                             <h4 class="text-uppercase mb-4">Painel do Restaurante</h4>
 
                             <!-- Cards de Resumo -->
                             <div class="row mb-4">
                                 <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-                                    <div class="card text-center shadow">
+                                    <div class="card text-center shadow-sm border-0 h-100">
                                         <div class="card-header bg-primary text-white">
-                                            Total de Pedidos
+                                            <i class="fas fa-shopping-bag me-2"></i>Total de Pedidos
                                         </div>
-                                        <div class="card-body">
-                                            <h5 class="card-title">4029</h5>
+                                        <div class="card-body d-flex align-items-center justify-content-center">
+                                            <h3 class="card-title mb-0">{{ total_orders }}</h3>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-                                    <div class="card text-center shadow">
+                                    <div class="card text-center shadow-sm border-0 h-100">
                                         <div class="card-header bg-success text-white">
-                                            Total Vendido
+                                            <i class="fas fa-money-bill-wave me-2"></i>Total Vendido
                                         </div>
-                                        <div class="card-body">
-                                            <h5 class="card-title">R$ 10.000,00</h5>
+                                        <div class="card-body d-flex align-items-center justify-content-center">
+                                            <h3 class="card-title mb-0">R$ {{ total_revenue|floatformat:2 }}</h3>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-                                    <div class="card text-center shadow">
+                                    <div class="card text-center shadow-sm border-0 h-100">
                                         <div class="card-header bg-info text-white">
-                                            Vendas do Mês
+                                            <i class="fas fa-calendar-alt me-2"></i>Vendas do Mês
                                         </div>
-                                        <div class="card-body">
-                                            <h5 class="card-title">R$ 150,00</h5>
+                                        <div class="card-body d-flex align-items-center justify-content-center">
+                                            <h3 class="card-title mb-0">R$ {{ monthly_revenue|floatformat:2 }}</h3>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Pedidos Recentes -->
-                            <div class="element-title has-border mb-3 d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">Pedidos Recentes</h5>
-                                <div class="input-field">
-                                    <select class="form-select">
-                                        <option selected>Status do Pedido</option>
-                                        <option value="Processing">Em andamento</option>
-                                        <option value="Cancelled">Cancelado</option>
-                                        <option value="Completed">Concluído</option>
-                                    </select>
+                            <div class="card shadow-sm border-0 mb-4">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>Pedidos Recentes</h5>
+                                    <form method="get" class="d-flex align-items-center">
+                                        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                                            <option value="all" {% if current_filter == 'all' %}selected{% endif %}>Todos os Pedidos</option>
+                                            {% for status_code, status_name in status_choices %}
+                                                <option value="{{ status_code }}" {% if current_filter == status_code %}selected{% endif %}>{{ status_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </form>
                                 </div>
-                            </div>
-
-                            <div class="user-orders-list">
-                                <div class="responsive-table">
-                                    <ul class="table-generic">
-                                        <li class="order-heading-titles">
-                                            <div>ID</div>
-                                            <div>Data</div>
-                                            <div>Valor Total</div>
-                                            <div>Taxas</div>
-                                            <div>Recebido</div>
-                                            <div>Status</div>
-                                        </li>
-
-                                        <!-- Exemplo de pedido -->
-                                        <li>
-                                            <div><a href="#">#22606</a></div>
-                                            <div>09/04/2020</div>
-                                            <div>R$ 38,99</div>
-                                            <div>R$ 3,90</div>
-                                            <div>R$ 35,09</div>
-                                            <div><span class="badge bg-success">Concluído</span></div>
-                                        </li>
-                                        <li>
-                                            <div><a href="#">#22583</a></div>
-                                            <div>09/04/2020</div>
-                                            <div>R$ 26,22</div>
-                                            <div>R$ 2,62</div>
-                                            <div>R$ 23,60</div>
-                                            <div><span class="badge bg-warning">Em andamento</span></div>
-                                        </li>
-                                        <li>
-                                            <div><a href="#">#22493</a></div>
-                                            <div>02/04/2020</div>
-                                            <div>R$ 28,24</div>
-                                            <div>R$ 2,82</div>
-                                            <div>R$ 25,42</div>
-                                            <div><span class="badge bg-success">Concluído</span></div>
-                                        </li>
-
-                                    </ul>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Data</th>
+                                                    <th>Valor Total</th>
+                                                    <th>Taxas</th>
+                                                    <th>Recebido</th>
+                                                    <th>Status</th>
+                                                    <th>Ações</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% if orders %}
+                                                    {% for order in orders %}
+                                                        <tr>
+                                                            <td><a href="#" class="text-primary">#{{ order.order_number }}</a></td>
+                                                            <td>{{ order.created_at|date:"d/m/Y" }}</td>
+                                                            <td>R$ {{ order.order_total|floatformat:2 }}</td>
+                                                            <td>R$ {{ order.tax|floatformat:2 }}</td>
+                                                            <td>R$ {{ order.received_amount|floatformat:2 }}</td>
+                                                            <td>
+                                                                {% if order.status == 'PENDING' %}
+                                                                    <span class="badge bg-warning">Pendente</span>
+                                                                {% elif order.status == 'CONFIRMED' %}
+                                                                    <span class="badge bg-info">Confirmado</span>
+                                                                {% elif order.status == 'PREPARING' %}
+                                                                    <span class="badge bg-primary">Em Preparo</span>
+                                                                {% elif order.status == 'READY' %}
+                                                                    <span class="badge bg-secondary">Pronto</span>
+                                                                {% elif order.status == 'ON_THE_WAY' %}
+                                                                    <span class="badge bg-info">Em Entrega</span>
+                                                                {% elif order.status == 'DELIVERED' %}
+                                                                    <span class="badge bg-success">Entregue</span>
+                                                                {% elif order.status == 'CANCELLED' %}
+                                                                    <span class="badge bg-danger">Cancelado</span>
+                                                                {% else %}
+                                                                    <span class="badge bg-secondary">{{ order.status }}</span>
+                                                                {% endif %}
+                                                            </td>
+                                                            <td>
+                                                                <button class="btn btn-sm btn-outline-primary">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <tr>
+                                                        <td colspan="7" class="text-center py-4">
+                                                            <div class="d-flex flex-column align-items-center">
+                                                                <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+                                                                <p class="mb-3">Você ainda não tem nenhum pedido.</p>
+                                                                <a href="#" class="btn btn-sm btn-primary">Configurar Cardápio</a>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                {% endif %}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
 
@@ -117,4 +160,25 @@
         </div>
     </div>
 </div>
+
+<!-- Template filter para subtração -->
+{% load static %}
+<script>
+    // Registrar filtro de subtração para calcular valor recebido
+    if (!window.filtersRegistered) {
+        window.filtersRegistered = true;
+        
+        // Função para subtrair valores
+        function subtractValues(value, arg) {
+            return parseFloat(value) - parseFloat(arg);
+        }
+        
+        // Registrar o filtro no Django
+        django.jQuery.extend(django.jQuery.expr[':'], {
+            'sub': function(a, i, m) {
+                return subtractValues(a.value, m[3]);
+            }
+        });
+    }
+</script>
 {% endblock %}
