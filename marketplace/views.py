@@ -649,92 +649,87 @@ def product_detail(request, product_id):
 
 
 # --- Funcionalidades de checkout e pedidos ---
-
 @login_required(login_url='login')
 def checkout(request):
-    """
-    Página de checkout para finalizar o pedido.
+    cart_items = Cart.objects.filter(user=request.user, fooditem__is_available=True).select_related('fooditem__vendor')
     
-    Permite ao usuário selecionar endereço de entrega, método de pagamento,
-    adicionar observações e visualizar o resumo do pedido antes de finalizar.
-    
-    Args:
-        request: Objeto request do Django
-        
-    Returns:
-        HttpResponse: Renderiza a página de checkout ou redireciona para outra página
-    """
-    # Verificar se há itens no carrinho
-    cart_items = Cart.objects.filter(user=request.user)
-    if cart_items.count() <= 0:
-        messages.warning(request, 'Seu carrinho está vazio. Adicione itens antes de prosseguir.')
+    if not cart_items:
+        messages.warning(request, 'Seu carrinho está vazio ou contém itens indisponíveis.')
         return redirect('marketplace')
-    
-    # Calcular valores do pedido
+
     subtotal = 0
     for item in cart_items:
         subtotal += item.fooditem.price * item.quantity
     
-    # Obter taxas ativas
     tax_dict = {}
     taxes = Tax.objects.filter(is_active=True)
     for tax in taxes:
         tax_amount = (tax.tax_percentage * subtotal) / 100
         tax_dict[tax.tax_type] = {str(tax.tax_percentage): tax_amount}
     
-    # Calcular total com taxas
     tax_total = sum(sum(value.values()) for value in tax_dict.values())
     grand_total = subtotal + tax_total
     
-    # Obter endereços do usuário
-    addresses = UserAddress.objects.filter(user=request.user)
-    default_address = addresses.filter(is_default=True).first()
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
     
+    addresses = []
+    if profile.address_line_1:
+        address = {
+            'id': profile.id,
+            'address_line1': profile.address_line_1,
+            'city': profile.city,
+            'state': profile.state,
+            'country': profile.country,
+            'postal_code': profile.pin_code,
+        }
+        addresses.append(address)
+    
+    default_address = addresses[0] if addresses else None
+
     if request.method == 'POST':
-        # Processar formulário de checkout
         address_id = request.POST.get('address')
         payment_method = request.POST.get('payment_method')
         order_note = request.POST.get('order_note', '')
         
+        if not addresses:
+            messages.error(request, 'Por favor, cadastre um endereço no seu perfil.')
+            return redirect('complete_profile')
+        
         if not address_id:
-            messages.error(request, 'Por favor, selecione um endereço de entrega.')
+            messages.error(request, 'Por favor, selecione um endereço.')
             return redirect('checkout')
         
-        # Obter endereço selecionado
-        address = get_object_or_404(UserAddress, id=address_id, user=request.user)
+        if address_id != str(profile.id):
+            messages.error(request, 'Endereço inválido.')
+            return redirect('checkout')
         
-        # Criar pedido
         order = Order(
             user=request.user,
-            address=address,
             order_total=grand_total,
-            tax=tax_total,
+            tax=json.dumps(tax_dict) if tax_dict else '',
             first_name=request.user.first_name,
             last_name=request.user.last_name,
             phone=request.user.phone_number if hasattr(request.user, 'phone_number') else '',
             email=request.user.email,
-            address_line_1=address.address_line1,
-            address_line_2=address.address_line2 if hasattr(address, 'address_line2') else '',
-            city=address.city,
-            state=address.state,
-            country=address.country,
-            postal_code=address.postal_code,
+            address_line_1=profile.address_line_1,
+            address_line_2='',
+            city=profile.city,
+            state=profile.state,
+            country=profile.country,
+            postal_code=profile.pin_code,
             order_note=order_note
         )
         order.save()
         
-        # Gerar número do pedido
         order.order_number = order.generate_order_number()
         order.save()
         
-        # Adicionar vendors ao pedido
         vendors = set()
         for item in cart_items:
             vendors.add(item.fooditem.vendor)
         for vendor in vendors:
             order.vendors.add(vendor)
         
-        # Criar itens do pedido
         for item in cart_items:
             OrderItem.objects.create(
                 order=order,
@@ -744,15 +739,11 @@ def checkout(request):
                 amount=item.fooditem.price * item.quantity
             )
         
-        # Processar pagamento
-        if payment_method == 'CREDIT_CARD' or payment_method == 'DEBIT_CARD':
-            # Simulação de pagamento com cartão
+        if payment_method in ['CREDIT_CARD', 'DEBIT_CARD']:
             return redirect('payment', order_id=order.id, payment_method=payment_method)
         elif payment_method == 'PIX':
-            # Simulação de pagamento com PIX
             return redirect('payment', order_id=order.id, payment_method=payment_method)
-        else:  # CASH
-            # Pagamento na entrega
+        else:
             payment = Payment(
                 user=request.user,
                 order=order,
@@ -763,15 +754,12 @@ def checkout(request):
             )
             payment.save()
             
-            # Atualizar status do pedido
             order.payment_status = 'PENDING'
             order.is_ordered = True
             order.save()
             
-            # Limpar carrinho
             cart_items.delete()
             
-            # Redirecionar para página de confirmação
             return redirect('order_complete', order_number=order.order_number)
     
     context = {
@@ -781,10 +769,10 @@ def checkout(request):
         'grand_total': grand_total,
         'addresses': addresses,
         'default_address': default_address,
+        'profile': profile,
     }
     
     return render(request, 'marketplace/checkout.html', context)
-
 
 @login_required(login_url='login')
 def payment(request, order_id, payment_method):

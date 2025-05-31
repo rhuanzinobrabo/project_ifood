@@ -141,7 +141,7 @@ class Order(models.Model):
     postal_code = models.CharField(max_length=10, help_text="CEP")
     order_note = models.CharField(max_length=500, blank=True, help_text="Observações adicionais sobre o pedido")
     order_total = models.FloatField(help_text="Valor total do pedido incluindo taxas")
-    tax = models.FloatField(help_text="Valor total das taxas aplicadas")
+    tax = models.TextField(blank=True, help_text="Dados das taxas aplicadas no formato JSON")
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='PENDING', 
                              help_text="Status atual do pedido")
     payment_status = models.CharField(max_length=15, choices=PAYMENT_STATUS_CHOICES, default='PENDING', 

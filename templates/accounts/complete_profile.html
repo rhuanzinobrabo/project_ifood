@@ -12,47 +12,64 @@
           <!-- Exibição de Mensagens -->
           {% if messages %}
             <div class="alert alert-info">
-                {% for message in messages %}
-                    <p>{{ message }}</p>
-                {% endfor %}
+              {% for message in messages %}
+                <p>{{ message }}</p>
+              {% endfor %}
             </div>
           {% endif %}
 
-          <form method="post" enctype="multipart/form-data">
+          <!-- Exibição de Erros do Formulário -->
+          {% if user_form.errors or profile_form.errors %}
+            <div class="alert alert-danger">
+              <p>Por favor, corrija os erros abaixo:</p>
+              <ul>
+                {% for field in user_form %}
+                  {% for error in field.errors %}
+                    <li>{{ field.label }}: {{ error }}</li>
+                  {% endfor %}
+                {% endfor %}
+                {% for field in profile_form %}
+                  {% for error in field.errors %}
+                    <li>{{ field.label }}: {{ error }}</li>
+                  {% endfor %}
+                {% endfor %}
+                {% for error in user_form.non_field_errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+                {% for error in profile_form.non_field_errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+
+          <form method="post" action="{% url 'complete_profile' %}" enctype="multipart/form-data">
             {% csrf_token %}
 
-            <!-- Campos obrigatórios de informações pessoais -->
+            <!-- Campos de UserForm -->
             <div class="row g-3 mb-3">
               <div class="col-md-6">
-                <label for="first_name" class="form-label">Nome</label>
-                <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}" required>
+                <div class="form-floating">
+                  {{ user_form.first_name }}
+                  <label for="{{ user_form.first_name.id_for_label }}">{{ user_form.first_name.label }}</label>
+                </div>
               </div>
               <div class="col-md-6">
-                <label for="last_name" class="form-label">Sobrenome</label>
-                <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}" required>
+                <div class="form-floating">
+                  {{ user_form.last_name }}
+                  <label for="{{ user_form.last_name.id_for_label }}">{{ user_form.last_name.label }}</label>
+                </div>
               </div>
             </div>
-            
+
             <div class="mb-3">
-              <label for="phone_number" class="form-label">Telefone</label>
-              <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ user.phone_number }}" placeholder="(00) 00000-0000" required>
-            </div>
-
-            <!-- Campos de Restaurante (se aplicável) -->
-            <div id="restaurante-campos" class="row g-3 mt-3" style="display: none;">
-              <div class="col-md-6">
-                <label class="form-label">{{ profile_form.profile_picture.label }}</label>
-                {{ profile_form.profile_picture }}
-                <img id="previewProfile" class="img-fluid rounded mt-2 d-none" style="max-height: 150px;" />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">{{ profile_form.cover_photo.label }}</label>
-                {{ profile_form.cover_photo }}
-                <img id="previewCover" class="img-fluid rounded mt-2 d-none" style="max-height: 150px;" />
+              <div class="form-floating">
+                {{ user_form.phone_number }}
+                <label for="{{ user_form.phone_number.id_for_label }}">{{ user_form.phone_number.label }}</label>
               </div>
             </div>
 
-            <!-- Endereço e localização -->
+            <!-- Campos de UserProfileForm -->
             <div class="form-floating mt-4">
               {{ profile_form.address_line_1 }}
               <label for="{{ profile_form.address_line_1.id_for_label }}">{{ profile_form.address_line_1.label }}</label>
@@ -88,6 +105,10 @@
               </div>
             </div>
 
+            <!-- Campos Ocultos -->
+            {{ profile_form.latitude }}
+            {{ profile_form.longitude }}
+
             <div class="mt-4">
               <button type="submit" class="btn btn-success w-100 rounded-pill py-2 fs-5">
                 Finalizar cadastro
@@ -99,37 +120,4 @@
     </div>
   </div>
 </div>
-
-<!-- Scripts -->
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const role = {{ user.role }};  // Corrigido para passar como valor numérico
-    const restauranteCampos = document.getElementById('restaurante-campos');
-
-    // Exibe campos de restaurante se o usuário for restaurante
-    if (role == 1) {
-      restauranteCampos.style.display = 'flex';
-    }
-
-    const previewImage = (input, previewId) => {
-      const fileInput = document.querySelector(`input[name="${input}"]`);
-      const preview = document.getElementById(previewId);
-
-      fileInput?.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            preview.src = e.target.result;
-            preview.classList.remove('d-none');
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-    };
-
-    previewImage('profile_picture', 'previewProfile');
-    previewImage('cover_photo', 'previewCover');
-  });
-</script>
 {% endblock %}

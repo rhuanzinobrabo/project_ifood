@@ -38,11 +38,12 @@
               </div>
 
               <!-- Formulário -->
-              <form action="{% url 'edit_profile' %}" method="post" enctype="multipart/form-data">
+              {# Removido enctype="multipart/form-data" pois não há mais upload de arquivos #}
+              <form action="{% url 'edit_profile' %}" method="post">
                 {% csrf_token %}
                 
                 <div class="row">
-                  <!-- Informações Pessoais -->
+                  <!-- Informações Pessoais (UserForm) -->
                   <div class="col-md-6 mb-4">
                     <div class="card h-100">
                       <div class="card-header bg-primary text-white">
@@ -50,16 +51,19 @@
                       </div>
                       <div class="card-body">
                         <div class="mb-3">
-                          <label for="first_name" class="form-label">Nome</label>
-                          <input type="text" class="form-control" id="first_name" name="first_name" value="{{ profile_form.first_name.initial }}" required>
+                          <label for="{{ user_form.first_name.id_for_label }}" class="form-label">{{ user_form.first_name.label }}</label>
+                          {{ user_form.first_name }}
+                          {% if user_form.first_name.errors %}<div class="text-danger">{{ user_form.first_name.errors }}</div>{% endif %}
                         </div>
                         <div class="mb-3">
-                          <label for="last_name" class="form-label">Sobrenome</label>
-                          <input type="text" class="form-control" id="last_name" name="last_name" value="{{ profile_form.last_name.initial }}" required>
+                          <label for="{{ user_form.last_name.id_for_label }}" class="form-label">{{ user_form.last_name.label }}</label>
+                          {{ user_form.last_name }}
+                          {% if user_form.last_name.errors %}<div class="text-danger">{{ user_form.last_name.errors }}</div>{% endif %}
                         </div>
                         <div class="mb-3">
-                          <label for="phone_number" class="form-label">Telefone</label>
-                          <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ profile_form.phone_number.initial }}">
+                          <label for="{{ user_form.phone_number.id_for_label }}" class="form-label">{{ user_form.phone_number.label }}</label>
+                          {{ user_form.phone_number }}
+                          {% if user_form.phone_number.errors %}<div class="text-danger">{{ user_form.phone_number.errors }}</div>{% endif %}
                         </div>
                         <div class="mb-3">
                           <label for="email" class="form-label">Email</label>
@@ -70,50 +74,47 @@
                     </div>
                   </div>
                   
-                  <!-- Endereço e Foto -->
+                  <!-- Endereço (UserProfileForm) -->
                   <div class="col-md-6 mb-4">
                     <div class="card h-100">
                       <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Endereço e Foto</h5>
+                        <h5 class="mb-0">Endereço</h5> {# Removido 'e Foto' #}
                       </div>
                       <div class="card-body">
                         <div class="mb-3">
-                          <label for="id_address_line_1" class="form-label">Endereço</label>
+                          <label for="{{ profile_form.address_line_1.id_for_label }}" class="form-label">{{ profile_form.address_line_1.label }}</label>
                           {{ profile_form.address_line_1 }}
+                           {% if profile_form.address_line_1.errors %}<div class="text-danger">{{ profile_form.address_line_1.errors }}</div>{% endif %}
                         </div>
                         <div class="mb-3">
-                          <label for="id_country" class="form-label">País</label>
+                          <label for="{{ profile_form.country.id_for_label }}" class="form-label">{{ profile_form.country.label }}</label>
                           {{ profile_form.country }}
+                           {% if profile_form.country.errors %}<div class="text-danger">{{ profile_form.country.errors }}</div>{% endif %}
                         </div>
                         <div class="row">
                           <div class="col-md-6 mb-3">
-                            <label for="id_state" class="form-label">Estado</label>
+                            <label for="{{ profile_form.state.id_for_label }}" class="form-label">{{ profile_form.state.label }}</label>
                             {{ profile_form.state }}
+                             {% if profile_form.state.errors %}<div class="text-danger">{{ profile_form.state.errors }}</div>{% endif %}
                           </div>
                           <div class="col-md-6 mb-3">
-                            <label for="id_city" class="form-label">Cidade</label>
+                            <label for="{{ profile_form.city.id_for_label }}" class="form-label">{{ profile_form.city.label }}</label>
                             {{ profile_form.city }}
+                             {% if profile_form.city.errors %}<div class="text-danger">{{ profile_form.city.errors }}</div>{% endif %}
                           </div>
                         </div>
                         <div class="mb-3">
-                          <label for="id_pin_code" class="form-label">CEP</label>
+                          <label for="{{ profile_form.pin_code.id_for_label }}" class="form-label">{{ profile_form.pin_code.label }}</label>
                           {{ profile_form.pin_code }}
+                           {% if profile_form.pin_code.errors %}<div class="text-danger">{{ profile_form.pin_code.errors }}</div>{% endif %}
                         </div>
-                        <div class="mb-3">
-                          <label for="id_profile_picture" class="form-label">Foto de Perfil</label>
-                          {{ profile_form.profile_picture }}
-                          {% if profile.profile_picture %}
-                            <div class="mt-2">
-                              <img src="{{ profile.profile_picture.url }}" alt="Foto atual" class="img-thumbnail" style="max-height: 100px;">
-                            </div>
-                          {% endif %}
-                        </div>
+                        {# Seção da foto removida #}
                       </div>
                     </div>
                   </div>
                 </div>
                 
-                <!-- Campos ocultos -->
+                <!-- Campos ocultos do profile_form -->
                 {{ profile_form.latitude }}
                 {{ profile_form.longitude }}
                 
@@ -130,3 +131,4 @@
   </div>
 </div>
 {% endblock %}
+

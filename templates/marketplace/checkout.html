@@ -87,23 +87,27 @@
                                             <ul style="padding: 0; list-style: none;">
                                                 {% if cart_items %}
                                                     {% for item in cart_items %}
-                                                        <li id="cart-item-3" style="display: flex; align-items: center; padding: 15px; margin-bottom: 10px; background-color: #f9f9f9; border-radius: 8px; position: relative;">
-    <div class="image-holder" style="width: 80px; height: 80px; margin-right: 15px; border-radius: 8px; overflow: hidden;">
-        <img src="/media/foodimages/pao_5rLA6TD.jpeg" alt="Delicioso pão com ovo" style="width: 100%; height: 100%; object-fit: cover;">
-    </div>
-    <div class="text-holder" style="flex: 1;">
-        <h6 style="margin: 0 0 5px; font-weight: 700; color: #333;">Delicioso pão com ovo</h6>
-        <p style="margin: 0 0 5px; font-size: 13px; color: #666; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Delicioso pão com ovo</p>
-        <span class="badge badge-warning" style="background-color: #ffc107; color: #333; font-size: 11px; padding: 3px 8px; border-radius: 20px;">Padaria Delicia</span>
-    </div>
-    <div class="quantity" style="margin: 0 20px; text-align: center; padding: 5px 10px; border-right: 1px solid #ddd;">
-        <span style="font-weight: 600; color: #333; display: block; line-height: 1.2;">3</span>
-        <small style="color: #666;">Qtd</small>
-    </div>
-    <div class="price-holder" style="text-align: right; min-width: 80px; padding-left: 10px;">
-        <span class="price" style="font-weight: 700; color: #e74c3c; line-height: 1.2;">R$ 5,00</span>
-    </div>
-</li>
+                                                        <li id="cart-item-{{ item.id }}" style="display: flex; align-items: center; padding: 15px; margin-bottom: 10px; background-color: #f9f9f9; border-radius: 8px; position: relative;">
+                                                            <div class="image-holder" style="width: 80px; height: 80px; margin-right: 15px; border-radius: 8px; overflow: hidden;">
+                                                                {% if item.fooditem.image %}
+                                                                    <img src="{{ item.fooditem.image.url }}" alt="{{ item.fooditem.food_title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                                {% else %}
+                                                                    <img src="{% static 'images/default_food.jpg' %}" alt="{{ item.fooditem.food_title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                                {% endif %}
+                                                            </div>
+                                                            <div class="text-holder" style="flex: 1;">
+                                                                <h6 style="margin: 0 0 5px; font-weight: 700; color: #333;">{{ item.fooditem.food_title }}</h6>
+                                                                <p style="margin: 0 0 5px; font-size: 13px; color: #666; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ item.fooditem.description }}</p>
+                                                                <span class="badge badge-warning" style="background-color: #ffc107; color: #333; font-size: 11px; padding: 3px 8px; border-radius: 20px;">{{ item.fooditem.vendor.vendor_name }}</span>
+                                                            </div>
+                                                            <div class="quantity" style="margin: 0 20px; text-align: center; padding: 5px 10px; border-right: 1px solid #ddd;">
+                                                                <span style="font-weight: 600; color: #333; display: block; line-height: 1.2;">{{ item.quantity }}</span>
+                                                                <small style="color: #666;">Qtd</small>
+                                                            </div>
+                                                            <div class="price-holder" style="text-align: right; min-width: 80px; padding-left: 10px;">
+                                                                <span class="price" style="font-weight: 700; color: #e74c3c; line-height: 1.2;">R$ {{ item.fooditem.price|floatformat:2 }}</span>
+                                                            </div>
+                                                        </li>
                                                     {% endfor %}
                                                 {% else %}
                                                     <li style="text-align: center; padding: 20px; color: #666; font-style: italic;">Nenhum item no carrinho.</li>
@@ -225,7 +229,7 @@
     }
     
     /* Efeito hover nos itens do carrinho */
-    #cart-item-{{ item.id }}:hover {
+    .menu-itam-list li:hover {
         background-color: #f5f5f5;
         transform: translateY(-2px);
         transition: all 0.2s ease;

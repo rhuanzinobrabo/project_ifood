@@ -27,7 +27,8 @@ class OTPForm(forms.Form):
 class UserForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'role', 'phone_number']
+        # Removido 'role' pois não deve ser editado aqui
+        fields = ['first_name', 'last_name', 'phone_number']
         widgets = {
             'first_name': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -37,9 +38,6 @@ class UserForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Último nome'
             }),
-            'role': forms.Select(attrs={
-                'class': 'form-control'
-            }),
             'phone_number': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Telefone'
@@ -48,11 +46,10 @@ class UserForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
-        self.fields['role'].label = "Tipo de conta"
-        self.fields['role'].choices = (
-            (1, 'Restaurante'),
-            (2, 'Cliente'),
-        )
+        # Labels em português
+        self.fields['first_name'].label = 'Nome'
+        self.fields['last_name'].label = 'Sobrenome'
+        self.fields['phone_number'].label = 'Telefone'
 
 
 class UserProfileForm(forms.ModelForm):
@@ -60,19 +57,9 @@ class UserProfileForm(forms.ModelForm):
         label='Endereço',
         widget=forms.TextInput(attrs={
             'placeholder': 'Rua, número, complemento...',
-            'required': 'required',
+            # Removido 'required' para evitar problemas se o campo for opcional no modelo
             'class': 'form-control'
         })
-    )
-    profile_picture = forms.ImageField(
-        label='Foto de Perfil',
-        required=False,
-        widget=forms.FileInput(attrs={'class': 'form-control'})
-    )
-    cover_photo = forms.ImageField(
-        label='Capa',
-        required=False,
-        widget=forms.FileInput(attrs={'class': 'form-control'})
     )
     # Campos ocultos para latitude e longitude
     latitude = forms.CharField(required=False, widget=forms.HiddenInput())
@@ -80,9 +67,10 @@ class UserProfileForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
+        # Removido 'profile_picture' e 'cover_photo'
         fields = [
-            'profile_picture', 'cover_photo', 'address_line_1', 'country',
-            'state', 'city', 'pin_code', 'latitude', 'longitude'
+            'address_line_1', 'country', 'state', 'city', 'pin_code',
+            'latitude', 'longitude'
         ]
 
     def __init__(self, *args, **kwargs):
@@ -90,24 +78,25 @@ class UserProfileForm(forms.ModelForm):
         for field in self.fields:
             if field not in ['latitude', 'longitude']:
                 self.fields[field].widget.attrs['class'] = 'form-control'
-        
+
         # Tradução dos labels para português
         self.fields['country'].label = 'País'
         self.fields['state'].label = 'Estado'
         self.fields['city'].label = 'Cidade'
         self.fields['pin_code'].label = 'CEP'
-        
+
         # Placeholders em português
         self.fields['country'].widget.attrs['placeholder'] = 'País'
         self.fields['state'].widget.attrs['placeholder'] = 'Estado'
         self.fields['city'].widget.attrs['placeholder'] = 'Cidade'
         self.fields['pin_code'].widget.attrs['placeholder'] = 'CEP'
-    
+
     def clean(self):
-        # Garantir que latitude e longitude sejam sempre string vazia
-        self.cleaned_data['latitude'] = ''
-        self.cleaned_data['longitude'] = ''
-        return self.cleaned_data
+        cleaned_data = super().clean()
+        # Garantir que latitude e longitude sejam sempre string vazia se não fornecidos
+        cleaned_data['latitude'] = cleaned_data.get('latitude', '') or ''
+        cleaned_data['longitude'] = cleaned_data.get('longitude', '') or ''
+        return cleaned_data
 
 
 class AccountTypeForm(forms.ModelForm):
@@ -126,124 +115,5 @@ class AccountTypeForm(forms.ModelForm):
             (2, 'Cliente'),
         )
 
+# CustomerProfileForm e RestaurantProfileForm foram removidos pois UserForm e UserProfileForm são suficientes.
 
-class CustomerProfileForm(forms.ModelForm):
-    first_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs={
-        'class': 'form-control',
-        'placeholder': 'Primeiro nome'
-    }))
-    last_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs={
-        'class': 'form-control',
-        'placeholder': 'Último nome'
-    }))
-    phone_number = forms.CharField(max_length=15, widget=forms.TextInput(attrs={
-        'class': 'form-control',
-        'placeholder': 'Telefone'
-    }))
-    address_line_1 = forms.CharField(widget=forms.TextInput(attrs={
-        'class': 'form-control',
-        'placeholder': 'Rua, número, complemento...'
-    }))
-    # Campos ocultos para latitude e longitude
-    latitude = forms.CharField(required=False, widget=forms.HiddenInput())
-    longitude = forms.CharField(required=False, widget=forms.HiddenInput())
-
-    class Meta:
-        model = UserProfile
-        fields = ['address_line_1', 'country', 'state', 'city', 'pin_code', 'latitude', 'longitude']
-
-    def __init__(self, *args, **kwargs):
-        super(CustomerProfileForm, self).__init__(*args, **kwargs)
-        for field in self.fields:
-            if field not in ['latitude', 'longitude']:
-                self.fields[field].widget.attrs['class'] = 'form-control'
-                
-        # Tradução dos labels para português
-        self.fields['address_line_1'].label = 'Endereço'
-        self.fields['country'].label = 'País'
-        self.fields['state'].label = 'Estado'
-        self.fields['city'].label = 'Cidade'
-        self.fields['pin_code'].label = 'CEP'
-        
-        # Placeholders em português
-        self.fields['country'].widget.attrs['placeholder'] = 'País'
-        self.fields['state'].widget.attrs['placeholder'] = 'Estado'
-        self.fields['city'].widget.attrs['placeholder'] = 'Cidade'
-        self.fields['pin_code'].widget.attrs['placeholder'] = 'CEP'
-    
-    def clean(self):
-        # Garantir que latitude e longitude sejam sempre string vazia
-        self.cleaned_data['latitude'] = ''
-        self.cleaned_data['longitude'] = ''
-        return self.cleaned_data
-
-
-class RestaurantProfileForm(forms.ModelForm):
-    first_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs={
-        'class': 'form-control',
-        'placeholder': 'Primeiro nome'
-    }))
-    last_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs={
-        'class': 'form-control',
-        'placeholder': 'Último nome'
-    }))
-    phone_number = forms.CharField(max_length=15, widget=forms.TextInput(attrs={
-        'class': 'form-control',
-        'placeholder': 'Telefone'
-    }))
-    vendor_name = forms.CharField(max_length=50, widget=forms.TextInput(attrs={
-        'class': 'form-control',
-        'placeholder': 'Nome do Restaurante'
-    }))
-    is_open = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={
-        'class': 'form-check-input',
-        'data-toggle': 'toggle',
-        'data-on': 'Aberto',
-        'data-off': 'Fechado',
-        'data-onstyle': 'success',
-        'data-offstyle': 'danger'
-    }))
-    profile_picture = forms.ImageField(required=False, widget=forms.FileInput(attrs={
-        'class': 'form-control'
-    }))
-    cover_photo = forms.ImageField(required=False, widget=forms.FileInput(attrs={
-        'class': 'form-control'
-    }))
-    address_line_1 = forms.CharField(widget=forms.TextInput(attrs={
-        'class': 'form-control',
-        'placeholder': 'Rua, número, complemento...'
-    }))
-    # Campos ocultos para latitude e longitude
-    latitude = forms.CharField(required=False, widget=forms.HiddenInput())
-    longitude = forms.CharField(required=False, widget=forms.HiddenInput())
-
-    class Meta:
-        model = UserProfile
-        fields = ['profile_picture', 'cover_photo', 'address_line_1', 'country', 'state', 'city', 'pin_code', 'latitude', 'longitude']
-
-    def __init__(self, *args, **kwargs):
-        super(RestaurantProfileForm, self).__init__(*args, **kwargs)
-        for field in self.fields:
-            if field not in ['latitude', 'longitude']:
-                self.fields[field].widget.attrs['class'] = 'form-control'
-                
-        # Tradução dos labels para português
-        self.fields['profile_picture'].label = 'Foto de Perfil'
-        self.fields['cover_photo'].label = 'Foto de Capa'
-        self.fields['address_line_1'].label = 'Endereço'
-        self.fields['country'].label = 'País'
-        self.fields['state'].label = 'Estado'
-        self.fields['city'].label = 'Cidade'
-        self.fields['pin_code'].label = 'CEP'
-        
-        # Placeholders em português
-        self.fields['country'].widget.attrs['placeholder'] = 'País'
-        self.fields['state'].widget.attrs['placeholder'] = 'Estado'
-        self.fields['city'].widget.attrs['placeholder'] = 'Cidade'
-        self.fields['pin_code'].widget.attrs['placeholder'] = 'CEP'
-    
-    def clean(self):
-        # Garantir que latitude e longitude sejam sempre string vazia
-        self.cleaned_data['latitude'] = ''
-        self.cleaned_data['longitude'] = ''
-        return self.cleaned_data
