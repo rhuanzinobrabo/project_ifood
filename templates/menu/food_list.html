@@ -4,7 +4,13 @@
 {% block content %}
 <div class="container mt-5">
     <div class="row">
-        <div class="col-md-12">
+        <!-- Sidebar -->
+        <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 mb-4">
+            {% include 'includes/v_sidebar.html' %}
+        </div>
+
+        <!-- Conteúdo principal -->
+        <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
             <div class="card">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">Cardápio - Itens</h4>
@@ -18,47 +24,54 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <!-- Filtros e Busca -->
-                    <div class="row mb-4">
-                        <div class="col-md-12">
-                            <form method="get">
-                                <div class="row g-3">
-                                    <div class="col-md-4 mb-2">
-                                        <div class="input-group">
-                                            <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                            <input type="text" name="search" class="form-control" placeholder="Buscar por nome, descrição..." value="{{ search_query }}">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3 mb-2">
-                                        <div class="input-group">
-                                            <span class="input-group-text"><i class="fas fa-folder"></i></span>
-                                            <select name="category" class="form-select">
-                                                <option value="" {% if not category_filter %}selected{% endif %}>Todas as categorias</option>
-                                                {% for category in categories %}
-                                                <option value="{{ category.id }}" {% if category_filter == category.id|stringformat:"i" %}selected{% endif %}>{{ category.category_name }}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3 mb-2">
-                                        <div class="input-group">
-                                            <span class="input-group-text"><i class="fas fa-toggle-on"></i></span>
-                                            <select name="availability" class="form-select">
-                                                <option value="" {% if not availability_filter %}selected{% endif %}>Todos os status</option>
-                                                <option value="available" {% if availability_filter == 'available' %}selected{% endif %}>Disponível</option>
-                                                <option value="unavailable" {% if availability_filter == 'unavailable' %}selected{% endif %}>Indisponível</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-2 mb-2">
-                                        <button class="btn btn-primary w-100" type="submit">
-                                            <i class="fas fa-filter me-1"></i> Filtrar
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+<!-- Filtros e Busca -->
+<div class="row mb-4">
+    <div class="col-12">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-lg-4 col-md-6">
+                <label for="search" class="form-label">Buscar</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" name="search" id="search" class="form-control" placeholder="Nome, descrição..." value="{{ search_query }}">
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <label for="category" class="form-label">Categoria</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-folder"></i></span>
+                    <select name="category" id="category" class="form-select">
+                        <option value="" {% if not category_filter %}selected{% endif %}>Todas</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}" {% if category_filter == category.id|stringformat:"i" %}selected{% endif %}>
+                            {{ category.category_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <label for="availability" class="form-label">Status</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-toggle-on"></i></span>
+                    <select name="availability" id="availability" class="form-select">
+                        <option value="" {% if not availability_filter %}selected{% endif %}>Todos</option>
+                        <option value="available" {% if availability_filter == 'available' %}selected{% endif %}>Disponível</option>
+                        <option value="unavailable" {% if availability_filter == 'unavailable' %}selected{% endif %}>Indisponível</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-md-6">
+                <button class="btn btn-primary w-100" type="submit">
+                    <i class="fas fa-filter me-1"></i> Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
                     
                     <!-- Tabela de Itens -->
                     <div class="table-responsive">
@@ -98,9 +111,12 @@
                                             <a href="{% url 'food_update' item.pk %}" class="btn btn-sm btn-primary" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="{% url 'food_delete' item.pk %}" class="btn btn-sm btn-danger" title="Excluir">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
+                                            <form action="{% url 'food_delete' item.pk %}" method="post" style="display: inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-danger" title="Excluir" onclick="return confirm('Tem certeza que deseja excluir este item?');">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>

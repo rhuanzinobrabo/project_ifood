@@ -1,212 +1,248 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block content %}
 
+{% block content %}
 <!-- Main Section Start -->
-<div class="main-section pt-5">
+<div class="main-section pt-5 pb-5">
     <div class="page-section">
         <div class="container">
             <div class="row">
+                <div class="col-12 mb-4">
+                    <h2 class="text-center" style="font-weight: 700; color: #333;">Finalizar Pedido</h2>
+                </div>
                 
+                <!-- Endereço de Cobrança -->
                 <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                    <div class="tabs-holder horizontal">
-                        <ul class="stickynav-tabs nav nav-tabs">
-                            <li class="active"><a data-toggle="tab" href="#home"><i class="fa fa-shopping-cart text-danger"></i>Endereço de Cobrança</a></li>
-                            
+                    <div class="tabs-holder horizontal" style="border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background-color: #fff; margin-bottom: 20px;">
+                        <ul class="stickynav-tabs nav nav-tabs" style="background-color: #f8f8f8; border-radius: 10px 10px 0 0; padding: 15px 20px 0;">
+                            <li class="active"><a data-toggle="tab" href="#billing-address" style="font-size: 18px;"><i class="fa fa-map-marker text-danger mr-2"></i> Endereço de Cobrança</a></li>
                         </ul>
-                        <div class="tab-content">
-                            <div id="home" class="tab-pane in active">
+                        <div class="tab-content" style="padding: 20px;">
+                            <div id="billing-address" class="tab-pane in active">
                                 <div class="menu-itam-holder">
-                                    
-                                
-                                    <div id="menu-item-list-6272" class="menu-itam-list">
-                                        
-                                        <form action="{% url 'checkout' %}" method="POST">
+                                    <div class="menu-itam-list">
+                                        <form action="{% url 'checkout' %}" method="POST" id="checkout-form">
                                             {% csrf_token %}
 
                                             <div class="row">
                                                 <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                                                    Nome: {{ form.first_name }}
+                                                    <label for="id_first_name" style="font-weight: 600; color: #333; margin-bottom: 8px;">Nome <span class="text-danger">*</span></label>
+                                                    <input type="text" name="first_name" id="id_first_name" class="form-control" value="{{ request.user.first_name }}" required style="padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
                                                 </div>
                                                 <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                                                    Sobrenome: {{ form.last_name }}
+                                                    <label for="id_last_name" style="font-weight: 600; color: #333; margin-bottom: 8px;">Sobrenome <span class="text-danger">*</span></label>
+                                                    <input type="text" name="last_name" id="id_last_name" class="form-control" value="{{ request.user.last_name }}" required style="padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
                                                 </div>
                                             </div>
 
                                             <div class="row">
                                                 <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                                                    Telefone: {{ form.phone }}
+                                                    <label for="id_phone" style="font-weight: 600; color: #333; margin-bottom: 8px;">Telefone <span class="text-danger">*</span></label>
+                                                    <input type="text" name="phone" id="id_phone" class="form-control" value="{{ request.user.phone_number|default:'' }}" required style="padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
                                                 </div>
                                                 <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                                                    E-mail: {{ form.email }}
+                                                    <label for="id_email" style="font-weight: 600; color: #333; margin-bottom: 8px;">E-mail <span class="text-danger">*</span></label>
+                                                    <input type="email" name="email" id="id_email" class="form-control" value="{{ request.user.email }}" required style="padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
                                                 </div>
                                             </div>
 
                                             <div class="row">
                                                 <div class="form-group col-md-12 col-sm-12 col-lg-12">
-                                                    Endereço: {{ form.address }}
+                                                    <label for="id_address" style="font-weight: 600; color: #333; margin-bottom: 8px;">Endereço <span class="text-danger">*</span></label>
+                                                    {% if addresses %}
+                                                    <select name="address" id="id_address" class="form-control" required style="padding: 10px; border-radius: 8px; border: 1px solid #ddd; height: auto;">
+                                                        {% for address in addresses %}
+                                                            <option value="{{ address.id }}" {% if address == default_address %}selected{% endif %}>
+                                                                {{ address.address_line1 }}, {{ address.city }}, {{ address.state }}, {{ address.country }} - {{ address.postal_code }}
+                                                            </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    {% else %}
+                                                    <div class="alert alert-warning" style="border-radius: 8px;">
+                                                        <i class="fa fa-exclamation-triangle mr-2"></i> Nenhum endereço disponível. Por favor, cadastre um endereço no seu perfil.
+                                                    </div>
+                                                    {% endif %}
                                                 </div>
                                             </div>
-
-                                            <div class="row">
-                                                <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                                                    País: {{ form.country }}
-                                                </div>
-                                                <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                                                    Estado: {{ form.state }}
-                                                </div>
-                                            </div>
-
-                                            <div class="row">
-                                                <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                                                    Cidade: {{ form.city }}
-                                                </div>
-                                                <div class="form-group col-md-6 col-sm-12 col-lg-6">
-                                                    CEP: {{ form.pin_code }}
-                                                </div>
-                                            </div>
-
-                                        
-                                        
-                                        
+                                        </form>
                                     </div>
-
-                                  
                                 </div>
                             </div>
-                            
                         </div>
                     </div>
                 </div>
 
-                <!-- Your order section -->
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                    <div class="tabs-holder horizontal">
-                        <ul class="stickynav-tabs nav nav-tabs">
-                            <li class="active"><a data-toggle="tab" href="#home"><i class="icon- icon-room_service"></i>Seu Pedido</a></li>
-                            
+                <!-- Seu Pedido -->
+                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                    <div class="tabs-holder horizontal" style="border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background-color: #fff;">
+                        <ul class="stickynav-tabs nav nav-tabs" style="background-color: #f8f8f8; border-radius: 10px 10px 0 0; padding: 15px 20px 0;">
+                            <li class="active"><a data-toggle="tab" href="#your-order" style="font-size: 18px;"><i class="fa fa-shopping-basket text-primary mr-2"></i> Seu Pedido</a></li>
                         </ul>
-                        <div class="tab-content">
-                            <div id="home" class="tab-pane in active">
+                        <div class="tab-content" style="padding: 20px;">
+                            <div id="your-order" class="tab-pane in active">
                                 <div class="menu-itam-holder">
+                                    <div class="menu-itam-list">
+                                        <!-- Itens do Carrinho -->
+                                        <div style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;">
+                                            <ul style="padding: 0; list-style: none;">
+                                                {% if cart_items %}
+                                                    {% for item in cart_items %}
+                                                        <li id="cart-item-3" style="display: flex; align-items: center; padding: 15px; margin-bottom: 10px; background-color: #f9f9f9; border-radius: 8px; position: relative;">
+    <div class="image-holder" style="width: 80px; height: 80px; margin-right: 15px; border-radius: 8px; overflow: hidden;">
+        <img src="/media/foodimages/pao_5rLA6TD.jpeg" alt="Delicioso pão com ovo" style="width: 100%; height: 100%; object-fit: cover;">
+    </div>
+    <div class="text-holder" style="flex: 1;">
+        <h6 style="margin: 0 0 5px; font-weight: 700; color: #333;">Delicioso pão com ovo</h6>
+        <p style="margin: 0 0 5px; font-size: 13px; color: #666; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Delicioso pão com ovo</p>
+        <span class="badge badge-warning" style="background-color: #ffc107; color: #333; font-size: 11px; padding: 3px 8px; border-radius: 20px;">Padaria Delicia</span>
+    </div>
+    <div class="quantity" style="margin: 0 20px; text-align: center; padding: 5px 10px; border-right: 1px solid #ddd;">
+        <span style="font-weight: 600; color: #333; display: block; line-height: 1.2;">3</span>
+        <small style="color: #666;">Qtd</small>
+    </div>
+    <div class="price-holder" style="text-align: right; min-width: 80px; padding-left: 10px;">
+        <span class="price" style="font-weight: 700; color: #e74c3c; line-height: 1.2;">R$ 5,00</span>
+    </div>
+</li>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <li style="text-align: center; padding: 20px; color: #666; font-style: italic;">Nenhum item no carrinho.</li>
+                                                {% endif %}
+                                            </ul>
+                                        </div>
 
-                                    <div id="menu-item-list-6272" class="menu-itam-list">
-                                        
-                                        <ul>
-                                            
-                                                {% for item in cart_items %}
-                                                <li id="cart-item-{{item.id}}">
-                                                    <div class="image-holder"> <img src="{{ item.fooditem.image.url }}" alt=""></div>
-                                                    <div class="text-holder">
-                                                        <h6>{{ item.fooditem }}</h6>
-                                                        <span>{{ item.fooditem.description }}</span>
-                                                        <a href="{% url 'vendor_detail' item.fooditem.vendor.vendor_slug %}" class="badge badge-warning">{{ item.fooditem.vendor }}</a>
-                                                    </div>
-
-                                                    <div class="quantity" style="display: inline-block; position: absolute; top: 50%; transform: translateY(-50%); margin-top: -10px;">
-                                                        <span>{{ item.quantity }} Qtd</span>
-                                                    </div>
-                                                    <div class="price-holder">
-                                                        <span class="price">R${{ item.fooditem.price }}</span>
-                                                    </div>
+                                        <!-- Resumo do Pedido -->
+                                        <div class="order-summary" style="background-color: #f9f9f9; padding: 20px; border-radius: 8px;">
+                                            <ul style="list-style: none; padding: 0; margin: 0;">
+                                                <li style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed #ddd;">
+                                                    <span style="font-weight: 600; color: #333;">Subtotal</span>
+                                                    <span class="price" style="font-weight: 600; color: #333;">
+                                                        R$ <span id="subtotal">{{ subtotal|floatformat:2 }}</span>
+                                                    </span>
                                                 </li>
+
+                                                {% for key, value in tax_dict.items %}
+                                                    {% for i, j in value.items %}
+                                                        <li style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed #ddd;">
+                                                            <span style="color: #333;">{{ key }} <small style="color: #666;">({{ i }}%)</small></span>
+                                                            <span class="price" style="color: #333;">
+                                                                R$ <span id="tax-{{ key }}">{{ j|floatformat:2 }}</span>
+                                                            </span>
+                                                        </li>
+                                                    {% endfor %}
                                                 {% endfor %}
-                                            
-                                        </ul>
-                                        
-                                        
-                                        
-                                    </div>
-                                    
-                                    <div>
-                                        <ul>
-                                            <li style="list-style-type: none;">
-                                                Subtotal
-                                                <span class="price float-right">
-                                                    <span class="currency">R$</span>
-                                                    <span id="subtotal">{{ subtotal }}</span>
-                                                </span>
-                                            </li>
 
-                                            {% for key, value in tax_dict.items %}
-                                                {% for i, j in value.items %}
-                                                    <li style="list-style-type: none;">
-                                                        {{ key }} <small>({{ i }}%)</small>
-                                                        <span class="price float-right">
-                                                            <span class="currency">R$</span>
-                                                            <span id="tax-{{ key }}">{{ j }}</span>
-                                                        </span>
-                                                    </li>
-                                                {% endfor %}
-                                            {% endfor %}
+                                                <li style="display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 2px solid #ddd;">
+                                                    <span style="font-weight: 700; color: #333; font-size: 18px;">TOTAL</span>
+                                                    <span class="price" style="font-weight: 700; color: #e74c3c; font-size: 18px;">
+                                                        R$ <span id="total">{{ grand_total|floatformat:2 }}</span>
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>
 
-
-                                            <li style="list-style-type: none; font-weight: 600;">
-                                                TOTAL
-                                                <span class="price float-right">
-                                                    <span class="currency">R$</span>
-                                                    <span id="total">{{ grand_total }}</span>
-                                                </span>
-                                            </li>
-
-                                            <!-- Select payment method -->
-                                            <h5>SELECIONE O MÉTODO DE PAGAMENTO</h5>
-                                            <div class="payment-method">
-                                                <label>
-                                                    <input type="radio" name="payment_method" value="PayPal">
-                                                    <img src="{% static 'images/PayPal.png' %}" alt="PayPal" width="100">
+                                        <!-- Método de Pagamento -->
+                                        <div style="margin-top: 25px;">
+                                            <h5 style="font-weight: 700; color: #333; margin-bottom: 15px; font-size: 16px;">SELECIONE O MÉTODO DE PAGAMENTO <span class="text-danger">*</span></h5>
+                                            <div class="payment-method" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                                                <label style="display: flex; align-items: center; padding: 12px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+                                                    <input type="radio" name="payment_method" value="CASH" required style="margin-right: 10px;">
+                                                    <span style="color: #333;">Dinheiro (Na Entrega)</span>
                                                 </label>
-                                                &emsp;
-                                                <label>
-                                                    <input type="radio" name="payment_method" value="RazorPay">
-                                                    <img src="{% static 'images/razorpay_logo.png' %}" alt="RazorPay" width="100">
+                                                <label style="display: flex; align-items: center; padding: 12px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+                                                    <input type="radio" name="payment_method" value="CREDIT_CARD" required style="margin-right: 10px;">
+                                                    <span style="color: #333;">Cartão de Crédito</span>
+                                                </label>
+                                                <label style="display: flex; align-items: center; padding: 12px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+                                                    <input type="radio" name="payment_method" value="DEBIT_CARD" required style="margin-right: 10px;">
+                                                    <span style="color: #333;">Cartão de Débito</span>
+                                                </label>
+                                                <label style="display: flex; align-items: center; padding: 12px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+                                                    <input type="radio" name="payment_method" value="PIX" required style="margin-right: 10px;">
+                                                    <span style="color: #333;">PIX</span>
                                                 </label>
                                             </div>
-                                            <span class="text-danger" id="payment-method-error"></span>
-                                            <!-- Select payment method -->
+                                            <span class="text-danger" id="payment-method-error" style="display: block; margin-top: 8px; font-size: 13px;"></span>
 
-                                            <button onclick="return payMethodConfirm();" type="submit" class="btn btn-danger w-100 p-2 mt-3">FINALIZAR PEDIDO</button>
-                                        </ul>
-
-
-                                        <!-- end the form -->
-                                    </form>
+                                            <button type="submit" form="checkout-form" class="btn btn-danger w-100" style="margin-top: 25px; padding: 12px; font-weight: 700; font-size: 16px; border-radius: 8px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">FINALIZAR PEDIDO</button>
+                                        </div>
                                     </div>
-                                    
                                 </div>
                             </div>
-                            
                         </div>
                     </div>
                 </div>
-                
             </div>
         </div>
     </div>
 </div>
 <!-- Main Section End -->
+{% endblock %}
 
-
+{% block extra_scripts %}
+{{ block.super }}
+<script src="{% static 'js/checkout_validation.js' %}"></script>
 <script>
-    function payMethodConfirm(){
-        var payMethod = $("input[name='payment_method']:checked").val()
-        if(!payMethod){
-            $('#payment-method-error').html("Selecione um método de pagamento!");
-            return false;
-        }else{
-            var conf = confirm('Você selecionou '+payMethod+' como seu método de pagamento preferido.\nClique em "OK" para continuar.')
-            if(conf == true){
-                return true;
-            }else{
-                return false;
-            }
-        }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Adicionar classe active aos métodos de pagamento quando selecionados
+        const paymentLabels = document.querySelectorAll('.payment-method label');
+        paymentLabels.forEach(label => {
+            label.addEventListener('click', function() {
+                // Remover classe active de todos
+                paymentLabels.forEach(l => l.style.borderColor = '#ddd');
+                // Adicionar classe active ao selecionado
+                this.style.borderColor = '#e74c3c';
+                this.style.backgroundColor = '#fff9f9';
+            });
+        });
         
-    }
-
-    $('input[name=payment_method]').on('change', function(){
-        $('#payment-method-error').html("");
-    })
+        // Validação do formulário
+        const form = document.getElementById('checkout-form');
+        form.addEventListener('submit', function(event) {
+            const paymentMethod = form.querySelector('input[name="payment_method"]:checked');
+            if (!paymentMethod) {
+                event.preventDefault();
+                document.getElementById('payment-method-error').textContent = 'Por favor, selecione um método de pagamento.';
+            }
+        });
+    });
 </script>
-
+<style>
+    /* Estilização para scrollbar */
+    .menu-itam-list ul::-webkit-scrollbar {
+        width: 6px;
+    }
+    .menu-itam-list ul::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    .menu-itam-list ul::-webkit-scrollbar-thumb {
+        background: #ddd;
+        border-radius: 10px;
+    }
+    .menu-itam-list ul::-webkit-scrollbar-thumb:hover {
+        background: #ccc;
+    }
+    
+    /* Efeito hover nos itens do carrinho */
+    #cart-item-{{ item.id }}:hover {
+        background-color: #f5f5f5;
+        transform: translateY(-2px);
+        transition: all 0.2s ease;
+    }
+    
+    /* Efeito hover nos métodos de pagamento */
+    .payment-method label:hover {
+        border-color: #e74c3c;
+        background-color: #fff9f9;
+        transition: all 0.2s ease;
+    }
+    
+    /* Efeito hover no botão de finalizar */
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        transition: all 0.2s ease;
+    }
+</style>
 {% endblock %}

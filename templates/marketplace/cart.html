@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
-{% block content %}
-
+{% block cart_content %}
 <!-- Main Section Start -->
 <div class="main-section pt-5">
     <div class="page-section">
@@ -20,6 +19,10 @@
                                     
                                     <div class="text-center p-5" id="empty-cart" style="display: none;">
                                         <h3>Carrinho vazio</h3>
+                                        <p class="mt-3">Seu carrinho está vazio. Adicione itens para continuar.</p>
+                                        <a href="{% url 'marketplace' %}" class="btn btn-outline-primary mt-3">
+                                            <i class="fa fa-shopping-bag mr-2"></i>Explorar restaurantes
+                                        </a>
                                     </div>
 
                                     <div id="menu-item-list-6272" class="menu-itam-list">
@@ -37,33 +40,38 @@
                                                     <div class="price-holder">
                                                         <span class="price">R${{ item.fooditem.price }}</span>
 
-                                                        <a href="#" class="decrease_cart" data-id="{{ item.fooditem.id }}" id="{{item.id}}" data-url="{% url 'decrease_cart' item.fooditem.id %}" style="margin-right: 28px;"><i class="icon-minus text-color"></i></a>
-                                                        <label id="qty-{{item.fooditem.id}}">0</label>
-                                                        <a href="#" class="add_to_cart" data-id="{{ item.fooditem.id }}" data-url="{% url 'add_to_cart' item.fooditem.id %}"><i class="icon-plus4 text-color"></i></a>
-                                                        <a href="#" class="delete_cart" data-id="{{ item.id }}" data-url="{% url 'delete_cart' item.id %}"><i class="icon-delete text-color"></i></a>
-                                                        
+                                                        <div class="quantity-controls">
+                                                            <a href="#" class="decrease_cart" data-id="{{ item.fooditem.id }}" id="{{item.id}}" data-url="{% url 'decrease_cart' item.fooditem.id %}">
+                                                                <i class="icon-minus text-color"></i>
+                                                            </a>
+                                                            <label id="qty-{{item.fooditem.id}}">0</label>
+                                                            <a href="#" class="add_to_cart" data-id="{{ item.fooditem.id }}" data-url="{% url 'add_to_cart' item.fooditem.id %}">
+                                                                <i class="icon-plus4 text-color"></i>
+                                                            </a>
+                                                            <a href="#" class="delete_cart delete-item" data-id="{{ item.id }}" data-url="{% url 'delete_cart' item.id %}">
+                                                                <i class="icon-delete text-color"></i>
+                                                            </a>
+                                                        </div>
                                                     </div>
                                                 </li>
                                                 {% endfor %}
                                             {% else %}
                                                 <div class="text-center p-5">
                                                     <h3>Carrinho vazio</h3>
+                                                    <p class="mt-3">Seu carrinho está vazio. Adicione itens para continuar.</p>
+                                                    <a href="{% url 'marketplace' %}" class="btn btn-outline-primary mt-3">
+                                                        <i class="fa fa-shopping-bag mr-2"></i>Explorar restaurantes
+                                                    </a>
                                                 </div>
                                             {% endif %}
                                         </ul>
-                                        
-                                        
-                                        
                                     </div>
 
                                     {% for item in cart_items %}
-
                                     <span id="qty-{{item.fooditem.id}}" class="item_qty d-none" data-qty="{{ item.quantity }}">{{ item.quantity }}</span>
-
                                     {% endfor %}
                                 </div>
                             </div>
-                            
                         </div>
                     </div>
                 </div>
@@ -73,13 +81,12 @@
                     <div class="tabs-holder horizontal">
                         <ul class="stickynav-tabs nav nav-tabs">
                             <li class="active"><a data-toggle="tab" href="#home"><i class="icon- icon-room_service"></i>Seu Pedido</a></li>
-                            
                         </ul>
                         <div class="tab-content">
                             <div id="home" class="tab-pane in active">
                                 <div class="menu-itam-holder">
                                     
-                                    <div>
+                                    <div class="order-summary">
                                         <ul>
                                             <li style="list-style-type: none;">
                                                 Subtotal
@@ -101,8 +108,7 @@
                                                 {% endfor %}
                                             {% endfor %}
 
-
-                                            <li style="list-style-type: none; font-weight: 600;">
+                                            <li style="list-style-type: none; font-weight: 600; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ddd;">
                                                 TOTAL
                                                 <span class="price float-right">
                                                     <span class="currency">R$</span>
@@ -110,21 +116,17 @@
                                                 </span>
                                             </li>
 
-                                            <a href="{% url 'checkout' %}" class="btn btn-danger w-100 p-2 mt-3">FINALIZAR COMPRA</a>
+                                            <a href="{% url 'checkout' %}" class="btn btn-danger w-100 p-2 mt-3 checkout-btn">FINALIZAR COMPRA</a>
                                         </ul>
                                     </div>
-                                    
                                 </div>
                             </div>
-                            
                         </div>
                     </div>
                 </div>
-                
             </div>
         </div>
     </div>
 </div>
 <!-- Main Section End -->
-
 {% endblock %}

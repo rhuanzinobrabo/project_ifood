@@ -27,56 +27,56 @@
 
     <style>
         /* Estilos CSS personalizados */
-		@keyframes show-toast {
-    0% {
-        bottom: -100%;
-    }
-    20% {
-        bottom: 100px;
-    }
-    80% {
-        bottom: 100px;
-    }
-    100% {
-        bottom: -100%;
-    }
-}
+        @keyframes show-toast {
+            0% {
+                bottom: -100%;
+            }
+            20% {
+                bottom: 100px;
+            }
+            80% {
+                bottom: 100px;
+            }
+            100% {
+                bottom: -100%;
+            }
+        }
 
-.show-notification {
-    position: fixed;
-    bottom: 100%;
-    right: 20px;
-    animation-name: show-toast;
-    animation-duration: 6s;
-    background-color: #fff;
-    color: #333;
-    padding: 10px 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    font-family: "Montserrat", sans-serif;
-}
+        .show-notification {
+            position: fixed;
+            bottom: 100%;
+            right: 20px;
+            animation-name: show-toast;
+            animation-duration: 6s;
+            background-color: #fff;
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2 );
+            font-family: "Montserrat", sans-serif;
+        }
 
-/* Estilizando o texto dentro da notificação */
-.show-notification p {
-    margin: 0;
-    font-size: 16px;
-    line-height: 1.4;
-}
+        /* Estilizando o texto dentro da notificação */
+        .show-notification p {
+            margin: 0;
+            font-size: 16px;
+            line-height: 1.4;
+        }
 
-/* Estilizando o botão de fechar */
-.show-notification .close-button {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    cursor: pointer;
-    font-size: 20px;
-    color: #666;
-}
+        /* Estilizando o botão de fechar */
+        .show-notification .close-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            cursor: pointer;
+            font-size: 20px;
+            color: #666;
+        }
 
-/* Mudando a cor do botão de fechar quando passa o mouse */
-.show-notification .close-button:hover {
-    color: #333;
-}
+        /* Mudando a cor do botão de fechar quando passa o mouse */
+        .show-notification .close-button:hover {
+            color: #333;
+        }
 
         body,
         .main-section p,
@@ -85,6 +85,174 @@
             letter-spacing: 0px;
             text-transform: none;
             color: #515151 !important;
+        }
+        
+        /* Estilos para o carrinho */
+        .highlight {
+            animation: highlight-animation 0.7s ease;
+        }
+        
+        @keyframes highlight-animation {
+            0% { background-color: transparent; }
+            50% { background-color: rgba(255, 193, 7, 0.3); }
+            100% { background-color: transparent; }
+        }
+        
+        .btn-loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .removing {
+            opacity: 0.5;
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+        
+        .cart-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 9999;
+            color: white;
+            font-weight: 500;
+        }
+        
+        .cart-notification .close-button {
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            cursor: pointer;
+            color: white;
+            opacity: 0.7;
+        }
+        
+        .cart-notification .close-button:hover {
+            opacity: 1;
+        }
+        
+        #cart_counter.highlight {
+            animation: pulse 0.5s ease;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+        
+        .highlight-change {
+            animation: highlight-value 0.7s ease;
+        }
+        
+        @keyframes highlight-value {
+            0% { color: inherit; }
+            50% { color: #28a745; font-weight: bold; }
+            100% { color: inherit; }
+        }
+        
+        .price-decrease {
+            color: #dc3545 !important;
+            transition: color 0.5s ease;
+        }
+        
+        .price-increase {
+            color: #28a745 !important;
+            transition: color 0.5s ease;
+        }
+        
+        /* Melhorias visuais para o carrinho */
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        
+        .quantity-controls a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: #f8f9fa;
+            transition: all 0.2s ease;
+        }
+        
+        .quantity-controls a:hover {
+            background-color: #e9ecef;
+        }
+        
+        .quantity-controls label {
+            margin: 0 8px;
+            min-width: 20px;
+            text-align: center;
+        }
+        
+        .delete-item {
+            margin-left: 10px;
+            color: #dc3545;
+        }
+        
+        .delete-item:hover {
+            color: #c82333;
+        }
+        
+        /* Estilos para validação de formulário */
+        .form-group {
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e" );
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        
+        .form-control.is-valid {
+            border-color: #28a745;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e" );
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        
+        .invalid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 80%;
+            color: #dc3545;
+        }
+        
+        .payment-method {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .payment-method label {
+            cursor: pointer;
+            margin-right: 1rem;
+            padding: 0.5rem;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            transition: all 0.2s ease;
+        }
+        
+        .payment-method label:hover {
+            border-color: #adb5bd;
+        }
+        
+        .payment-method input[type="radio"]:checked + img {
+            border: 2px solid #28a745;
+            box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
         }
     </style>
 </head>
@@ -101,6 +269,15 @@
 
     <!-- CARREGAR O FOOTER AQUI-->
     {% include 'includes/footer.html' %}
+    
+    <!-- Scripts do carrinho -->
+    <script src="{% static 'js/cart_calculations.js' %}"></script>
+    <script src="{% static 'js/cart.js' %}"></script>
+    <script src="{% static 'js/cart_debug.js' %}"></script>
+    <!-- Script de validação do checkout (carregado condicionalmente) -->
+    {% if request.path == '/checkout/' or '/mercado/checkout/' in request.path %}
+    <script src="{% static 'js/checkout_validation.js' %}"></script>
+    {% endif %}
 </body>
 
 </html>

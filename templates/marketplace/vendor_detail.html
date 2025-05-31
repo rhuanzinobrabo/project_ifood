@@ -142,11 +142,11 @@
                                                             
                                                             <div class="cart-controls" style="display: flex; align-items: center;">
                                                                 {% if request.user.is_authenticated %}
-                                                                <a href="#" class="decrease_cart" data-id="{{ food.id }}" style="width: 30px; height: 30px; border-radius: 50%; background-color: #f8f8f8; display: flex; align-items: center; justify-content: center; margin-right: 10px;">
+                                                                <a href="#" class="decrease_cart" data-id="{{ food.id }}" data-url="{% url 'decrease_cart' food.id %}" style="width: 30px; height: 30px; border-radius: 50%; background-color: #f8f8f8; display: flex; align-items: center; justify-content: center; margin-right: 10px;">
                                                                     <i class="icon-minus text-color"></i>
                                                                 </a>
                                                                 <label id="qty-{{food.id}}" style="margin: 0 5px; min-width: 20px; text-align: center;">0</label>
-                                                                <a href="#" class="add_to_cart" data-id="{{ food.id }}" style="width: 30px; height: 30px; border-radius: 50%; background-color: #e74c3c; display: flex; align-items: center; justify-content: center; margin-left: 10px;">
+                                                                <a href="#" class="add_to_cart" data-id="{{ food.id }}" data-url="{% url 'add_cart' food.id %}" style="width: 30px; height: 30px; border-radius: 50%; background-color: #e74c3c; display: flex; align-items: center; justify-content: center; margin-left: 10px;">
                                                                     <i class="icon-plus4" style="color: #fff;"></i>
                                                                 </a>
                                                                 {% else %}
@@ -161,6 +161,13 @@
                                             </div>
                                             {% endfor %}
                                         </div>
+                                        <!-- Adicionar botão de finalizar pedido no carrinho -->
+<div class="cart-controls" style="display: flex; align-items: center; margin-top: 20px; justify-content: flex-end;">
+    <a href="{% url 'checkout' %}" class="btn btn-success" style="padding: 10px 20px; border-radius: 5px; font-weight: bold;">
+        <i class="icon-check"></i> Finalizar Pedido
+    </a>
+</div>
+
                                         {% endfor %}
                                     </div>
                                 </div>
@@ -172,52 +179,99 @@
         </div>
     </div>
 </div>
+
 <!-- Main Section End -->
 
-<!-- Script para rolagem suave até as categorias -->
+<!-- Script para manipulação do carrinho -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const categoryLinks = document.querySelectorAll('.menu-category-link');
-    
-    categoryLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href');
-            const targetElement = document.querySelector(targetId);
-            
-            if (targetElement) {
-                window.scrollTo({
-                    top: targetElement.offsetTop - 100,
-                    behavior: 'smooth'
-                });
+    // Função para obter o token CSRF do cookie
+    function getCSRFToken() {
+        const name = 'csrftoken';
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
             }
-        });
-    });
-});
-</script>
+        }
+        if (!cookieValue) {
+            console.error('Token CSRF não encontrado!');
+        }
+        return cookieValue;
+    }
 
-<!-- Script para verificação de login antes de adicionar ao carrinho -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const addToCartButtons = document.querySelectorAll('.add_to_cart');
-    const decreaseCartButtons = document.querySelectorAll('.decrease_cart');
-    
-    {% if not request.user.is_authenticated %}
-    // Redirecionar para login se não estiver autenticado
-    addToCartButtons.forEach(button => {
+    // Função para enviar requisição AJAX
+    function updateCart(action, foodId, url, callback) {
+        const token = getCSRFToken();
+        if (!token) {
+            alert('Erro: Token CSRF não encontrado. Tente recarregar a página.');
+            return;
+        }
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': token,
+                'X-Requested-With': 'XMLHttpRequest' // Cabeçalho necessário para suas views
+            },
+            body: JSON.stringify({ food_id: foodId })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro na requisição: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'Success') {
+                const qtyLabel = document.getElementById(`qty-${foodId}`);
+                if (qtyLabel) {
+                    qtyLabel.textContent = data.qty;
+                }
+                callback(data);
+            } else if (data.status === 'login_required') {
+                alert(data.message);
+                window.location.href = '{% url "login" %}';
+            } else {
+                alert(data.message || 'Erro ao atualizar o carrinho.');
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Ocorreu um erro: ' + error.message);
+        });
+    }
+
+    // Adicionar ao carrinho
+    const addButtons = document.querySelectorAll('.add_to_cart');
+    addButtons.forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
-            window.location.href = "{% url 'login' %}";
+            const foodId = this.getAttribute('data-id');
+            const url = this.getAttribute('data-url');
+            updateCart('add', foodId, url, function(data) {
+                console.log('Item adicionado ao carrinho:', data);
+            });
         });
     });
-    
-    decreaseCartButtons.forEach(button => {
+
+    // Diminuir do carrinho
+    const decreaseButtons = document.querySelectorAll('.decrease_cart');
+    decreaseButtons.forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
-            window.location.href = "{% url 'login' %}";
+            const foodId = this.getAttribute('data-id');
+            const url = this.getAttribute('data-url');
+            updateCart('decrease', foodId, url, function(data) {
+                console.log('Item removido do carrinho:', data);
+            });
         });
     });
-    {% endif %}
 });
 </script>
 
