@@ -9,8 +9,8 @@ from django.template.defaultfilters import slugify
 from django.urls import reverse # Importar reverse
 
 # Imports locais (do próprio projeto)
-# Assumindo que check_role_vendor e check_role_admin estão corretos em accounts.views
-from accounts.views import check_role_vendor, check_role_admin 
+# Importando check_role_vendor e check_role_admin de accounts.utils
+from accounts.utils import check_role_vendor, check_role_admin 
 from vendor.models import Vendor
 from .models import Category, FoodItem
 from .forms import CategoryForm, FoodItemForm

@@ -45,14 +45,20 @@
                 <a href="{{ dashboard_url }}"><i class="fas fa-tachometer-alt me-2"></i>DASHBOARD</a>
             </li>
             
-            {% url 'restaurant_detail' vendor.id as restaurant_url %}
+            {% url 'restaurant_profile' as restaurant_url %}
             <li class="{% if request.path == restaurant_url %}active{% endif %}">
-                <a href="{{ restaurant_url }}"><i class="fas fa-utensils me-2"></i>MEU RESTAURANTE</a>
+                <a href="{% url 'restaurant_profile' %}"><i class="fas fa-utensils me-2"></i>MEU RESTAURANTE</a>
             </li>
             
             {% url 'food_list' as menu_url %}
             <li class="{% if request.path == menu_url %}active{% endif %}">
                 <a href="{{ menu_url }}"><i class="fas fa-clipboard-list me-2"></i>CARDÁPIO</a>
+            </li>
+            
+            <!-- Item PERFIL removido conforme solicitação do cliente -->
+            
+            <li>
+                <a href="{% url 'logout' %}" class="text-danger"><i class="fas fa-sign-out-alt me-2"></i>SAIR</a>
             </li>
         </ul>
     </div>

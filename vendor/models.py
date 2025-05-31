@@ -46,6 +46,8 @@ class Vendor(models.Model):
                                       help_text="Imagem da licença comercial do restaurante")
     is_approved = models.BooleanField(default=False,
                                      help_text="Indica se o restaurante foi aprovado pelo administrador")
+    is_open = models.BooleanField(default=True,
+                             help_text="Indica se o restaurante está aberto ou fechado")
     created_at = models.DateTimeField(auto_now_add=True,
                                      help_text="Data e hora de criação do registro")
     modified_at = models.DateTimeField(auto_now=True,

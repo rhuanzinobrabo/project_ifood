@@ -77,7 +77,30 @@ def vendor_detail(request, vendor_slug):
     Returns:
         HttpResponse: Renderiza a página de detalhes do restaurante
     """
-    return render(request, 'marketplace/vendor_detail.html')
+    vendor = get_object_or_404(Vendor, vendor_slug=vendor_slug)
+    
+    # Verificar se o restaurante é favorito do usuário
+    is_favorite = False
+    if request.user.is_authenticated:
+        is_favorite = FavoriteRestaurant.objects.filter(user=request.user, vendor=vendor).exists()
+    
+    # Obter categorias e itens do cardápio
+    categories = Category.objects.filter(vendor=vendor)
+    
+    # Organizar itens por categoria
+    menu_items = {}
+    for category in categories:
+        food_items = FoodItem.objects.filter(vendor=vendor, category=category, is_available=True)
+        menu_items[category] = food_items
+    
+    context = {
+        'vendor': vendor,
+        'categories': categories,
+        'menu_items': menu_items,
+        'is_favorite': is_favorite,
+    }
+    
+    return render(request, 'marketplace/vendor_detail.html', context)
 
 
 def add_to_cart(request, food_id):
