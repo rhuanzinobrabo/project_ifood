@@ -8,12 +8,10 @@
     <div class="page-section account-header buyer-logged-in py-4">
         <div class="container">
             <div class="row">
-                <!-- Sidebar -->
                 <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 mb-4">
                     {% include 'includes/v_sidebar.html' %}
                 </div>
 
-                <!-- Conteúdo Principal -->
                 <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
                     <div class="user-dashboard loader-holder bg-white shadow rounded-4 p-4">
                         <div class="user-holder">
@@ -22,15 +20,14 @@
                             <form action="{% url 'restaurant_profile' %}" method="POST" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 
-                                <!-- Status do Restaurante -->
                                 <div class="card mb-4">
                                     <div class="card-header bg-light">
                                         <h5 class="mb-0">Status do Restaurante</h5>
                                     </div>
                                     <div class="card-body">
                                         <div class="form-check form-switch">
-                                            {{ form.is_open }}
-                                            <label class="form-check-label ms-3" for="{{ form.is_open.id_for_label }}">
+                                            {{ vendor_form.is_open }}
+                                            <label class="form-check-label ms-3" for="{{ vendor_form.is_open.id_for_label }}">
                                                 <span class="badge bg-success me-2" id="status-badge-open">Aberto</span>
                                                 <span class="badge bg-danger me-2" id="status-badge-closed">Fechado</span>
                                                 Alterar status do restaurante
@@ -40,7 +37,6 @@
                                     </div>
                                 </div>
                                 
-                                <!-- Informações do Restaurante -->
                                 <div class="card mb-4">
                                     <div class="card-header bg-light">
                                         <h5 class="mb-0">Informações do Restaurante</h5>
@@ -48,42 +44,56 @@
                                     <div class="card-body">
                                         <div class="row mb-3">
                                             <div class="col-md-12">
-                                                {{ form.vendor_name.label_tag }}
-                                                {{ form.vendor_name }}
-                                                {% if form.vendor_name.errors %}
-                                                    <div class="text-danger">{{ form.vendor_name.errors }}</div>
+                                                {{ vendor_form.vendor_name.label_tag }}
+                                                {{ vendor_form.vendor_name }}
+                                                {% if vendor_form.vendor_name.errors %}
+                                                    <div class="text-danger">{{ vendor_form.vendor_name.errors }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-12">
+                                                {{ vendor_form.vendor_license.label_tag }}
+                                                {{ vendor_form.vendor_license }} {% if vendor_form.vendor_license.errors %}
+                                                    <div class="text-danger mt-1">{{ vendor_form.vendor_license.errors }}</div>
+                                                {% endif %}
+                                                {% if vendor.vendor_license and vendor.vendor_license.url %}
+                                                    <div class="mt-2">
+                                                        <a href="{{ vendor.vendor_license.url }}" target="_blank">Visualizar Licença Atual</a>
+                                                    </div>
+                                                {% else %}
+                                                    <small class="form-text text-muted mt-1">Nenhuma licença enviada.</small>
                                                 {% endif %}
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
-                                                {{ form.first_name.label_tag }}
-                                                {{ form.first_name }}
-                                                {% if form.first_name.errors %}
-                                                    <div class="text-danger">{{ form.first_name.errors }}</div>
+                                                {{ user_form.first_name.label_tag }}
+                                                {{ user_form.first_name }}
+                                                {% if user_form.first_name.errors %}
+                                                    <div class="text-danger">{{ user_form.first_name.errors }}</div>
                                                 {% endif %}
                                             </div>
                                             <div class="col-md-6 mb-3">
-                                                {{ form.last_name.label_tag }}
-                                                {{ form.last_name }}
-                                                {% if form.last_name.errors %}
-                                                    <div class="text-danger">{{ form.last_name.errors }}</div>
+                                                {{ user_form.last_name.label_tag }}
+                                                {{ user_form.last_name }}
+                                                {% if user_form.last_name.errors %}
+                                                    <div class="text-danger">{{ user_form.last_name.errors }}</div>
                                                 {% endif %}
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
-                                                {{ form.phone_number.label_tag }}
-                                                {{ form.phone_number }}
-                                                {% if form.phone_number.errors %}
-                                                    <div class="text-danger">{{ form.phone_number.errors }}</div>
+                                                {{ user_form.phone_number.label_tag }}
+                                                {{ user_form.phone_number }}
+                                                {% if user_form.phone_number.errors %}
+                                                    <div class="text-danger">{{ user_form.phone_number.errors }}</div>
                                                 {% endif %}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <!-- Endereço -->
                                 <div class="card mb-4">
                                     <div class="card-header bg-light">
                                         <h5 class="mb-0">Endereço</h5>
@@ -91,51 +101,50 @@
                                     <div class="card-body">
                                         <div class="row mb-3">
                                             <div class="col-md-12">
-                                                {{ form.address_line_1.label_tag }}
-                                                {{ form.address_line_1 }}
-                                                {% if form.address_line_1.errors %}
-                                                    <div class="text-danger">{{ form.address_line_1.errors }}</div>
+                                                {{ profile_form.address_line_1.label_tag }}
+                                                {{ profile_form.address_line_1 }}
+                                                {% if profile_form.address_line_1.errors %}
+                                                    <div class="text-danger">{{ profile_form.address_line_1.errors }}</div>
                                                 {% endif %}
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-4 mb-3">
-                                                {{ form.country.label_tag }}
-                                                {{ form.country }}
-                                                {% if form.country.errors %}
-                                                    <div class="text-danger">{{ form.country.errors }}</div>
+                                                {{ profile_form.country.label_tag }}
+                                                {{ profile_form.country }}
+                                                {% if profile_form.country.errors %}
+                                                    <div class="text-danger">{{ profile_form.country.errors }}</div>
                                                 {% endif %}
                                             </div>
                                             <div class="col-md-4 mb-3">
-                                                {{ form.state.label_tag }}
-                                                {{ form.state }}
-                                                {% if form.state.errors %}
-                                                    <div class="text-danger">{{ form.state.errors }}</div>
+                                                {{ profile_form.state.label_tag }}
+                                                {{ profile_form.state }}
+                                                {% if profile_form.state.errors %}
+                                                    <div class="text-danger">{{ profile_form.state.errors }}</div>
                                                 {% endif %}
                                             </div>
                                             <div class="col-md-4 mb-3">
-                                                {{ form.city.label_tag }}
-                                                {{ form.city }}
-                                                {% if form.city.errors %}
-                                                    <div class="text-danger">{{ form.city.errors }}</div>
+                                                {{ profile_form.city.label_tag }}
+                                                {{ profile_form.city }}
+                                                {% if profile_form.city.errors %}
+                                                    <div class="text-danger">{{ profile_form.city.errors }}</div>
                                                 {% endif %}
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-4 mb-3">
-                                                {{ form.pin_code.label_tag }}
-                                                {{ form.pin_code }}
-                                                {% if form.pin_code.errors %}
-                                                    <div class="text-danger">{{ form.pin_code.errors }}</div>
+                                                {{ profile_form.pin_code.label_tag }}
+                                                {{ profile_form.pin_code }}
+                                                {% if profile_form.pin_code.errors %}
+                                                    <div class="text-danger">{{ profile_form.pin_code.errors }}</div>
                                                 {% endif %}
                                             </div>
                                         </div>
-                                        {{ form.latitude }}
-                                        {{ form.longitude }}
+                                        {{ profile_form.latitude }}
+                                        {{ profile_form.longitude }}
                                     </div>
                                 </div>
                                 
-                                <!-- Imagens -->
                                 <div class="card mb-4">
                                     <div class="card-header bg-light">
                                         <h5 class="mb-0">Imagens</h5>
@@ -143,30 +152,45 @@
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
-                                                <label for="{{ form.profile_picture.id_for_label }}">Foto do Restaurante</label>
-                                                <div class="d-flex align-items-center mb-2">
-                                                    {% if vendor.profile_picture %}
-                                                        <img src="{{ vendor.profile_picture.url }}" alt="Foto atual" class="img-thumbnail me-3" style="max-width: 100px;">
+                                                <div class="form-group"> {{ profile_form.profile_picture.label_tag }}
+                                                    
+                                                    {% if profile.profile_picture and profile.profile_picture.url %}
+                                                        <div class="my-2">
+                                                            <img src="{{ profile.profile_picture.url }}" alt="Foto de Perfil Atual" class="img-thumbnail" style="max-width: 150px; max-height: 150px; display: block;">
+                                                            <small class="form-text text-muted">Visualização da foto de perfil atual.</small>
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="my-2">
+                                                            <small class="form-text text-muted">Nenhuma foto de perfil enviada.</small>
+                                                        </div>
                                                     {% endif %}
-                                                    {{ form.profile_picture }}
-                                                    {% if form.profile_picture.errors %}
-                                                        <div class="text-danger">{{ form.profile_picture.errors }}</div>
+
+                                                    {{ profile_form.profile_picture }} {% if profile_form.profile_picture.errors %}
+                                                        <div class="text-danger mt-1">{{ profile_form.profile_picture.errors|striptags }}</div>
                                                     {% endif %}
+                                                    <small class="form-text text-muted">Para alterar, selecione uma nova imagem.</small>
                                                 </div>
-                                                <small class="text-muted">Imagem principal do seu restaurante (logo ou fachada)</small>
                                             </div>
+
                                             <div class="col-md-6 mb-3">
-                                                <label for="{{ form.cover_photo.id_for_label }}">Foto de Capa</label>
-                                                <div class="d-flex align-items-center mb-2">
-                                                    {% if vendor.cover_photo %}
-                                                        <img src="{{ vendor.cover_photo.url }}" alt="Capa atual" class="img-thumbnail me-3" style="max-width: 100px;">
+                                                <div class="form-group"> {{ profile_form.cover_photo.label_tag }}
+
+                                                    {% if profile.cover_photo and profile.cover_photo.url %}
+                                                        <div class="my-2">
+                                                            <img src="{{ profile.cover_photo.url }}" alt="Foto de Capa Atual" class="img-thumbnail" style="max-width: 200px; max-height: 150px; display: block;">
+                                                            <small class="form-text text-muted">Visualização da foto de capa atual.</small>
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="my-2">
+                                                            <small class="form-text text-muted">Nenhuma foto de capa enviada.</small>
+                                                        </div>
                                                     {% endif %}
-                                                    {{ form.cover_photo }}
-                                                    {% if form.cover_photo.errors %}
-                                                        <div class="text-danger">{{ form.cover_photo.errors }}</div>
+                                                    
+                                                    {{ profile_form.cover_photo }} {% if profile_form.cover_photo.errors %}
+                                                        <div class="text-danger mt-1">{{ profile_form.cover_photo.errors|striptags }}</div>
                                                     {% endif %}
+                                                    <small class="form-text text-muted">Para alterar, selecione uma nova imagem.</small>
                                                 </div>
-                                                <small class="text-muted">Imagem de fundo para a página do seu restaurante</small>
                                             </div>
                                         </div>
                                     </div>
@@ -178,64 +202,6 @@
                                     </button>
                                 </div>
                             </form>
-
-                            <!-- Painel de Estatísticas (mantido como no vendorDashboard) -->
-                            <div class="mt-5">
-                                <h5 class="mb-4">Estatísticas do Restaurante</h5>
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="card bg-primary text-white text-center p-3" style="border-radius: 8px;">
-                                            <h6>Total de Pedidos</h6>
-                                            <h3>{{ total_pedidos }}</h3>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="card bg-success text-white text-center p-3" style="border-radius: 8px;">
-                                            <h6>Total Vendido</h6>
-                                            <h3>R$ {{ total_vendido|floatformat:2 }}</h3>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="card bg-info text-white text-center p-3" style="border-radius: 8px;">
-                                            <h6>Vendas do Mês</h6>
-                                            <h3>R$ {{ vendas_mes|floatformat:2 }}</h3>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-4">
-                                <h5>Pedidos Recentes</h5>
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Data</th>
-                                            <th>Valor Total</th>
-                                            <th>Taxas</th>
-                                            <th>Recebido</th>
-                                            <th>Status</th>
-                                            <th>Ações</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for order in pedidos_recentes %}
-                                            <tr>
-                                                <td>#{{ order.order_number }}</td>
-                                                <td>{{ order.created_at|date:"d/m/Y" }}</td>
-                                                <td>R$ {{ order.order_total|floatformat:2 }}</td>
-                                                <td>R$ {{ order.tax|default:"0.00"|floatformat:2 }}</td>
-                                                <td>R$ {{ order.order_total|floatformat:2 }}</td>
-                                                <td>{{ order.status }}</td>
-                                                <td><a href="{% url 'order_detail' order.order_number %}" class="btn btn-primary btn-sm">Detalhes</a></td>
-                                            </tr>
-                                        {% empty %}
-                                            <tr>
-                                                <td colspan="7" class="text-center">Nenhum pedido recente.</td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -246,18 +212,22 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Função para atualizar a visibilidade dos badges de status
         function updateStatusBadges() {
-            const isOpen = document.getElementById('{{ form.is_open.id_for_label }}').checked;
-            document.getElementById('status-badge-open').style.display = isOpen ? 'inline-block' : 'none';
-            document.getElementById('status-badge-closed').style.display = isOpen ? 'none' : 'inline-block';
+            const isOpenInput = document.getElementById('{{ vendor_form.is_open.id_for_label }}');
+            if (isOpenInput) { // Check if element exists
+                const isOpen = isOpenInput.checked;
+                const openBadge = document.getElementById('status-badge-open');
+                const closedBadge = document.getElementById('status-badge-closed');
+                if (openBadge) openBadge.style.display = isOpen ? 'inline-block' : 'none';
+                if (closedBadge) closedBadge.style.display = isOpen ? 'none' : 'inline-block';
+            }
         }
-        
-        // Inicializar badges
-        updateStatusBadges();
-        
-        // Atualizar badges quando o status mudar
-        document.getElementById('{{ form.is_open.id_for_label }}').addEventListener('change', updateStatusBadges);
+        updateStatusBadges(); // Initial call
+
+        const isOpenToggle = document.getElementById('{{ vendor_form.is_open.id_for_label }}');
+        if (isOpenToggle) {
+            isOpenToggle.addEventListener('change', updateStatusBadges);
+        }
     });
 </script>
 {% endblock %}

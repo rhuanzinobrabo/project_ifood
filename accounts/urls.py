@@ -5,6 +5,7 @@ urlpatterns = [
     path('', views.myAccount, name='myAccount'),
     path('request-otp/', views.request_otp, name='request_otp'),
     path('verify-otp/', views.verify_otp, name='verify_otp'),
+    path('activate/<uidb64>/<token>/', views.activate, name='activate'),
     path('criarUsuario/', views.registerUser, name='registerUser'),
     path('criarRestaurante/', views.registerVendor, name='registerVendor'),
     path('login/', views.login, name='login'),
